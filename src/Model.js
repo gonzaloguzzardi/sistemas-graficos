@@ -5,10 +5,10 @@ Represents an object that can be drawn using webGL
 
 ****************************************/
 
-var Geometry = function() {
+var Model = function() {
 
-	if(this.constructor == Geometry){
-		throw new Error("Geometry is an abstract class, it cannot be instanced.");
+	if(this.constructor == Model){
+		throw new Error("Model is an abstract class, it cannot be instanced.");
 	}
 
 	this.draw_mode = gl.TRIANGLE_STRIP; //use Triangle Strip by default
@@ -39,15 +39,13 @@ var Geometry = function() {
 	// Model Matrux
 	this.model_matrix = mat4.create();
 	
-	// Shader properties
-
 }
 
-Geometry.prototype = {
+Model.prototype = {
 
-	constructor: Geometry,
+	constructor: Model,
 
-	clone: function(geom){
+	clone: function(model){
 
 		var clon = new this.constructor();
 		clon.position_buffer = this.position_buffer.slice(0);
@@ -72,9 +70,9 @@ Geometry.prototype = {
 		mat4.multiply(this.model_matrix, matrix, this.model_matrix);
 	},
 
-	addChild: function(geom) 
+	addChild: function(model) 
 	{
-		this.childs.push(geom);
+		this.childs.push(model);
 	},
 	
 	getCenter: function(modelMatrix) 
@@ -201,6 +199,19 @@ Geometry.prototype = {
 			}
 		}
 	},
+
+	setUpLighting: function(glProgram, lightPosition, ambientColor, diffuseColor)
+	{
+            // Configuración de la luz
+            // Se inicializan las variables asociadas con la Iluminación
+            var lighting;
+            lighting = true;
+            gl.uniform1i(glProgram.useLightingUniform, lighting);       
+
+            gl.uniform3fv(glProgram.lightingDirectionUniform, lightPosition);
+            gl.uniform3fv(glProgram.ambientColorUniform, ambientColor );
+            gl.uniform3fv(glProgram.directionalColorUniform, diffuseColor);
+	},
 	
 	setColor: function(color)
 	{
@@ -227,12 +238,12 @@ Geometry.prototype = {
 		this.webgl_color_buffer.itemSize = 3;
         this.webgl_color_buffer.numItems = this.color_buffer.length / 3;
 
-        // Textures
-        this.webgl_texture_coord_buffer = gl.createBuffer();
+        // Textures coords
+        /*this.webgl_texture_coord_buffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.webgl_texture_coord_buffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.texture_coord_buffer), gl.STATIC_DRAW);
         this.webgl_texture_coord_buffer.itemSize = 3;
-        this.webgl_texture_coord_buffer.numItems = this.texture_coord_buffer.length / 3;
+        this.webgl_texture_coord_buffer.numItems = this.texture_coord_buffer.length / 3;*/
 
 		// Index Buffer
 		this.webgl_index_buffer = gl.createBuffer();
@@ -249,7 +260,7 @@ Geometry.prototype = {
         this.webgl_normals_buffer.numItems = this.normals_buffer.length / 3;
 
 		// Tangent
-		if(this.tangent_buffer != null)
+		/*if(this.tangent_buffer != null)
 		{
 			this.webgl_tangent_buffer = gl.createBuffer();
 			gl.bindBuffer(gl.ARRAY_BUFFER, this.webgl_tangent_buffer);
@@ -266,13 +277,17 @@ Geometry.prototype = {
 			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.binormal_buffer), gl.STATIC_DRAW);
 			this.webgl_binormal_buffer.itemSize = 3;
         	this.webgl_binormal_buffer.numItems = this.binormal_buffer.length / 3;
-		}
+		}*/
 	},
 
 	// draw vertexGrid applying his parent transformations
-	draw: function(parentMatrix)
+	draw: function(parentMatrix, glProgram)
 	{
-		
+		gl.useProgram(glProgram);
+
+        gl.uniformMatrix4fv(shaderProgramColoredObject.pMatrixUniform, false, pMatrix);
+        gl.uniformMatrix4fv(shaderProgramColoredObject.ViewMatrixUniform, false, CameraMatrix); 
+
 		// Bind Position Buffer
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.webgl_position_buffer);
 		gl.vertexAttribPointer(glProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
@@ -282,8 +297,8 @@ Geometry.prototype = {
 		gl.vertexAttribPointer(glProgram.vertexColorAttribute, 3, gl.FLOAT, false, 0, 0);
 
 		// Bind Textures Coords
-		gl.bindBuffer(gl.ARRAY_BUFFER, this.webgl_texture_coord_buffer);
-        gl.vertexAttribPointer(glProgram.textureCoordAttribute, this.webgl_texture_coord_buffer.itemSize, gl.FLOAT, false, 0, 0);
+		/*gl.bindBuffer(gl.ARRAY_BUFFER, this.webgl_texture_coord_buffer);
+        gl.vertexAttribPointer(glProgram.textureCoordAttribute, this.webgl_texture_coord_buffer.itemSize, gl.FLOAT, false, 0, 0);*/
 
         //Bind Normal Buffers
    		gl.bindBuffer(gl.ARRAY_BUFFER, this.webgl_normals_buffer);
@@ -302,7 +317,7 @@ Geometry.prototype = {
 
 		
 		//Tangent Buffer
-		if(this.webgl_tangent_buffer != null)
+		/*if(this.webgl_tangent_buffer != null)
 		{
 			gl.bindBuffer(gl.ARRAY_BUFFER, this.webgl_tangent_buffer);
 			gl.vertexAttribPointer(glProgram.vertexTangentAttribute, 3, gl.FLOAT, false, 0, 0);
@@ -313,15 +328,15 @@ Geometry.prototype = {
 		{
 			gl.bindBuffer(gl.ARRAY_BUFFER, this.webgl_binormal_buffer);
 			gl.vertexAttribPointer(glProgram.vertexBinormalAttribute, 3, gl.FLOAT, false, 0, 0);
-		}
+		}*/
 
 		//Bind Index Buffer
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.webgl_index_buffer);
 
-		// Draw Geometry
+		// Draw Model
 		gl.drawElements(this.draw_mode, this.index_buffer.length, gl.UNSIGNED_SHORT, 0);
 		
-		// draw child Geometry
+		// draw child Models
 		for(var i = 0; i < this.childs.length; i+=1)
 		{
 			this.childs[i].draw(model_matrix_final);
