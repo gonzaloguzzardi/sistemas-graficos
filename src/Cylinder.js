@@ -113,9 +113,9 @@ Cylinder.prototype.createCilinderGrid = function(){
 		this.position_buffer.push(0);
 		this.position_buffer.push(this.rows - 1 - (this.rows - 1) / 2);
 		
-		this.color_buffer.push(1.0);
+		this.color_buffer.push(0.5);
 		this.color_buffer.push(0.2);
-		this.color_buffer.push(1.0);
+		this.color_buffer.push(0.3);
 		
 		this.normals_buffer.push(0);
 		this.normals_buffer.push(0);
