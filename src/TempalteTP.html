@@ -7,7 +7,12 @@
 
 <script src="webgl-debug.js"></script>
 <script type="text/javascript" src="Model.js"></script>
+
+<script type="text/javascript" src="SweptSurface.js"></script>
+<script type="text/javascript" src="Polygon.js"></script>
+<script type="text/javascript" src="Tensor.js"></script>
 <script type="text/javascript" src="Curve.js"></script>
+<script type="text/javascript" src="BSplineCurve.js"></script>
 <script type="text/javascript" src="BezierCurve.js"></script>
 <script type="text/javascript" src="Plane.js"></script>
 <script type="text/javascript" src="Cylinder.js"></script>
@@ -282,6 +287,8 @@
     var cylinder = null;
     var plane = null;
     var bezierCurve = null;
+    var bSplineCurve = null;
+    var tensor = null;
 
     var deimosRotationMatrix = mat4.create();
     mat4.identity(deimosRotationMatrix);
@@ -339,6 +346,9 @@
         cylinder = new Cylinder(50, 50);
         plane = new Plane(100, 100);
         bezierCurve = new BezierCurve([ [0.0,-10.0,0], [5.0,0.0,0], [0.0,5.0,0], [0.0,25.0,0] ]);
+        bSplineCurve = new BSplineCurve([ [0.0,-10.0,0], [5.0,0.0,0], [0.0,5.0,0], [0.0,25.0,0] ]);
+         var curvepath = new BSplineCurve([[1,1,0],[1,1,0],[1,1,0],[15.0,0.0,0.0],[15.0,0.9,0.4],[20.0,0.5,5.0],[18.0,1.5, 5.0],[20.0,6,2],[17,07,1],[18.0, 1.2,1.4],[16,0.4,0.5],[25.0,0.5,0.4],[25.0,0.5,0.4],[25.0,0.5,0.4]]);
+        tensor = new Tensor(curvepath, 0.1);
         
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.enable(gl.DEPTH_TEST);
@@ -367,7 +377,14 @@
 
         gl.useProgram(shaderProgramColoredObject);
 
-        bezierCurve.draw(bezierCurve.model_matrix, shaderProgramColoredObject);
+        //bezierCurve.draw(bezierCurve.model_matrix, shaderProgramColoredObject);
+       // bSplineCurve.draw(bSplineCurve.model_matrix, shaderProgramColoredObject);
+
+         //////////////////  Tensor //////////////////////////////////////
+
+         var m_tensor = mat4.create();
+         mat4.scale(m_tensor, m_tensor, [8.0, 8.0, 8.0]);
+        tensor.draw(m_tensor, shaderProgramColoredObject);
         
         //////////////////  Terrain Plane //////////////////////////////////////
 
