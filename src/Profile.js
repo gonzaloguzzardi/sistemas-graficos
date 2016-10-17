@@ -77,8 +77,8 @@ Profile.prototype = {
 		for (var u = curve.minU ; u <= curve.maxU; u += step)
 		{
 			normal = vec3.create();
-			point = curve.CubicCurve(u);
-			tangent = curve.firstDerivFromCubicCurve(u);
+			point = curve.pointFromCurve(u);
+			tangent = curve.firstDerivFromCurve(u);
 
 			vec3.cross(normal,tangent,axisZ);
 			points.push(point);

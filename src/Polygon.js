@@ -1,6 +1,6 @@
 /****************************************
 Polygon
-Used for Swept Surfaces
+Used for Swept Surfaces.
 Polygons are by default on the xy plane
 ****************************************/
 
@@ -125,11 +125,11 @@ Polygon.prototype = {
 		for (var u = curve.minU ; u <= curve.maxU; u += step)
 		{
 			var normal = vec3.create();
-			point = curve.CubicCurve(u);
+			point = curve.pointFromCurve(u);
 			x += point[0];
 			y += point[1];
 			z += point[2];
-			tangent = curve.firstDerivFromCubicCurve(u);
+			tangent = curve.firstDerivFromCurve(u);
 			vec3.cross(normal, tangent, axisZ);
 			points.push(point);
 			tangents.push(tangent);

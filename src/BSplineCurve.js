@@ -1,5 +1,5 @@
 /****************************************
-BSpline Curve
+Cubic BSpline Curve
 ****************************************/
 
 var BSplineCurve = function(points)

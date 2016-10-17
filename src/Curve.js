@@ -2,7 +2,7 @@
 Abstract Class for Curves
 ****************************************/
 
-var Curve = function() 
+var Curve = function(points) 
 {
 	if(this.constructor == Curve)
 	{
@@ -67,7 +67,9 @@ Curve.prototype.setControlPoints = function(points)
 	this.sections = s;
 }
 
-Curve.prototype.CubicCurve = function(u)
+
+Curve.prototype.pointFromCurve = function(u)
+//Cubic curve by default
 //u must exist between 0 and maxU
 {
 	var uLocal = u % 1;
@@ -88,8 +90,9 @@ Curve.prototype.CubicCurve = function(u)
 	return point;
 }
 
-Curve.prototype.firstDerivFromCubicCurve = function(u)
+Curve.prototype.firstDerivFromCurve = function(u)
 {
+	//Cubic curve by default
 	var uLocal = u % 1;
 	var section = Math.floor(u) + 1;
 	var i = this.getInitialIndexSection(section);
@@ -121,7 +124,7 @@ Curve.prototype.createGrid = function()
 	for (col = 0; col < this.cols; col++)
 	{
 		//Position
-		var point = this.CubicCurve(u);
+		var point = this.pointFromCurve(u);
 		this.position_buffer.push(point[0]);
 		this.position_buffer.push(point[1]);
 		this.position_buffer.push(point[2]);
@@ -132,7 +135,7 @@ Curve.prototype.createGrid = function()
 		this.color_buffer.push(0.5);
 
 		//Tangent
-		var derivedPoint = this.firstDerivFromCubicCurve(u);
+		var derivedPoint = this.firstDerivFromCurve(u);
 		this.tangent_buffer.push(derivedPoint[0]);
 		this.tangent_buffer.push(derivedPoint[1]);
 		this.tangent_buffer.push(derivedPoint[2]);
