@@ -6,18 +6,25 @@
 <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
 
 <script src="webgl-debug.js"></script>
-<script type="text/javascript" src="Model.js"></script>
+<script type="text/javascript" src="gl-matrix.js"></script>
+<script type="text/javascript" src="webgl-utils.js"></script>
 
-<script type="text/javascript" src="SweptSurface.js"></script>
+<script type="text/javascript" src="Model.js"></script>
 <script type="text/javascript" src="Polygon.js"></script>
-<script type="text/javascript" src="Tensor.js"></script>
+<script type="text/javascript" src="Profile.js"></script>
 <script type="text/javascript" src="Curve.js"></script>
 <script type="text/javascript" src="BSplineCurve.js"></script>
 <script type="text/javascript" src="BezierCurve.js"></script>
+<script type="text/javascript" src="RevolutionSurface.js"></script>
+<script type="text/javascript" src="SweptSurface.js"></script>
+
+
+<script type="text/javascript" src="Tensor.js"></script>
 <script type="text/javascript" src="Plane.js"></script>
 <script type="text/javascript" src="Cylinder.js"></script>
-<script type="text/javascript" src="gl-matrix.js"></script>
-<script type="text/javascript" src="webgl-utils.js"></script>
+<script type="text/javascript" src="TreeTop.js"></script>
+
+
 
 <script id="shader-fs-colored-obj" type="x-shader/x-fragment">
     precision mediump float;
@@ -289,6 +296,7 @@
     var bezierCurve = null;
     var bSplineCurve = null;
     var tensor = null;
+    var treeTop = null;
 
     var deimosRotationMatrix = mat4.create();
     mat4.identity(deimosRotationMatrix);
@@ -343,6 +351,7 @@
         mat4.multiply(CameraMatrix, CameraMatrix, matriz_camara);
         ///////////////////////////////////////////////////////////////////////////////
 
+        treeTop = new TreeTop(0.1);
         cylinder = new Cylinder(50, 50);
         plane = new Plane(100, 100);
         bezierCurve = new BezierCurve([ [0.0,-10.0,0], [5.0,0.0,0], [0.0,5.0,0], [0.0,25.0,0] ]);
@@ -365,9 +374,10 @@
 		
 		// Se habilita el color de borrado para la pantalla (Color Buffer) y otros buffers
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        gl.clearColor(0, 0, 0, 0);
 
 		// Se configura la matriz de proyección
-        mat4.perspective(pMatrix, 3.14/12.0, gl.viewportWidth / gl.viewportHeight, 0.1, 1000.0);
+        mat4.perspective(pMatrix, 3.14 / 12.0, gl.viewportWidth / gl.viewportHeight, 0.1, 1000.0);
 
         /////////////////////////////////////////////////////
         // Configuración de la luz
@@ -382,8 +392,9 @@
 
          //////////////////  Tensor //////////////////////////////////////
 
+         treeTop.draw(treeTop.model_matrix, shaderProgramColoredObject);
          var m_tensor = mat4.create();
-         mat4.scale(m_tensor, m_tensor, [8.0, 8.0, 8.0]);
+         mat4.scale(m_tensor, m_tensor, vec3.fromValues(5.0, 5.0, 5.0));
         tensor.draw(m_tensor, shaderProgramColoredObject);
         
         //////////////////  Terrain Plane //////////////////////////////////////
@@ -392,8 +403,8 @@
         plane.setColor(vec3.fromValues(0.0,1.0,0.0));
 
         var m_plane = mat4.create();
-
-        plane.draw(plane.model_matrix, shaderProgramColoredObject);
+        mat4.scale(m_plane, m_plane, vec3.fromValues(2.0, 1.0, 2.0));
+        plane.draw(m_plane, shaderProgramColoredObject);
 
         //////////////////  Cylinder //////////////////////////////////////
 

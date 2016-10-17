@@ -1,7 +1,11 @@
 /****************************************
 Swept Surface
 Abstract Class
-Depends on Polygon class (Polygon.js)
+
+Dependencies:
+- Model.js
+- Polygon.js
+
 ****************************************/
 
 var SweptSurface = function(polygon, pathPoints, pathBases) 

@@ -1,5 +1,6 @@
 /****************************************
 Polygon
+Used for Swept Surfaces
 Polygons are by default on the xy plane
 ****************************************/
 
