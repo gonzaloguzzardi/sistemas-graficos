@@ -1,0 +1,14 @@
+canvas {
+
+
+  display: block;
+  float: left;
+}
+
+.container {
+
+  border: none;
+
+  /* make sure we contain the floats */
+  overflow: auto;
+}

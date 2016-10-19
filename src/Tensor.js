@@ -11,7 +11,7 @@ Dependencies:
 var Tensor = function(curve, step) 
 {
 	var polygon = new Polygon();
-	var circle = new BSplineCurve([[-0.1,0,0],[-0.1,0.1,0],[0.1,0.1,0.1],[0.1,0,0.1],[0.1,-0.1,0],[-0.1,-0.1,0.1],[-0.1,0.05,0.1]]);
+	var circle = new BezierCurve([[-0.1,0,0],[-0.1,0.1,0],[0.1,0.1,0.1],[0.1,0,0.1],[0.1,-0.1,0],[-0.1,-0.1,0.1],[-0.1,0.05,0.1]]);
 
 	var circleStep = 0.05;
 	polygon.generateCurve(circle, circleStep);

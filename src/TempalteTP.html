@@ -4,7 +4,9 @@
 <head>
 <title>TP Sistemas Gráficos - Gonzalo Guzzardi</title>
 <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+<link rel="stylesheet" href="mainStyle.css">
 
+<script type="text/javascript" src="dat.gui.min.js"></script>
 <script src="webgl-debug.js"></script>
 <script type="text/javascript" src="gl-matrix.js"></script>
 <script type="text/javascript" src="webgl-utils.js"></script>
@@ -14,7 +16,6 @@
 <script type="text/javascript" src="Profile.js"></script>
 <script type="text/javascript" src="Curve.js"></script>
 <script type="text/javascript" src="BSplineCurve.js"></script>
-<script type="text/javascript" src="SharpCurve.js"></script>
 <script type="text/javascript" src="BSplineCurve2.js"></script>
 <script type="text/javascript" src="BezierCurve.js"></script>
 <script type="text/javascript" src="RevolutionSurface.js"></script>
@@ -162,6 +163,9 @@
     pwgl.listOfPressedKeys = [];
     var canvas;
 
+    var canvasRiver;
+    var riverPathPoints = [];
+
     // Variables para Eventos mouse
     var mouseDown = false;
     var lastMouseX = null;
@@ -169,6 +173,17 @@
 
     //Shaders Programs
     var shaderProgramColoredObject;
+
+    function initRiverCanvas()
+    {
+        canvasRiver = document.getElementById("canvas-river");
+        var context2d = canvasRiver.getContext("2d");
+        context2d.fillStyle = "grey";
+        context2d.fillRect(0,0,250,250);
+
+        canvasRiver.addEventListener('click', handleRiverCanvasMouseDown, false);
+
+    }
 
     function initGL(canvas) 
     {
@@ -328,6 +343,8 @@
 
     function webGLStart() 
     {
+        initRiverCanvas();
+
         var canvas = document.getElementById("canvas-tp");
         document.addEventListener('keydown', handleKeyDown, false);
         document.addEventListener('keyup', handleKeyUp, false);
@@ -336,6 +353,8 @@
         document.addEventListener('mousedown', handleMouseDown, false);
         document.addEventListener('mouseup', handleMouseUp, false);
         document.addEventListener('mousewheel', handleMouseWheel, false);
+
+        GUI();
   
         initGL(canvas);
         initShaders();
@@ -530,26 +549,96 @@
         mat4.identity(CameraMatrix);
         mat4.lookAt(CameraMatrix, eye_point, lookat_point, vec_up);
         gl.uniformMatrix4fv(view_matrix, false, CameraMatrix);
-
-
     }
+
+    function handleRiverCanvasMouseDown(event) 
+    {
+        if (canvasRiver == null){
+            return;
+        }
+
+        var x;
+        var y;
+        var rect = canvasRiver.getBoundingClientRect();
+        x = event.clientX - rect.left,
+        y = event.clientY - rect.top
+
+        var point = [x, y, 0.0];
+        riverPathPoints.push(point);
+        //alert("Clicked: " + x + " , " + y);
+    }
+
+    //////////////////////////////////////////////////////////GUI//////////////////////////////////////////////
+var app={
+    alturaMaxima:10,
+    reiniciar:function(){
+        alert("apreto reiniciar");
+    },
+    detener:function(){
+        alert("apreto detener");
+    },
+    modo:"random",
+    ancho:0,
+    umbral:100
+        
+};
+
+
+function GUI (){
+
+
+        var gui = new dat.GUI();
+        //gui.remember(gof);
+
+        
+        var f1 = gui.addFolder('Comandos');     
+        f1.add(app, 'reiniciar').name("Reiniciar");
+        f1.add(app, 'detener').name("detener");         
+        f1.open();
+
+        var f2 = gui.addFolder('Parametros generales');     
+        
+        f2.add(app, 'alturaMaxima', 1.0, 60.0).name("altura maxima").step(1);
+        f2.add(app, 'ancho',4,25).name("Ancho");
+
+        f2.add(app, 'modo',["random","secuencial"]).name("modo");
+
+    
+        var f3 = gui.addFolder('Parametros Especiales ');               
+        f3.add(app,'umbral',0.0,1.0).name("umbral");
+        
+
+
+        f1.open();
+        f2.open();
+        f3.open();
+};
 
 
 </script>
 
 
+
 </head>
 
 
+
 <body onload="webGLStart();">
-    <center>
+    <div class="container">
             <h1>Sistemas Gráficos - 66.71</h1>
-            <h2>Framework Trabajo Pr&aacute;ctico 2016</h2>
-            <canvas id="canvas-tp" style="border: none;" width="1280" height="720">
+            <canvas id="canvas-tp" style="border: none;" width="1280" height="800 ">
+
             Your browser does not support the HTML5 canvas element.
-            </scanvas>
-            
-        </center>
+            </canvas>  
+
+            <h3 align="right">River Path</h3>
+            <canvas id="canvas-river" 
+            style="border: none";
+            width="250" height="250">
+            Your browser does not support the HTML5 canvas element.
+            </canvas>  
+    </div>
+
     <br/>
 
  </body>
