@@ -1,12 +1,13 @@
 canvas {
-
+  /* for display purposes */
+  border: 1px solid black;
 
   display: block;
   float: left;
 }
 
 .container {
-
+  /* for display purposes */
   border: none;
 
   /* make sure we contain the floats */

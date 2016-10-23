@@ -1,5 +1,7 @@
 /****************************************
 Abstract Class for Curves
+
+section = segment
 ****************************************/
 
 var Curve = function(points) 

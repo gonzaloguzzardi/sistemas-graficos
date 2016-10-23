@@ -1,23 +1,19 @@
 /****************************************
-Tensor
+Tower Base
 
 Dependencies:
 -SweptSurface.js
--Polygon.js
+-TowerShape.js
 -BezierCurve.js
 -BSplineCurve.js
 ****************************************/
 
-var Tensor = function(curve, step) 
+var TowerBase = function(step) 
 {
-	var polygon = new Polygon();
-	var circle = new BezierCurve([[-0.1,0,0],[-0.1,0.1,0],[0.1,0.1,0.1],[0.1,0,0.1],[0.1,-0.1,0],[-0.1,-0.1,0.1],[-0.1,0.05,0.1]]);
+	var shapeStep = 0.05;
+	var polygon = new TowerShape(shapeStep);
 
-	var circleStep = 0.05;
-	polygon.generateFromCurve(circle, circleStep);
-
-	var curvePath = curve;
-	//var curvePath = new BSplineCurve([[1,1,0],[1,1,0],[1,1,0],[1.5,0.6,0.3],[1.4,0.9,0.4],[0.8,0.3,1],[0.1,0.5,1.5],[0,0,2],[1.3,0.6,1],[1.4,-1.2,1.4],[1.6,0.4,0.5],[1.5,0.5,0.4],[1.5,0.5,0.4],[1.5,0.5,0.4]]);
+	var curvePath = new BezierCurve([[0,0,0],[0,5,0],[0,10,0],[0,15,0]]);
 	
 	var u = 0;
 	var pathPoints = [];
@@ -56,5 +52,5 @@ var Tensor = function(curve, step)
 	this.init();
 }
 
-Tensor.prototype = Object.create(SweptSurface.prototype);
-Tensor.prototype.constructor = Tensor;
+TowerBase.prototype = Object.create(SweptSurface.prototype);
+TowerBase.prototype.constructor = TowerBase;

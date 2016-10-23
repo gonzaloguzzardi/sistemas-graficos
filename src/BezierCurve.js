@@ -16,7 +16,7 @@ BezierCurve.prototype.setBases = function()
 	this.bases = "bezier3";
 
 	// Berstein Sases
-	this.base0 = function(u) { return (1 - u) * (1 - u) * (1 - u);}  // 1*(1-u) - u*(1-u) = 1-2u+u2  ,  (1-2u+u2) - u +2u2- u3 ,  1 - 3u +3u2 -u3
+	this.base0 = function(u) { return (1 - u) * (1 - u) * (1 - u);}
 
 	this.base1 = function(u) { return 3 * (1 - u) * (1 - u) * u; }
 

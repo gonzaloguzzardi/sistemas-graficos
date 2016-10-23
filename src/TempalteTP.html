@@ -17,6 +17,7 @@
 <script type="text/javascript" src="Curve.js"></script>
 <script type="text/javascript" src="BSplineCurve.js"></script>
 <script type="text/javascript" src="BSplineCurve2.js"></script>
+<script type="text/javascript" src="BezierCurve2.js"></script>
 <script type="text/javascript" src="BezierCurve.js"></script>
 <script type="text/javascript" src="RevolutionSurface.js"></script>
 <script type="text/javascript" src="SweptSurface.js"></script>
@@ -26,6 +27,8 @@
 <script type="text/javascript" src="Plane.js"></script>
 <script type="text/javascript" src="Cylinder.js"></script>
 <script type="text/javascript" src="TreeTop.js"></script>
+<script type="text/javascript" src="TowerShape.js"></script>
+<script type="text/javascript" src="TowerBase.js"></script>
 
 
 
@@ -308,6 +311,7 @@
     var lastMouseY = null;
     var mouseDown = false;
 
+    var towerBase = null;
     var cylinder = null;
     var plane = null;
     var bezierCurve = null;
@@ -372,12 +376,14 @@
         mat4.multiply(CameraMatrix, CameraMatrix, matriz_camara);
         ///////////////////////////////////////////////////////////////////////////////
 
+        towerBase = new TowerBase(0.1);
         treeTop = new TreeTop(0.025);
         cylinder = new Cylinder(50, 50);
         plane = new Plane(100, 100);
+        //plane.draw_mode = gl.LINE_STRIP;
         bezierCurve = new BezierCurve([ [0.0,-10.0,0], [5.0,0.0,0], [0.0,5.0,0], [0.0,25.0,0] ]);
         bSplineCurve = new BSplineCurve([ [0.0,-10.0,0], [5.0,0.0,0], [0.0,5.0,0], [0.0,25.0,0] ]);
-        var curvepath = new BSplineCurve([[1,1,0],[1,1,0],[1,1,0],[15.0,0.0,0.0],[15.0,0.9,0.4],[20.0,0.5,5.0],[18.0,1.5, 5.0],[20.0,6,2],[17,07,1],[18.0, 1.2,1.4],[16,0.4,0.5],[25.0,0.5,0.4],[25.0,0.5,0.4],[25.0,0.5,0.4]]);
+        var curvepath = new BSplineCurve([[1,1,0],[1,1,0],[1,1,0],[15.0,0.0,0.0],[15.0,0.9,0.4],[20.0,0.5,5.0],[18.0,1.5, 5.0],[20.0,6,2],[17,07,1],[18.0, 1.2,1.4],[16,0.4,0.5],[25.0,0.5,0.4],[25.0,0.5,0.4]]);
         tensor = new Tensor(curvepath, 0.1);
         
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -417,6 +423,10 @@
          var m_tensor = mat4.create();
          mat4.scale(m_tensor, m_tensor, vec3.fromValues(5.0, 5.0, 5.0));
         tensor.draw(m_tensor, shaderProgramColoredObject);
+
+        var m_tb = mat4.create();
+        mat4.translate(m_tb, m_tb, [5.0, 10.0, 15.0]);
+        towerBase.draw(m_tb, shaderProgramColoredObject);
         
         //////////////////  Terrain Plane //////////////////////////////////////
 
@@ -625,8 +635,10 @@ function GUI (){
 
 <body onload="webGLStart();">
     <div class="container">
+    <center>
             <h1>Sistemas Gráficos - 66.71</h1>
-            <canvas id="canvas-tp" style="border: none;" width="1280" height="800 ">
+    </center>
+            <canvas id="canvas-tp" width="1280" height="800 ">
 
             Your browser does not support the HTML5 canvas element.
             </canvas>  

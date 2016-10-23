@@ -108,7 +108,7 @@ Polygon.prototype = {
 		return transformPolygon;
 	},
 
-	generateCurve: function(curve, step)
+	generateFromCurve: function(curve, step)
 	// curves must be closed to be a polygon
 	//curve is Curve object from Curve.js
 	{
