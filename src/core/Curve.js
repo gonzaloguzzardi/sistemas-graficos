@@ -65,7 +65,7 @@ Curve.prototype.setControlPoints = function(points)
 {
 	var s = this.getSectionsFromPoints(points);
 	this.controlPoints = points.slice();
-	this.maxU = s * 1.000;
+	this.maxU = s * 1.0;
 	this.sections = s;
 }
 

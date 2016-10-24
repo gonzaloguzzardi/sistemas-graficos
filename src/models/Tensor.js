@@ -8,16 +8,24 @@ Dependencies:
 -BSplineCurve.js
 ****************************************/
 
-var Tensor = function(curve, step) 
+var Tensor = function(step) 
 {
-	var polygon = new Polygon();
-	var circle = new BezierCurve([[-0.1,0,0],[-0.1,0.1,0],[0.1,0.1,0.1],[0.1,0,0.1],[0.1,-0.1,0],[-0.1,-0.1,0.1],[-0.1,0.05,0.1]]);
+	this.width = 100.0;
+	this.height = 10.0;
+	this.roadSlopeModifier = 0.9;
+	this.roadSlopeModifier2 = 15.010;
 
-	var circleStep = 0.05;
+	var polygon = new Polygon();
+	var circle = new BSplineCurve([[-0.1,0,0],[-0.1,0.1,0],[0.1,0.1,0.1],[0.1,0,0.1],[0.1,-0.1,0],[-0.1,-0.1,0.1],[-0.1,0.05,0.1]]);
+
+	var circleStep = 0.1;
 	polygon.generateFromCurve(circle, circleStep);
 
-	var curvePath = curve;
-	//var curvePath = new BSplineCurve([[1,1,0],[1,1,0],[1,1,0],[1.5,0.6,0.3],[1.4,0.9,0.4],[0.8,0.3,1],[0.1,0.5,1.5],[0,0,2],[1.3,0.6,1],[1.4,-1.2,1.4],[1.6,0.4,0.5],[1.5,0.5,0.4],[1.5,0.5,0.4],[1.5,0.5,0.4]]);
+	//roadPath it's made of BSpline Curves, Repeating 3 times the beginning point, height point and end point.
+	var curvePath = new BSplineCurve([[-this.width/2.0, 0, 0],[-this.width/2.0, 0, 0], [-this.width/2.0, 0, 0],[-this.width/3.0, this.height * this.roadSlopeModifier, 0],
+									[-this.width/this.roadSlopeModifier2, this.height, 0.0],[0.0, this.height, 0.0], [0.0, this.height, 0.0], [0.0, this.height, 0.0],
+									[this.width/this.roadSlopeModifier2, this.height, 0.0],[this.width/3.0, this.height * this.roadSlopeModifier, 0.0], [this.width/2.0, 0.0, 0.0],
+									[this.width/2.0, 0.0, 0.0], [this.width/2.0, 0.0, 0.0]]);
 	
 	var u = 0;
 	var pathPoints = [];

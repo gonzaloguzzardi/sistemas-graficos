@@ -32,6 +32,8 @@
 <script type="text/javascript" src="models/TowerBase.js"></script>
 <script type="text/javascript" src="models/TowerTop.js"></script>
 <script type="text/javascript" src="models/Tower.js"></script>
+<script type="text/javascript" src="models/RoadShape.js"></script>
+<script type="text/javascript" src="models/BridgeRoad.js"></script>
 
 
 
@@ -177,6 +179,14 @@
     var lastMouseX = null;
     var lastMouseY = null;
 
+    // Build Parameters
+    var bridgeParameters = {};
+    //Puente
+    bridgeParameters.th1 = 20.0;
+    bridgeParameters.th2 = 15.0;
+    bridgeParameters.th3 = 10.0;
+    bridgeParameters.towerScales = 1.0;
+
     //Shaders Programs
     var shaderProgramColoredObject;
 
@@ -314,7 +324,7 @@
     var lastMouseY = null;
     var mouseDown = false;
 
-    var towerTop = null;
+    var bridgeRoad = null;
     var tower = null;
     var cylinder = null;
     var plane = null;
@@ -354,13 +364,13 @@
         initRiverCanvas();
 
         var canvas = document.getElementById("canvas-tp");
-        document.addEventListener('keydown', handleKeyDown, false);
-        document.addEventListener('keyup', handleKeyUp, false);
-        document.addEventListener('keypress', handleKeyPress, false); 
-        document.addEventListener('mousemove', handleMouseMove, false);
-        document.addEventListener('mousedown', handleMouseDown, false);
-        document.addEventListener('mouseup', handleMouseUp, false);
-        document.addEventListener('mousewheel', handleMouseWheel, false);
+        canvas.addEventListener('keydown', handleKeyDown, false);
+        canvas.addEventListener('keyup', handleKeyUp, false);
+        canvas.addEventListener('keypress', handleKeyPress, false); 
+        canvas.addEventListener('mousemove', handleMouseMove, false);
+        canvas.addEventListener('mousedown', handleMouseDown, false);
+        canvas.addEventListener('mouseup', handleMouseUp, false);
+        canvas.addEventListener('mousewheel', handleMouseWheel, false);
 
         GUI();
   
@@ -379,7 +389,7 @@
         mat4.lookAt(CameraMatrix, eye_point, lookat_point, vec_up);
         mat4.multiply(CameraMatrix, CameraMatrix, matriz_camara);
         ///////////////////////////////////////////////////////////////////////////////
-        towerTop = new TowerTop(0.1);
+        bridgeRoad = new BridgeRoad(50.0, 20.0, 5.0);
         tower = new Tower(0.1, 0.7);
         treeTop = new TreeTop(0.01, 0.0);
         cylinder = new Cylinder(50, 50);
@@ -387,8 +397,7 @@
         //plane.draw_mode = gl.LINE_STRIP;
         bezierCurve = new BezierCurve([ [0.0,-10.0,0], [5.0,0.0,0], [0.0,5.0,0], [0.0,25.0,0] ]);
         bSplineCurve = new BSplineCurve([ [0.0,-10.0,0], [5.0,0.0,0], [0.0,5.0,0], [0.0,25.0,0] ]);
-        var curvepath = new BSplineCurve([[1,1,0],[1,1,0],[1,1,0],[15.0,0.0,0.0],[15.0,0.9,0.4],[20.0,0.5,5.0],[18.0,1.5, 5.0],[20.0,6,2],[17,07,1],[18.0, 1.2,1.4],[16,0.4,0.5],[25.0,0.5,0.4],[25.0,0.5,0.4]]);
-        tensor = new Tensor(curvepath, 0.1);
+        tensor = new Tensor(0.1);
         
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.enable(gl.DEPTH_TEST);
@@ -423,20 +432,20 @@
 
          //////////////////  Tensor //////////////////////////////////////
 
-        /* var m_tensor = mat4.create();
-         mat4.scale(m_tensor, m_tensor, vec3.fromValues(5.0, 5.0, 5.0));
-        tensor.draw(m_tensor, shaderProgramColoredObject);*/
+         var m_tensor = mat4.create();
+        tensor.draw(m_tensor, shaderProgramColoredObject);
 
         var m_tb = mat4.create();
         mat4.translate(m_tb, m_tb, [5.0, 10.0, 15.0]);
-        tower.draw(m_tb, shaderProgramColoredObject);
+        tower.setScale(bridgeParameters.towerScales);
+        tower.draw(m_tb, shaderProgramColoredObject, bridgeParameters.th1, bridgeParameters.th2, bridgeParameters.th3);
 
         var m_tt = mat4.create();
-        mat4.translate(m_tt, m_tt, [25.0, 25.0, 15.0]);
-        towerTop.draw(m_tt, shaderProgramColoredObject);
+        mat4.translate(m_tt, m_tt, [75.0, 25.0, 15.0]);
+        bridgeRoad.draw(m_tt, shaderProgramColoredObject);
 
 
-        treeTop.draw(treeTop.model_matrix, shaderProgramColoredObject);
+        //treeTop.draw(treeTop.model_matrix, shaderProgramColoredObject);
         
         //////////////////  Terrain Plane //////////////////////////////////////
 
@@ -616,18 +625,18 @@ function GUI (){
         f1.add(app, 'detener').name("detener");         
         f1.open();
 
-        var f2 = gui.addFolder('Parametros generales');     
+        var f2 = gui.addFolder('Bridge Parameters');     
         
-        f2.add(app, 'alturaMaxima', 1.0, 60.0).name("altura maxima").step(1);
-        f2.add(app, 'ancho',4,25).name("Ancho");
+        f2.add(bridgeParameters, 'th1', 1.0, 60.0).name("First Segment Height").step(1);
+        f2.add(bridgeParameters, 'th2', 1.0, 60.0).name("Second Segment Height").step(1);
+        f2.add(bridgeParameters, 'th3', 1.0, 60.0).name("Third Segment Height").step(1);
+        f2.add(bridgeParameters, 'towerScales',0.5,5.0).name("Towers Scale").step(0.1);
 
         f2.add(app, 'modo',["random","secuencial"]).name("modo");
 
     
         var f3 = gui.addFolder('Parametros Especiales ');               
         f3.add(app,'umbral',0.0,1.0).name("umbral");
-        
-
 
         f1.open();
         f2.open();

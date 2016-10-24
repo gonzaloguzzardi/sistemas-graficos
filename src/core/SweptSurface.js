@@ -14,10 +14,10 @@ var SweptSurface = function(polygon, pathPoints, pathBases)
 		throw new Error("SweptSurface is an abstract class, it cannot be instanced.");
 	}
 
-	this.polygon = polygon; //Polygon object, canonical base by default
+	this.polygon = polygon; 
 	this.pathPoints = pathPoints.slice(0);
 	
-	this.pathBases = pathBases.slice(0); // pathBases = [[b1,b2,b3],[b4,b5,b6],....]  bi is a vector
+	this.pathBases = pathBases.slice(0); 
 	
 	Model.call(this);
 
@@ -59,9 +59,9 @@ SweptSurface.prototype.createGrid = function()
 			this.position_buffer.push(point[1]);
 			this.position_buffer.push(point[2]);
 
-			this.color_buffer.push(0.1);
+			this.color_buffer.push(0.25);
 			this.color_buffer.push(0.5); //Color default
-			this.color_buffer.push(0.1);
+			this.color_buffer.push(0.25);
 
 			tangent = tangents[col];
 			this.tangent_buffer.push(tangent[0]);

@@ -15,7 +15,7 @@ Group.prototype = {
 
 	constructor: Group,
 
-	clone: function()
+	cloneGroup: function()
 	{		
 		var clon = new Group();
 		clon.group_matrix = mat4.clone(this.group_matrix);
@@ -26,7 +26,7 @@ Group.prototype = {
 		return clon;
 	},
 
-	scale: function(scaleVector)
+	scaleGroup: function(scaleVector)
 	{
 		if (scaleVector === undefined)
 		{
