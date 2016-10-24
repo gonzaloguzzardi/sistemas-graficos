@@ -148,15 +148,17 @@ Curve.prototype.createGrid = function()
 		vec3.cross(normal, vec_product, tangente);
 
 		//Z MUST NOT BE PARALLEL TO THE TANGENT
+		vec3.normalize(normal, normal);
 		this.normals_buffer.push(normal.x);
 		this.normals_buffer.push(normal.y);
 		this.normals_buffer.push(normal.z);
 
 		binormal = vec3.create();
 		vec3.cross(binormal,tangente,normal);
-		this.binormal_buffer.push(binormal[0]);
-		this.binormal_buffer.push(binormal[1]);
-		this.binormal_buffer.push(binormal[2]);
+		vec3.normalize(binormal, binormal)
+		this.binormal_buffer.push(binormal.z);
+		this.binormal_buffer.push(binormal.y);
+		this.binormal_buffer.push(binormal.x);
 
 		this.texture_coord_buffer.push(0.0);
 		this.texture_coord_buffer.push(0.0);

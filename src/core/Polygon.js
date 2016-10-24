@@ -1,7 +1,7 @@
 /****************************************
 Polygon
 Used for Swept Surfaces.
-Polygons are by default on the xy plane
+Polygons are by default on the plane
 ****************************************/
 
 var Polygon = function()
@@ -42,18 +42,34 @@ Polygon.prototype = {
 		this.base = base;
 	},
 
-	changeBaseMatrix: function(pathBase)
+	scale: function(scaleFactor)
+	{
+		var scaleMatrix = mat3.create();
+		mat3.scale(scaleMatrix, scaleMatrix, [scaleFactor, 1.0, scaleFactor]);
+
+		var transformedPoints = this.transformVectors(this.points, scaleMatrix);
+		this.setPoints(transformedPoints);
+
+		var transformedTangents = this.transformVectors(this.tangents, scaleMatrix);
+		this.setTangents(transformedTangents);
+
+		var transformedNormals = this.transformVectors(this.normals, scaleMatrix);
+		this.setNormals(transformedNormals);
+	},
+
+	changeBaseMatrix: function(pathBase, scale)
 	{
 		var matrix = mat3.create();
 		var base;
 		for (var col = 0; col < pathBase.length; col++)
 		{
 			base = pathBase[col];
-			for (var fil = 0; fil < base.length; fil++)
+			for (var row = 0; row < base.length; row++)
 			{
-				matrix[fil * pathBase.length + col] = base[fil];
+				matrix[row * pathBase.length + col] = base[row];
 			}
 		}
+		mat3.scale(matrix, matrix, scale);
 		return matrix;
 	},
 
@@ -86,14 +102,18 @@ Polygon.prototype = {
 		return displacedPoints;
 	},
 
-	getTransformedPolygon: function(newCenter, newBase)
+	getTransformedPolygon: function(newCenter, newBase, scale)
 	{
+		if (scale === undefined)
+		{
+			scale = [1.0,1.0,1.0];
+		}
 		var transformPolygon = new Polygon();
 
 		transformPolygon.setCenter(newCenter);
 
 		var distance = vec3.fromValues(newCenter[0] - this.center[0], newCenter[1] - this.center[1], newCenter[2] - this.center[2] )
-		var changeBaseMat = this.changeBaseMatrix(newBase);
+		var changeBaseMat = this.changeBaseMatrix(newBase, scale);
 
 		var transformPoints = this.transformVectors(this.points, changeBaseMat);
 		transformPoints = this.addDisplacement(transformPoints, distance);

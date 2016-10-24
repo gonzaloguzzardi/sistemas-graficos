@@ -10,10 +10,13 @@ Dependencies:
 
 var TowerBase = function(step) 
 {
-	var shapeStep = 0.05;
-	var polygon = new TowerShape(shapeStep);
+	this.height = 10.0;
+	this.towerShape = null;
 
-	var curvePath = new BezierCurve([[0,0,0],[0,5,0],[0,10,0],[0,15,0]]);
+	var shapeStep = 0.05;
+	this.towerShape = new TowerShape(shapeStep);
+
+	var curvePath = new BezierCurve([[0,0,0],[0,this.height/3,0],[0,this.height / 3 * 2,0],[0,this.height,0]]);
 	
 	var u = 0;
 	var pathPoints = [];
@@ -47,7 +50,7 @@ var TowerBase = function(step)
 		u += step;
 	}
 
-	SweptSurface.call(this, polygon, pathPoints, pathBases);
+	SweptSurface.call(this, this.towerShape, pathPoints, pathBases);
 
 	this.init();
 }

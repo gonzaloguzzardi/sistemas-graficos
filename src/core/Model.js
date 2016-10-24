@@ -339,7 +339,7 @@ Model.prototype = {
 		// draw child Models
 		for(var i = 0; i < this.childs.length; i+=1)
 		{
-			this.childs[i].draw(model_matrix_final);
+			this.childs[i].draw(model_matrix_final, glProgram);
 		}
 	}
 }

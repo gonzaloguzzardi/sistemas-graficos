@@ -21,6 +21,7 @@
 <script type="text/javascript" src="core/BezierCurve.js"></script>
 <script type="text/javascript" src="core/RevolutionSurface.js"></script>
 <script type="text/javascript" src="core/SweptSurface.js"></script>
+<script type="text/javascript" src="core/Group.js"></script>
 
 
 <script type="text/javascript" src="models/Tensor.js"></script>
@@ -29,6 +30,8 @@
 <script type="text/javascript" src="models/TreeTop.js"></script>
 <script type="text/javascript" src="models/TowerShape.js"></script>
 <script type="text/javascript" src="models/TowerBase.js"></script>
+<script type="text/javascript" src="models/TowerTop.js"></script>
+<script type="text/javascript" src="models/Tower.js"></script>
 
 
 
@@ -311,7 +314,8 @@
     var lastMouseY = null;
     var mouseDown = false;
 
-    var towerBase = null;
+    var towerTop = null;
+    var tower = null;
     var cylinder = null;
     var plane = null;
     var bezierCurve = null;
@@ -375,9 +379,9 @@
         mat4.lookAt(CameraMatrix, eye_point, lookat_point, vec_up);
         mat4.multiply(CameraMatrix, CameraMatrix, matriz_camara);
         ///////////////////////////////////////////////////////////////////////////////
-
-        towerBase = new TowerBase(0.1);
-        treeTop = new TreeTop(0.025);
+        towerTop = new TowerTop(0.1);
+        tower = new Tower(0.1, 0.7);
+        treeTop = new TreeTop(0.01, 0.0);
         cylinder = new Cylinder(50, 50);
         plane = new Plane(100, 100);
         //plane.draw_mode = gl.LINE_STRIP;
@@ -404,7 +408,7 @@
         gl.clearColor(0, 0, 0, 0);
 
 		// Se configura la matriz de proyección
-        mat4.perspective(pMatrix, 3.14 / 12.0, gl.viewportWidth / gl.viewportHeight, 0.1, 1000.0);
+        mat4.perspective(pMatrix, 3.14 / 12.0, gl.viewportWidth / gl.viewportHeight, 0.1, 5000.0);
 
         /////////////////////////////////////////////////////
         // Configuración de la luz
@@ -419,14 +423,20 @@
 
          //////////////////  Tensor //////////////////////////////////////
 
-         treeTop.draw(treeTop.model_matrix, shaderProgramColoredObject);
-         var m_tensor = mat4.create();
+        /* var m_tensor = mat4.create();
          mat4.scale(m_tensor, m_tensor, vec3.fromValues(5.0, 5.0, 5.0));
-        tensor.draw(m_tensor, shaderProgramColoredObject);
+        tensor.draw(m_tensor, shaderProgramColoredObject);*/
 
         var m_tb = mat4.create();
         mat4.translate(m_tb, m_tb, [5.0, 10.0, 15.0]);
-        towerBase.draw(m_tb, shaderProgramColoredObject);
+        tower.draw(m_tb, shaderProgramColoredObject);
+
+        var m_tt = mat4.create();
+        mat4.translate(m_tt, m_tt, [25.0, 25.0, 15.0]);
+        towerTop.draw(m_tt, shaderProgramColoredObject);
+
+
+        treeTop.draw(treeTop.model_matrix, shaderProgramColoredObject);
         
         //////////////////  Terrain Plane //////////////////////////////////////
 
