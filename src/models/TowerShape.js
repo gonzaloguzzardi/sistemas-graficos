@@ -10,12 +10,12 @@ Dependencies:
 var TowerShape = function(step) 
 {
 	this.farRight = 5.0;
-	this.middleRight = 0.8;
+	this.middleRight = 2;
 
 	this.top = 10.0;
 	this.bot = 0.0;
 
-	this.rampAmount = 2.0;
+	this.rampAmount = 3.5;
 
 	this.farLeft = -this.farRight;
 	this.middleLeft = -this.middleRight;

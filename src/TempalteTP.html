@@ -10,7 +10,10 @@
 <script type="text/javascript" src="3rdparty/webgl-debug.js"></script>
 <script type="text/javascript" src="3rdparty/gl-matrix.js"></script>
 <script type="text/javascript" src="3rdparty/webgl-utils.js"></script>
+
 <script type="text/javascript" src="utils/CustomRandom.js"></script>
+<script type="text/javascript" src="utils/Color.js"></script>
+
 <script type="text/javascript" src="core/Model.js"></script>
 <script type="text/javascript" src="core/Polygon.js"></script>
 <script type="text/javascript" src="core/Profile.js"></script>
@@ -33,7 +36,11 @@
 <script type="text/javascript" src="models/TowerTop.js"></script>
 <script type="text/javascript" src="models/Tower.js"></script>
 <script type="text/javascript" src="models/RoadShape.js"></script>
+<script type="text/javascript" src="models/CircleShape.js"></script>
+<script type="text/javascript" src="models/BridgeMainCable.js"></script>
+<script type="text/javascript" src="models/BridgeStrap.js"></script>
 <script type="text/javascript" src="models/BridgeRoad.js"></script>
+<script type="text/javascript" src="models/Bridge.js"></script>
 
 
 
@@ -326,12 +333,9 @@
 
     var bridgeRoad = null;
     var tower = null;
-    var cylinder = null;
     var plane = null;
-    var bezierCurve = null;
-    var bSplineCurve = null;
-    var tensor = null;
     var treeTop = null;
+    var bridgeMainCable = null;
 
     var deimosRotationMatrix = mat4.create();
     mat4.identity(deimosRotationMatrix);
@@ -391,13 +395,10 @@
         ///////////////////////////////////////////////////////////////////////////////
         bridgeRoad = new BridgeRoad(50.0, 20.0, 5.0);
         tower = new Tower(0.1, 0.7);
-        treeTop = new TreeTop(0.01, 0.0);
-        cylinder = new Cylinder(50, 50);
+        //treeTop = new TreeTop(0.01, 0.0);
         plane = new Plane(100, 100);
         //plane.draw_mode = gl.LINE_STRIP;
-        bezierCurve = new BezierCurve([ [0.0,-10.0,0], [5.0,0.0,0], [0.0,5.0,0], [0.0,25.0,0] ]);
-        bSplineCurve = new BSplineCurve([ [0.0,-10.0,0], [5.0,0.0,0], [0.0,5.0,0], [0.0,25.0,0] ]);
-        tensor = new Tensor(0.1);
+        bridgeMainCable = new BridgeMainCable();
         
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.enable(gl.DEPTH_TEST);
@@ -432,13 +433,14 @@
 
          //////////////////  Tensor //////////////////////////////////////
 
-         var m_tensor = mat4.create();
-        tensor.draw(m_tensor, shaderProgramColoredObject);
 
         var m_tb = mat4.create();
         mat4.translate(m_tb, m_tb, [5.0, 10.0, 15.0]);
         tower.setScale(bridgeParameters.towerScales);
         tower.draw(m_tb, shaderProgramColoredObject, bridgeParameters.th1, bridgeParameters.th2, bridgeParameters.th3);
+
+        var m_bridgeCable = mat4.create();
+        bridgeMainCable.draw(m_bridgeCable, shaderProgramColoredObject);
 
         var m_tt = mat4.create();
         mat4.translate(m_tt, m_tt, [75.0, 25.0, 15.0]);
@@ -456,16 +458,6 @@
         mat4.scale(m_plane, m_plane, vec3.fromValues(2.0, 1.0, 2.0));
         plane.draw(m_plane, shaderProgramColoredObject);
 
-        //////////////////  Cylinder //////////////////////////////////////
-
-        cylinder.setUpLighting(shaderProgramColoredObject, vec3.fromValues(-100.0, 0.0, -60.0), vec3.fromValues(0.5, 0.5, 0.5), vec3.fromValues(0.05, 0.05, 0.05));
-
-        var m_cylynder = mat4.create();
-        mat4.translate(m_cylynder, m_cylynder, [0,1,0]);
-
-        cylinder.draw(m_cylynder, shaderProgramColoredObject);
-
-        ////////////////////////////////////////////////////////
     }
 
 
@@ -598,7 +590,7 @@
     }
 
     //////////////////////////////////////////////////////////GUI//////////////////////////////////////////////
-var app={
+var app = {
     alturaMaxima:10,
     reiniciar:function(){
         alert("apreto reiniciar");

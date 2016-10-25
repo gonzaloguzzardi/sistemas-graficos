@@ -42,10 +42,10 @@ Polygon.prototype = {
 		this.base = base;
 	},
 
-	scale: function(scaleFactor)
+	scale: function(scaleVector)
 	{
 		var scaleMatrix = mat3.create();
-		mat3.scale(scaleMatrix, scaleMatrix, [scaleFactor, 1.0, scaleFactor]);
+		mat3.scale(scaleMatrix, scaleMatrix, scaleVector);
 
 		var transformedPoints = this.transformVectors(this.points, scaleMatrix);
 		this.setPoints(transformedPoints);

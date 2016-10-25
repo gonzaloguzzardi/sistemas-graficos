@@ -107,8 +107,8 @@ Group.prototype = {
 	
 	setColor: function(color)
 	{
-		for ( var i = 0, l = this.center.length; i < l; i ++ ) {
-			this.center[i].setColor(color);
+		for ( var i = 0, l = this.models.length; i < l; i ++ ) {
+			this.models[i].setColor(color);
 		}
 	}
 }

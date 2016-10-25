@@ -40,6 +40,7 @@ var Tower = function(step, towerTopScales)
 	Group.call(this);
 
 	this.buildTower();
+
 }
 
 Tower.prototype = Object.create(Group.prototype);
@@ -56,7 +57,10 @@ Tower.prototype.buildFirstSegment = function()
 {
 
 	this.firstTowerBase = new TowerBase(this.buildStep);
+	this.firstTowerBase.setColor(getColor("towerBase"));
+
 	this.firstTowerTop = new TowerTop(this.buildStep, this.towerTopScales);
+	this.firstTowerTop.setColor(getColor("towerTop"));
 
 	this.addModel(this.firstTowerBase);
 	this.addModel(this.firstTowerTop);
@@ -65,7 +69,10 @@ Tower.prototype.buildFirstSegment = function()
 Tower.prototype.buildSecondSegment = function()
 {
 	this.secondTowerBase = new TowerBase(this.buildStep);
+	this.secondTowerBase.setColor(getColor("towerBase"));
+
 	this.secondTowerTop = new TowerTop(this.buildStep, this.towerTopScales);
+	this.secondTowerTop.setColor(getColor("towerTop"));
 
 	this.addModel(this.secondTowerBase);
 	this.addModel(this.secondTowerTop);
@@ -74,6 +81,7 @@ Tower.prototype.buildSecondSegment = function()
 Tower.prototype.buildThirdSegment = function()
 {
 	this.thirdTowerBase = new TowerBase(this.buildStep);
+	this.thirdTowerBase.setColor(getColor("towerBase"));
 
 	this.addModel(this.thirdTowerBase);
 }

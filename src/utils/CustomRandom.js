@@ -8,7 +8,7 @@ var CustomRandom = function(nseed)
 	this.seed;    
 
 	this.constant = Math.pow(2, 13)+1; 
-	this.prime = 1987;  //any prime number, needed for calculations, 1987 is my favorite:)   
+	this.prime = 1987; 
 	this.maximum = 1000; 	//maximum number needed for calculation the float precision of the numbers (10^n where n is number of digits after dot)  
 
     if (nseed === undefined)
