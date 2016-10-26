@@ -22,7 +22,7 @@ var BridgeRoad = function(length, width, height)
 
 
 	//roadPath it's made of BSpline Curves, Repeating 3 times the beginning point, height point and end point.
-	var roadPath = new BSplineCurve([[-this.length/2.0 - 5.0, 0, 0],[-this.length/2.0 -5.0, 0, 0], [-this.length/2.0 - 5.0, 0, 0], //union con calle
+	this.roadPath = new BSplineCurve([[-this.length/2.0 - 5.0, 0, 0],[-this.length/2.0 -5.0, 0, 0], [-this.length/2.0 - 5.0, 0, 0], //union con calle
 									[-this.length/2.0, 0, 0],[-this.length/2.0, 0, 0], [-this.length/2.0, 0, 0], //punto inicial
 									[-this.length/3.0, this.height * this.roadSlopeModifier, 0],
 									[-this.length/15.0, this.height, 0.0],
@@ -32,7 +32,16 @@ var BridgeRoad = function(length, width, height)
 									[this.length/2.0, 0.0, 0.0], [this.length/2.0, 0.0, 0.0], [this.length/2.0, 0.0, 0.0],
 									[this.length/2.0 + 5.0, 0.0, 0.0], [this.length/2.0 +5.0, 0.0, 0.0], [this.length/2.0 + 5.0, 0.0, 0.0], //union con calle
 									]);
-
+	//Repite 3 veces union calle
+	//Repite 3 inicio curva
+	// 1 desvio 1
+	// 1 desveio 2
+	// repite 3 veces altura max
+	// 1 desvio 2
+	// 1 desvio 1
+	// repite 3 veces final de curva
+	// repite 3 veces union calle
+	// 16 segmentos
 
 	var u = 0;
 	var pathPoints = [];
@@ -47,12 +56,12 @@ var BridgeRoad = function(length, width, height)
 	var vecAux = vec3.create();
 	var nTangent;
 
-	while(u <= roadPath.maxU)
+	while(u <= this.roadPath.maxU)
 	{
-		point = roadPath.pointFromCurve(u);
+		point = this.roadPath.pointFromCurve(u);
 		pathPoints.push(point);
 
-		tangent = roadPath.firstDerivFromCurve(u);
+		tangent = this.roadPath.firstDerivFromCurve(u);
 		nTangent = Math.sqrt ( Math.pow ( tangent[0], 2) + Math.pow (tangent[1], 2) + Math.pow (tangent[2], 2));
 		tangent = [-tangent[0] / nTangent, tangent[1] / nTangent, -tangent[2] / nTangent];
 
@@ -73,6 +82,7 @@ var BridgeRoad = function(length, width, height)
 	SweptSurface.call(this, roadShape, pathPoints, pathBases);
 
 	this.init();
+
 }
 
 BridgeRoad.prototype = Object.create(SweptSurface.prototype);

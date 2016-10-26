@@ -26,7 +26,7 @@ var Curve = function(points)
 	this.maxU = 1;
 	
 	this.sections = 1;	// should change along with the control points
-	this.deltaU = 0.01; //step: less deltaU = more detail
+	this.deltaU = 0.2; //detail
 	this.controlPoints = null; // List of 3D points
 
 	Model.call(this);
@@ -63,10 +63,10 @@ Curve.prototype.setDeltaU = function(delta)
 
 Curve.prototype.setControlPoints = function(points)
 {
-	var s = this.getSectionsFromPoints(points);
+	var segments = this.getSectionsFromPoints(points);
 	this.controlPoints = points.slice();
-	this.maxU = s * 1.0;
-	this.sections = s;
+	this.maxU = segments * 1.0;
+	this.sections = segments;
 }
 
 

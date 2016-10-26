@@ -187,12 +187,24 @@
     var lastMouseY = null;
 
     // Build Parameters
-    var bridgeParameters = {};
+
+    //Terrain
+    var terrainParameters = {};
+    terrainParameters.terrainHeight = 15.0;
+    terrainParameters.riverWidth = 75.0;
+    terrainParameters.roadWidth = 20.0;
     //Puente
-    bridgeParameters.th1 = 20.0;
+    var bridgeParameters = {};
+    bridgeParameters.bridgeLength = 150.0;
+    bridgeParameters.ph2 = 18.0;
+    bridgeParameters.ph3 = 75.0;
+    bridgeParameters.th1 = 10.0;
     bridgeParameters.th2 = 15.0;
     bridgeParameters.th3 = 10.0;
+
     bridgeParameters.towerScales = 1.0;
+    bridgeParameters.scale = 1.0;
+    bridgeParameters.towerAmount = 4;
 
     //Shaders Programs
     var shaderProgramColoredObject;
@@ -331,6 +343,7 @@
     var lastMouseY = null;
     var mouseDown = false;
 
+    var bridge = null;
     var bridgeRoad = null;
     var tower = null;
     var plane = null;
@@ -393,6 +406,25 @@
         mat4.lookAt(CameraMatrix, eye_point, lookat_point, vec_up);
         mat4.multiply(CameraMatrix, CameraMatrix, matriz_camara);
         ///////////////////////////////////////////////////////////////////////////////
+
+        /*    terrainParameters.terrainHeight = 25.0;
+    //Puente
+    var bridgeParameters = {};
+    bridgeParameters.ph2 = 25.0;
+    bridgeParameters.ph3 = 75.0;
+    bridgeParameters.th1 = 20.0;
+    bridgeParameters.th2 = 15.0;
+    bridgeParameters.th3 = 10.0;
+    bridgeParameters.towerScales = 1.0;
+    bridgeParameters.towerAmount = 2;
+    bridgeParameters.scale = 1.0;
+*/
+        bridge = new Bridge( bridgeParameters.towerAmount);
+        bridge.setBridgeHeights( terrainParameters.terrainHeight, bridgeParameters.ph2, bridgeParameters.ph3);
+        bridge.setBridgeDimensions(bridgeParameters.bridgeLength, terrainParameters.roadWidth, terrainParameters.riverWidth);
+
+        bridge.buildBridge();
+
         bridgeRoad = new BridgeRoad(50.0, 20.0, 5.0);
         tower = new Tower(0.1, 0.7);
         //treeTop = new TreeTop(0.01, 0.0);
@@ -431,20 +463,27 @@
         //bezierCurve.draw(bezierCurve.model_matrix, shaderProgramColoredObject);
        // bSplineCurve.draw(bSplineCurve.model_matrix, shaderProgramColoredObject);
 
+        //////////////////  Bridge //////////////////////////////////////
+        bridge.setScale(bridgeParameters.scale);
+        var m_bridge = mat4.create();
+        bridge.draw(m_bridge, shaderProgramColoredObject);
+
+
+
          //////////////////  Tensor //////////////////////////////////////
 
 
         var m_tb = mat4.create();
         mat4.translate(m_tb, m_tb, [5.0, 10.0, 15.0]);
         tower.setScale(bridgeParameters.towerScales);
-        tower.draw(m_tb, shaderProgramColoredObject, bridgeParameters.th1, bridgeParameters.th2, bridgeParameters.th3);
+        //tower.draw(m_tb, shaderProgramColoredObject, bridgeParameters.th1, bridgeParameters.th2, bridgeParameters.th3);
 
         var m_bridgeCable = mat4.create();
-        bridgeMainCable.draw(m_bridgeCable, shaderProgramColoredObject);
+        //bridgeMainCable.draw(m_bridgeCable, shaderProgramColoredObject);
 
         var m_tt = mat4.create();
         mat4.translate(m_tt, m_tt, [75.0, 25.0, 15.0]);
-        bridgeRoad.draw(m_tt, shaderProgramColoredObject);
+        //bridgeRoad.draw(m_tt, shaderProgramColoredObject);
 
 
         //treeTop.draw(treeTop.model_matrix, shaderProgramColoredObject);
@@ -622,7 +661,7 @@ function GUI (){
         f2.add(bridgeParameters, 'th1', 1.0, 60.0).name("First Segment Height").step(1);
         f2.add(bridgeParameters, 'th2', 1.0, 60.0).name("Second Segment Height").step(1);
         f2.add(bridgeParameters, 'th3', 1.0, 60.0).name("Third Segment Height").step(1);
-        f2.add(bridgeParameters, 'towerScales',0.5,5.0).name("Towers Scale").step(0.1);
+        f2.add(bridgeParameters, 'scale',0.5,5.0).name("Bridge Scale").step(0.1);
 
         f2.add(app, 'modo',["random","secuencial"]).name("modo");
 
