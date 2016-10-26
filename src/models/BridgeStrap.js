@@ -10,25 +10,38 @@ Dependencies:
 var BridgeStrap = function(startPoint, endPoint) 
 {
 
-	this.startPoint = [0.0, 50.0, 0.0];
+	this.startPoint = [0.0, 0.0, 0.0];
 	if (startPoint !== undefined)
 	{
 		this.startPoint = startPoint;
 	}
 
-	this.endPoint = [100.0, 50.0, 0.0];
+	this.endPoint = [0.0, 50.0, 0.0];
 	if (endPoint !== undefined)
 	{
 		this.endPoint = endPoint;
 	}
 
-	this.step = 0.01;
+	this.step = 0.1;
 
 	this.baseWidth = 2.5;
 	this.baseHeight = 2.5;
 
+	var p1SegmentPercent = 1.0 / 3.0;
+	var p2SegmentPercent = 2.0 / 3.0;
 
-	var curvePath = new BezierCurve ([[0, 0, 0], [0, 25, 0], [0, 50, 0], [0, 50, 0]]);
+	var p1 = [this.startPoint[0] + (this.endPoint[0] - this.startPoint[0]) * p1SegmentPercent ,
+			  this.startPoint[1] + (this.endPoint[1] - this.startPoint[1]) * p1SegmentPercent , 
+			  this.startPoint[2] + (this.endPoint[2] - this.startPoint[2]) * p1SegmentPercent] ;
+
+	var p2 = [this.startPoint[0] + (this.endPoint[0] - this.startPoint[0]) * p2SegmentPercent,
+		 	  this.startPoint[1] + (this.endPoint[1] - this.startPoint[1]) * p2SegmentPercent, 
+		 	  this.startPoint[2] + (this.endPoint[2] - this.startPoint[2]) * p2SegmentPercent];
+
+	var curvePath = new BezierCurve ( [ this.startPoint, 
+										p1, 
+										p2, 
+										this.endPoint]);
 	
 	var strapShape = new SquareShape(this.baseWidth, this.baseHeight, this.step);
 	

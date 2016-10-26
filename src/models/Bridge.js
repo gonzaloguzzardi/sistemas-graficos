@@ -324,26 +324,31 @@ Bridge.prototype.buildStraps = function()
 
 	this.mainCableLeft01.applyMatrix(moveToLeftMatrix);
 	this.mainCableLeft12.applyMatrix(moveToLeftMatrix);
-	this.mainCableLeft23.applyMatrix(moveToLeftMatrix);
-	this.mainCableLeft34.applyMatrix(moveToLeftMatrix);
 	this.mainCableLeft40.applyMatrix(moveToLeftMatrix);
-
 	this.mainCableRight01.applyMatrix(moveToRightMatrix);
 	this.mainCableRight12.applyMatrix(moveToRightMatrix);
-	this.mainCableRight23.applyMatrix(moveToRightMatrix);
-	this.mainCableRight34.applyMatrix(moveToRightMatrix);
 	this.mainCableRight40.applyMatrix(moveToRightMatrix);
-
 	this.addModel(this.mainCableLeft01);
 	this.addModel(this.mainCableLeft12);
-	this.addModel(this.mainCableLeft23);
-	this.addModel(this.mainCableLeft34);
 	this.addModel(this.mainCableLeft40);
 	this.addModel(this.mainCableRight01);
 	this.addModel(this.mainCableRight12);
-	this.addModel(this.mainCableRight23);
-	this.addModel(this.mainCableRight34);
 	this.addModel(this.mainCableRight40);
+
+	if (this.towerAmount >= 3)
+	{
+		this.mainCableLeft23.applyMatrix(moveToLeftMatrix);
+		this.mainCableRight23.applyMatrix(moveToRightMatrix);
+		this.addModel(this.mainCableLeft23);
+		this.addModel(this.mainCableRight23);
+	}
+	if (this.towerAmount >= 4)
+	{
+		this.mainCableLeft34.applyMatrix(moveToLeftMatrix);
+		this.mainCableRight34.applyMatrix(moveToRightMatrix);
+		this.addModel(this.mainCableLeft34);
+		this.addModel(this.mainCableRight34);
+	} 
 }
 
 

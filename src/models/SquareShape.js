@@ -30,7 +30,6 @@ var SquareShape = function(width, height, step)
 
 	this.roundness = 0.5;
 
-	//var diag = Math.sqrt( this.radius * this.radius + this.radius * this.radius);
 	var halfWidth = this.width * 0.5;
 	var halfHeight = this.height * 0.5;
 
