@@ -186,13 +186,15 @@
     var lastMouseX = null;
     var lastMouseY = null;
 
+    var canDraw = true;
+
     // Build Parameters
 
     //Terrain
     var terrainParameters = {};
     terrainParameters.terrainHeight = 15.0;
-    terrainParameters.riverWidth = 75.0;
-    terrainParameters.roadWidth = 20.0;
+    terrainParameters.riverWidth = 125.0;
+    terrainParameters.roadWidth = 40.0;
     //Puente
     var bridgeParameters = {};
     bridgeParameters.bridgeLength = 250.0;
@@ -205,7 +207,12 @@
 
     bridgeParameters.towerScales = 1.0;
     bridgeParameters.scale = 1.0;
-    bridgeParameters.towerAmount = 2;
+    bridgeParameters.towerAmount = 4;
+
+    bridgeParameters.regenerate = function()
+    {
+
+    }
 
     //Shaders Programs
     var shaderProgramColoredObject;
@@ -424,14 +431,13 @@
         bridge.setBridgeHeights( terrainParameters.terrainHeight, bridgeParameters.ph2, bridgeParameters.ph3);
         bridge.setBridgeDimensions(bridgeParameters.bridgeLength, terrainParameters.roadWidth, terrainParameters.riverWidth);
         bridge.setStrapDistances(bridgeParameters.s1);
-
         bridge.buildBridge();
 
         bridgeRoad = new BridgeRoad(50.0, 20.0, 5.0);
         tower = new Tower(0.1, 0.7);
         //treeTop = new TreeTop(0.01, 0.0);
         plane = new Plane(100, 100);
-        //plane.draw_mode = gl.LINE_STRIP;
+        plane.draw_mode = gl.LINE_STRIP;
        // bridgeMainCable = new BridgeMainCable();
         
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -502,15 +508,9 @@
     }
 
 
-    function tick() {
+    function tick() 
+    {
         requestAnimFrame(tick);
-		var newRotationMatrix = mat4.create();
-        mat4.identity(newRotationMatrix);
-        mat4.rotate(newRotationMatrix, newRotationMatrix, 0.025, [0, 1, 0]);
-		mat4.multiply(newRotationMatrix, deimosRotationMatrix, deimosRotationMatrix);
-
-        deimosRotationAnglemars += 0.0045;
-        phobosRotationAngledeimos += 0.0005;
         drawScene();
     }
 
@@ -654,13 +654,13 @@ function GUI (){
 
         
         var f1 = gui.addFolder('Comandos');     
-        f1.add(app, 'reiniciar').name("Reiniciar");
+        //f1.add(bridgeParameters, 'buildBridge').name("Build Bridge");
         f1.add(app, 'detener').name("detener");         
         f1.open();
 
         var f2 = gui.addFolder('Bridge Parameters');     
         
-        f2.add(bridgeParameters, 'th1', 1.0, 60.0).name("First Segment Height").step(1);
+        f2.add(bridgeParameters, 'towerAmount', 2.0, 4.0).name("Amount of Towers").step(1);
         f2.add(bridgeParameters, 'th2', 1.0, 60.0).name("Second Segment Height").step(1);
         f2.add(bridgeParameters, 'th3', 1.0, 60.0).name("Third Segment Height").step(1);
         f2.add(bridgeParameters, 'scale',0.5,5.0).name("Bridge Scale").step(0.1);

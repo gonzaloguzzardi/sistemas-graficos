@@ -298,47 +298,40 @@ Bridge.prototype.buildStraps = function()
 	if (this.towerAmount == 2)
 	{
 		this.mainCableLeft12 = new BridgeMainCable([-halfRiverWidth * this.towerOneTwoPositionModifier, this.ph3 * attachPointModifier, 0], [halfRiverWidth * this.towerOneTwoPositionModifier, this.ph3 * attachPointModifier, 0], this.mainCablesRadius, 2, this.ph2);
-		this.mainCableLeft23 = null;
-		this.mainCableLeft34 = null;
-
-		this.mainCableRight12 = new BridgeMainCable([-halfRiverWidth * this.towerOneTwoPositionModifier, this.ph3 * attachPointModifier, 0], [halfRiverWidth * this.towerOneTwoPositionModifier, this.ph3 * attachPointModifier, 0], this.mainCablesRadius, 2, this.ph2);;
-		this.mainCableRight23 = null;
-		this.mainCableRight34 = null;
+		this.mainCableRight12 = new BridgeMainCable([-halfRiverWidth * this.towerOneTwoPositionModifier, this.ph3 * attachPointModifier, 0], [halfRiverWidth * this.towerOneTwoPositionModifier, this.ph3 * attachPointModifier, 0], this.mainCablesRadius, 2, this.ph2);
 	}
 
 	if (this.towerAmount == 3)
 	{
-		this.mainCableLeft12 = new BridgeMainCable([-halfRiverWidth * this.towerOneTwoPositionModifier, this.ph3 * attachPointModifier, 0], [-halfLength, this.ph1, 0], this.mainCablesRadius);
-		this.mainCableLeft23 = null;
-		this.mainCableLeft34 = null;
+		this.mainCableLeft12 = new BridgeMainCable([-halfRiverWidth * this.towerOneTwoPositionModifier, this.ph3 * attachPointModifier, 0], [0.0, this.ph3 * attachPointModifier, 0], this.mainCablesRadius, 3, this.ph2);
+		this.mainCableLeft23 = new BridgeMainCable([0.0, this.ph3 * attachPointModifier, 0], [halfRiverWidth * this.towerOneTwoPositionModifier, this.ph3 * attachPointModifier, 0], this.mainCablesRadius, 3, this.ph2);
 
-		this.mainCableRight12 = null;
-		this.mainCableRight23 = null;
-		this.mainCableRight34 = null;
+		this.mainCableRight12 = new BridgeMainCable([-halfRiverWidth * this.towerOneTwoPositionModifier, this.ph3 * attachPointModifier, 0], [0.0, this.ph3 * attachPointModifier, 0], this.mainCablesRadius, 3, this.ph2);
+		this.mainCableRight23 = new BridgeMainCable([0.0, this.ph3 * attachPointModifier, 0], [halfRiverWidth * this.towerOneTwoPositionModifier, this.ph3 * attachPointModifier, 0], this.mainCablesRadius, 3, this.ph2);
 	}
 
 	if (this.towerAmount == 4)
 	{
-		this.mainCableLeft12 = new BridgeMainCable([-halfRiverWidth * this.towerOneTwoPositionModifier, this.ph3 * attachPointModifier, 0], [-halfLength, this.ph1, 0], this.mainCablesRadius);
-		this.mainCableLeft23 = null;
-		this.mainCableLeft34 = null;
+		this.mainCableLeft12 = new BridgeMainCable([-halfRiverWidth * this.towerOneTwoPositionModifier, this.ph3 * attachPointModifier, 0], [-halfRiverWidth * this.towerThreeFourPositionModifier, this.ph3 * attachPointModifier, 0], this.mainCablesRadius, 4, this.ph2);
+		this.mainCableLeft23 = new BridgeMainCable([-halfRiverWidth * this.towerThreeFourPositionModifier, this.ph3 * attachPointModifier, 0], [halfRiverWidth * this.towerThreeFourPositionModifier, this.ph3 * attachPointModifier, 0], this.mainCablesRadius, 3, this.ph2);
+		this.mainCableLeft34 = new BridgeMainCable([halfRiverWidth * this.towerThreeFourPositionModifier, this.ph3 * attachPointModifier, 0], [halfRiverWidth * this.towerOneTwoPositionModifier, this.ph3 * attachPointModifier, 0], this.mainCablesRadius, 3, this.ph2);
 
-		this.mainCableRight12 = null;
-		this.mainCableRight23 = null;
-		this.mainCableRight34 = null;
+		this.mainCableRight12 = new BridgeMainCable([-halfRiverWidth * this.towerOneTwoPositionModifier, this.ph3 * attachPointModifier, 0], [-halfRiverWidth * this.towerThreeFourPositionModifier, this.ph3 * attachPointModifier, 0], this.mainCablesRadius, 4, this.ph2);
+		this.mainCableRight23 = new BridgeMainCable([-halfRiverWidth * this.towerThreeFourPositionModifier, this.ph3 * attachPointModifier, 0], [halfRiverWidth * this.towerThreeFourPositionModifier, this.ph3 * attachPointModifier, 0], this.mainCablesRadius, 3, this.ph2);
+		this.mainCableRight34 = new BridgeMainCable([halfRiverWidth * this.towerThreeFourPositionModifier, this.ph3 * attachPointModifier, 0], [halfRiverWidth * this.towerOneTwoPositionModifier, this.ph3 * attachPointModifier, 0], this.mainCablesRadius, 3, this.ph2);
 	}
 
 
 	this.mainCableLeft01.applyMatrix(moveToLeftMatrix);
 	this.mainCableLeft12.applyMatrix(moveToLeftMatrix);
-	//this.mainCableLeft23.applyMatrix(moveToLeftMatrix);
-	//this.mainCableLeft34.applyMatrix(moveToLeftMatrix);
+	this.mainCableLeft23.applyMatrix(moveToLeftMatrix);
+	this.mainCableLeft34.applyMatrix(moveToLeftMatrix);
 	this.mainCableLeft40.applyMatrix(moveToLeftMatrix);
 
 	this.mainCableRight01.applyMatrix(moveToRightMatrix);
 	this.mainCableRight12.applyMatrix(moveToRightMatrix);
-	//this.mainCableRight23.applyMatrix(moveToRightMatrix);
-	//this.mainCableRight34.applyMatrix(moveToRightMatrix);
+	this.mainCableRight23.applyMatrix(moveToRightMatrix);
+	this.mainCableRight34.applyMatrix(moveToRightMatrix);
 	this.mainCableRight40.applyMatrix(moveToRightMatrix);
 
 	this.addModel(this.mainCableLeft01);
@@ -469,5 +462,15 @@ Bridge.prototype.draw = function(parentMatrix, glProgram)
 
 	this.mainCableLeft12.draw(m_bridge, glProgram);
 	this.mainCableRight12.draw(m_bridge, glProgram);
+	if (this.towerAmount >= 3)
+	{
+		this.mainCableLeft23.draw(m_bridge, glProgram);
+		this.mainCableRight23.draw(m_bridge, glProgram);
+	}
+	if (this.towerAmount >= 4)
+	{
+		this.mainCableLeft34.draw(m_bridge, glProgram);
+		this.mainCableRight34.draw(m_bridge, glProgram);
+	}
 }
 

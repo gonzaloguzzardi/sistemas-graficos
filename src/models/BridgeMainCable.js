@@ -66,7 +66,7 @@ var BridgeMainCable = function(startPoint, endPoint, radius, type, ph2)
 										this.endPoint, this.endPoint, this.endPoint
 									]);
 									]);*/
-	var curvePath;
+	this.curvePath;
 	var p1, p2, halfHeightPoint, halfHeightPointRight;
 	if (this.type == 1)
 	{
@@ -77,29 +77,28 @@ var BridgeMainCable = function(startPoint, endPoint, radius, type, ph2)
 	else if (this.type == 2)
 	{
 		deltaY = this.startPoint[1] - this.ph2;
-		p1 = [deltaX * 0.1 + this.startPoint[0], -deltaY * 0.75 + this.startPoint[1], 0.0];
-		p2 = [deltaX * 0.9 + this.startPoint[0], -deltaY * 0.75 + this.startPoint[1], 0.0];
+		p1 = [deltaX * 0.1 + this.startPoint[0], -deltaY * 0.775 + this.startPoint[1], 0.0];
+		p2 = [deltaX * 0.9 + this.startPoint[0], -deltaY * 0.775 + this.startPoint[1], 0.0];
 		curvePath = new BezierCurve ([this.startPoint, p1, p2, this.endPoint]);
 	}
 	else if (this.type == 3)
 	{
-		p1 = [deltaX * 0.4 + this.startPoint[0], this.startPoint[1] * 0.2, 0.0];
-		p2 = [deltaX * 0.6 + this.startPoint[0], this.startPoint[1] * 0.2, 0.0];
+		deltaY = this.startPoint[1] - this.ph2;
+		p1 = [deltaX * 0.35 + this.startPoint[0], -deltaY * 0.75 + this.startPoint[1], 0.0];
+		p2 = [deltaX * 0.65 + this.startPoint[0], -deltaY * 0.75 + this.startPoint[1], 0.0];
+		curvePath = new BezierCurve ([this.startPoint, p1, p2, this.endPoint]);
+	}
+	else if (this.type == 4)
+	{
+		deltaY = this.startPoint[1] - this.ph2;
+		p1 = [deltaX * 0.4 + this.startPoint[0], -deltaY * 0.725 + this.startPoint[1], 0.0];
+		p2 = [deltaX * 0.6 + this.startPoint[0], -deltaY * 0.725 + this.startPoint[1], 0.0];
+		curvePath = new BezierCurve ([this.startPoint, p1, p2, this.endPoint]);
 	}
 	else
 	{
 		curvePath = new BezierCurve ([this.startPoint, p1, p2,this.endPoint]);
 	}
-
-	
-	console.log(this.startPoint);
-	console.log(p1);
-	/*console.log(halfHeightPointLeft);
-	console.log(halfHeightPoint);
-	console.log(halfHeightPointRight);
-	console.log(p2);*/
-	console.log(this.endPoint);
-
 
 	var polygon = new CircleShape(this.radius, this.step);
 	
@@ -138,6 +137,8 @@ var BridgeMainCable = function(startPoint, endPoint, radius, type, ph2)
 	SweptSurface.call(this, polygon, pathPoints, pathBases);
 
 	this.init();
+
+	this.setColor(getColor("mainCables"));
 }
 
 BridgeMainCable.prototype = Object.create(SweptSurface.prototype);

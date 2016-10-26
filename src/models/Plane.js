@@ -48,7 +48,9 @@ Plane.prototype.createPlaneGrid = function()
 
 			// y = 0
 			var x = i - (this.rows - 1.0) / 2.0;
+			x *= 5;
 			var z = j - (this.cols - 1.0) / 2.0;
+			z *= 5;
 			this.position_buffer.push(x);
 			this.position_buffer.push(0);
 			this.position_buffer.push(z);
