@@ -47,25 +47,7 @@ var BridgeMainCable = function(startPoint, endPoint, radius, type, ph2)
 	var deltaX = this.endPoint[0] - this.startPoint[0];
 	var deltaY = this.startPoint[1] - this.endPoint[1];
 
-/*	var halfHeightPointLeft = [(this.endPoint[0] - this.startPoint[0]) * 0.3, this.startPoint[1] * 0.2, 0.0];
-	var halfHeightPoint = [(this.endPoint[0] - this.startPoint[0]) * 0.5, this.startPoint[1] * 0.2, 0.0];
-	var halfHeightPointRight = [(this.endPoint[0] - this.startPoint[0]) * 0.7, this.startPoint[1] * 0.2, 0.0];
 
-	var p1 = [(this.endPoint[0] - this.startPoint[0]) * 0.1, this.startPoint[1] * 0.5, 0.0];
-	var p2 = [(this.endPoint[0] - this.startPoint[0]) * 0.9, this.startPoint[1] * 0.5, 0.0];
-
-	var polygon = new CircleShape(this.radius, this.step);
-
-	
-	var curvePath = new BSplineCurve([ this.startPoint, this.startPoint, this.startPoint,
-										p1, 
-										halfHeightPointLeft,
-										halfHeightPoint, 
-										halfHeightPointRight,
-										p2, 
-										this.endPoint, this.endPoint, this.endPoint
-									]);
-									]);*/
 	this.curvePath;
 	var p1, p2, halfHeightPoint, halfHeightPointRight;
 	if (this.type == 1)
@@ -100,7 +82,7 @@ var BridgeMainCable = function(startPoint, endPoint, radius, type, ph2)
 		curvePath = new BezierCurve ([this.startPoint, p1, p2,this.endPoint]);
 	}
 
-	var polygon = new CircleShape(this.radius, this.step);
+	var cableShape = new CircleShape(this.radius, this.step);
 	
 	var u = 0;
 	var pathPoints = [];
@@ -134,7 +116,7 @@ var BridgeMainCable = function(startPoint, endPoint, radius, type, ph2)
 		u += this.step;
 	}
 
-	SweptSurface.call(this, polygon, pathPoints, pathBases);
+	SweptSurface.call(this, cableShape, pathPoints, pathBases);
 
 	this.init();
 

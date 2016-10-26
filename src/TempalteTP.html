@@ -27,16 +27,21 @@
 <script type="text/javascript" src="core/Group.js"></script>
 
 
+<script type="text/javascript" src="models/SquareShape.js"></script>
+<script type="text/javascript" src="models/TowerShape.js"></script>
+<script type="text/javascript" src="models/CircleShape.js"></script>
+<script type="text/javascript" src="models/RoadShape.js"></script>
+
 <script type="text/javascript" src="models/Tensor.js"></script>
 <script type="text/javascript" src="models/Plane.js"></script>
 <script type="text/javascript" src="models/Cylinder.js"></script>
+
 <script type="text/javascript" src="models/TreeTop.js"></script>
-<script type="text/javascript" src="models/TowerShape.js"></script>
+
 <script type="text/javascript" src="models/TowerBase.js"></script>
 <script type="text/javascript" src="models/TowerTop.js"></script>
 <script type="text/javascript" src="models/Tower.js"></script>
-<script type="text/javascript" src="models/RoadShape.js"></script>
-<script type="text/javascript" src="models/CircleShape.js"></script>
+
 <script type="text/javascript" src="models/BridgeMainCable.js"></script>
 <script type="text/javascript" src="models/BridgeStrap.js"></script>
 <script type="text/javascript" src="models/BridgeRoad.js"></script>
@@ -356,7 +361,7 @@
     var tower = null;
     var plane = null;
     var treeTop = null;
-    var bridgeMainCable = null;
+    var bridgeStrap = null;
 
     var deimosRotationMatrix = mat4.create();
     mat4.identity(deimosRotationMatrix);
@@ -438,7 +443,7 @@
         //treeTop = new TreeTop(0.01, 0.0);
         plane = new Plane(100, 100);
         plane.draw_mode = gl.LINE_STRIP;
-       // bridgeMainCable = new BridgeMainCable();
+        bridgeStrap = new BridgeStrap();
         
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.enable(gl.DEPTH_TEST);
@@ -486,8 +491,8 @@
         tower.setScale(bridgeParameters.towerScales);
         //tower.draw(m_tb, shaderProgramColoredObject, bridgeParameters.th1, bridgeParameters.th2, bridgeParameters.th3);
 
-      //  var m_bridgeCable = mat4.create();
-       // bridgeMainCable.draw(m_bridgeCable, shaderProgramColoredObject);
+        //var m_bridgeCable = mat4.create();
+       // bridgeStrap.draw(m_bridgeCable, shaderProgramColoredObject);
 
         var m_tt = mat4.create();
         mat4.translate(m_tt, m_tt, [75.0, 25.0, 15.0]);

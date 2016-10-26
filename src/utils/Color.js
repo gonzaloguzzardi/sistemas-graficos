@@ -12,6 +12,7 @@ function getColor(color)
     if (color == "towerBase") return [0.715, 0.1, 0.1];
     if (color == "towerTop") return [0.59, 0.22, 0.22];
     if (color == "mainCables") return [0.915, 0.1, 0.1];
+    if (color == "strap") return [0.915, 0.1, 0.1];
     if (color == "road") return [0.92, 0.92, 0.92];
 
     //Color desconocido

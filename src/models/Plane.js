@@ -7,6 +7,8 @@
 var Plane = function(w, h){
 	this.setRows(w);
 	this.setCols(h);
+
+	this.pointsDistance = 5.0;
 	
 	Model.call(this, this.gridType);
 	this.tangent_buffer = [];
@@ -48,9 +50,9 @@ Plane.prototype.createPlaneGrid = function()
 
 			// y = 0
 			var x = i - (this.rows - 1.0) / 2.0;
-			x *= 5;
+			x *= this.pointsDistance;
 			var z = j - (this.cols - 1.0) / 2.0;
-			z *= 5;
+			z *= this.pointsDistance;
 			this.position_buffer.push(x);
 			this.position_buffer.push(0);
 			this.position_buffer.push(z);
