@@ -83,6 +83,8 @@ var BridgeRoad = function(length, width, height)
 
 	this.init();
 
+	this.setColor(getColor("road"));
+
 }
 
 BridgeRoad.prototype = Object.create(SweptSurface.prototype);

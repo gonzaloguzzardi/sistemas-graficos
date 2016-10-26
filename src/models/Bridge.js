@@ -104,6 +104,17 @@ Bridge.prototype.setBridgeDimensions = function(length, width, riverWidth)
 	this.bridgeWidth = width;
 	this.bridgeLength = length;
 	this.riverWidth = riverWidth;
+
+	if (length < riverWidth)
+	{
+		console.log("Warning: Bridge should be larger than the river width.")
+		this.riverWidth = length;
+	}
+}
+
+Bridge.prototype.setStrapDistances = function(distance)
+{
+	this.s1 = distance;
 }
 
 Bridge.prototype.setMainCableRadius = function(radius)
@@ -131,7 +142,8 @@ Bridge.prototype.buildBridge = function()
 	// build everything
 	this.buildBridgeRoad();
 	this.buildTowers();
-	this.placeTowersAndCables(this.towerAmount);
+	this.placeTowers();
+	this.buildStraps();
 
 	this.initialized = true;
 }
@@ -142,10 +154,10 @@ Bridge.prototype.buildBridgeRoad = function()
 	this.bridgeRoad = new BridgeRoad(this.bridgeLength, this.bridgeWidth, roadHeight);
 	this.addModel(this.bridgeRoad);
 
-	for (var i = 0; i < this.bridgeRoad.roadPath.sections; i++)
+	/*for (var i = 0; i < this.bridgeRoad.roadPath.sections; i++)
 	{
 		console.log("u = " + i + " , height = " + this.bridgeRoad.roadPath.pointFromCurve(i)[1]);
-	}
+	}*/
 }
 
 Bridge.prototype.buildTowers = function()
@@ -180,7 +192,7 @@ Bridge.prototype.placeBridgeRoad = function()
 	*/
 }
 
-Bridge.prototype.placeTowersAndCables = function(towerAmount)
+Bridge.prototype.placeTowers = function()
 {
 	var halfBridgeWidth = this.bridgeWidth * 0.5;
 	var halfRiverWidth = this.riverWidth * 0.5;
@@ -198,12 +210,12 @@ Bridge.prototype.placeTowersAndCables = function(towerAmount)
 	var posTowerRight3 = [0, 0, 0];
 	var posTowerRight4 = [0, 0, 0];
 
-	if (towerAmount == 3)
+	if (this.towerAmount == 3)
 	{
 		posTowerLeft3 = [0, 0, halfBridgeWidth];
 		posTowerRight3 = [0, 0, -halfBridgeWidth];
 	}
-	if(towerAmount == 4)
+	if(this.towerAmount == 4)
 	{
 		var posThreeFourModifier = this.towerThreeFourPositionModifier;
 		posTowerLeft3 = [-halfRiverWidth * posThreeFourModifier, 0, halfBridgeWidth];
@@ -254,12 +266,91 @@ Bridge.prototype.placeTowersAndCables = function(towerAmount)
 	mr4 = mat4.create();
 	mat4.translate(mr4, mr4, posTowerRight4);
 	this.rightTower4.applyMatrix(mr4);
+}
 
-	/////////////////////////// CABLES ////////////////////////////////////////////
+Bridge.prototype.buildStraps = function()
+{
+	// left --> +z
+	// right --> -z
+	//place straps in xy plane and then translate them in z
+	var attachPointModifier = 0.95;
 
-	//this.mainCableLeft01 = new BridgeMainCable(startPoint, endPoint, this.mainCablesRadius);
+	var firstTowerTH3 = this.ph3;
+	var secondTowerTH3 = firstTowerTH3;
+	var thirdTowerTH3 = this.getLeftoverTowerHeight(this.getFirstSegmentTowerHeight(3)) * 0.5;
+	var FourthTowerTH3 = this.getLeftoverTowerHeight(this.getFirstSegmentTowerHeight(4)) * 0.5;
 
-	//this.addModel(this.rightTower4);
+	var halfLength = this.bridgeLength * 0.5;
+	var halfRiverWidth = this.riverWidth * 0.5;
+	var halfBridgeWidth = this.bridgeWidth * 0.5;
+
+	var moveToLeftMatrix = mat4.create();
+	var moveToRightMatrix = mat4.create();
+	mat4.translate(moveToLeftMatrix, moveToLeftMatrix, [0.0, 0.0, halfBridgeWidth]);
+	mat4.translate(moveToRightMatrix, moveToRightMatrix, [0.0, 0.0, -halfBridgeWidth]);
+
+	//Constant Straps
+	this.mainCableLeft01 = new BridgeMainCable([-halfRiverWidth * this.towerOneTwoPositionModifier, this.ph3 * attachPointModifier, 0], [-halfLength, this.ph1, 0], this.mainCablesRadius, 1);
+	this.mainCableRight01 = new BridgeMainCable([-halfRiverWidth * this.towerOneTwoPositionModifier, this.ph3 * attachPointModifier, 0], [-halfLength, this.ph1, 0], this.mainCablesRadius, 1);
+	this.mainCableLeft40 = new BridgeMainCable([halfRiverWidth * this.towerOneTwoPositionModifier, this.ph3 * attachPointModifier, 0], [halfLength, this.ph1, 0], this.mainCablesRadius, 1);
+	this.mainCableRight40 = new BridgeMainCable([halfRiverWidth * this.towerOneTwoPositionModifier, this.ph3 * attachPointModifier, 0], [halfLength, this.ph1, 0], this.mainCablesRadius, 1);
+
+	if (this.towerAmount == 2)
+	{
+		this.mainCableLeft12 = new BridgeMainCable([-halfRiverWidth * this.towerOneTwoPositionModifier, this.ph3 * attachPointModifier, 0], [halfRiverWidth * this.towerOneTwoPositionModifier, this.ph3 * attachPointModifier, 0], this.mainCablesRadius, 2, this.ph2);
+		this.mainCableLeft23 = null;
+		this.mainCableLeft34 = null;
+
+		this.mainCableRight12 = new BridgeMainCable([-halfRiverWidth * this.towerOneTwoPositionModifier, this.ph3 * attachPointModifier, 0], [halfRiverWidth * this.towerOneTwoPositionModifier, this.ph3 * attachPointModifier, 0], this.mainCablesRadius, 2, this.ph2);;
+		this.mainCableRight23 = null;
+		this.mainCableRight34 = null;
+	}
+
+	if (this.towerAmount == 3)
+	{
+		this.mainCableLeft12 = new BridgeMainCable([-halfRiverWidth * this.towerOneTwoPositionModifier, this.ph3 * attachPointModifier, 0], [-halfLength, this.ph1, 0], this.mainCablesRadius);
+		this.mainCableLeft23 = null;
+		this.mainCableLeft34 = null;
+
+		this.mainCableRight12 = null;
+		this.mainCableRight23 = null;
+		this.mainCableRight34 = null;
+	}
+
+	if (this.towerAmount == 4)
+	{
+		this.mainCableLeft12 = new BridgeMainCable([-halfRiverWidth * this.towerOneTwoPositionModifier, this.ph3 * attachPointModifier, 0], [-halfLength, this.ph1, 0], this.mainCablesRadius);
+		this.mainCableLeft23 = null;
+		this.mainCableLeft34 = null;
+
+		this.mainCableRight12 = null;
+		this.mainCableRight23 = null;
+		this.mainCableRight34 = null;
+	}
+
+
+	this.mainCableLeft01.applyMatrix(moveToLeftMatrix);
+	this.mainCableLeft12.applyMatrix(moveToLeftMatrix);
+	//this.mainCableLeft23.applyMatrix(moveToLeftMatrix);
+	//this.mainCableLeft34.applyMatrix(moveToLeftMatrix);
+	this.mainCableLeft40.applyMatrix(moveToLeftMatrix);
+
+	this.mainCableRight01.applyMatrix(moveToRightMatrix);
+	this.mainCableRight12.applyMatrix(moveToRightMatrix);
+	//this.mainCableRight23.applyMatrix(moveToRightMatrix);
+	//this.mainCableRight34.applyMatrix(moveToRightMatrix);
+	this.mainCableRight40.applyMatrix(moveToRightMatrix);
+
+	this.addModel(this.mainCableLeft01);
+	this.addModel(this.mainCableLeft12);
+	this.addModel(this.mainCableLeft23);
+	this.addModel(this.mainCableLeft34);
+	this.addModel(this.mainCableLeft40);
+	this.addModel(this.mainCableRight01);
+	this.addModel(this.mainCableRight12);
+	this.addModel(this.mainCableRight23);
+	this.addModel(this.mainCableRight34);
+	this.addModel(this.mainCableRight40);
 }
 
 
@@ -336,17 +427,17 @@ Bridge.prototype.draw = function(parentMatrix, glProgram)
 	}
 	mat4.scale(m_bridge, m_bridge, [this.bridgeScale, this.bridgeScale, this.bridgeScale]);
 
-	// Draw Bridge Road
+	///////////////////////////  Draw Bridge Road ////////////////////////////////////
 	var m_bridgeRoad = mat4.create();
 	mat4.multiply(m_bridgeRoad, m_bridgeRoad, m_bridge);
 	mat4.translate(m_bridgeRoad, m_bridgeRoad, [0, this.ph1, 0]);
 	this.bridgeRoad.draw(m_bridgeRoad, glProgram)
 
 
+	/////////////////////////// Draw Towers ///////////////////////////////////////////////
 	var th1 = this.getFirstSegmentTowerHeight(1);
 	var th2 = this.getLeftoverTowerHeight(th1) * 0.5;
 	var th3 = th2;
-	// Draw Towers
 	this.leftTower1.draw(m_bridge, glProgram, th1 , th2, th3);
 	this.leftTower2.draw(m_bridge, glProgram, th1, th2, th3);
 	this.rightTower1.draw(m_bridge, glProgram, th1, th2, th3);
@@ -370,5 +461,13 @@ Bridge.prototype.draw = function(parentMatrix, glProgram)
 		this.leftTower4.draw(m_bridge, glProgram, th1, th2, th3);
 	}
 
+	/////////////////////////// Draw Main Cables ////////////////////////////////////////////////////
+	this.mainCableLeft01.draw(m_bridge, glProgram);
+	this.mainCableRight01.draw(m_bridge, glProgram);
+	this.mainCableRight40.draw(m_bridge, glProgram);
+	this.mainCableLeft40.draw(m_bridge, glProgram);
+
+	this.mainCableLeft12.draw(m_bridge, glProgram);
+	this.mainCableRight12.draw(m_bridge, glProgram);
 }
 

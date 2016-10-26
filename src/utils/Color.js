@@ -11,6 +11,7 @@ function getColor(color)
     //geometry specific
     if (color == "towerBase") return [0.715, 0.1, 0.1];
     if (color == "towerTop") return [0.59, 0.22, 0.22];
+    if (color == "road") return [0.92, 0.92, 0.92];
 
     //Color desconocido
     return [0.5, 0.5, 0.5];

@@ -195,16 +195,17 @@
     terrainParameters.roadWidth = 20.0;
     //Puente
     var bridgeParameters = {};
-    bridgeParameters.bridgeLength = 150.0;
+    bridgeParameters.bridgeLength = 250.0;
     bridgeParameters.ph2 = 18.0;
     bridgeParameters.ph3 = 75.0;
     bridgeParameters.th1 = 10.0;
     bridgeParameters.th2 = 15.0;
     bridgeParameters.th3 = 10.0;
+    bridgeParameters.s1 = 5.0;
 
     bridgeParameters.towerScales = 1.0;
     bridgeParameters.scale = 1.0;
-    bridgeParameters.towerAmount = 4;
+    bridgeParameters.towerAmount = 2;
 
     //Shaders Programs
     var shaderProgramColoredObject;
@@ -422,6 +423,7 @@
         bridge = new Bridge( bridgeParameters.towerAmount);
         bridge.setBridgeHeights( terrainParameters.terrainHeight, bridgeParameters.ph2, bridgeParameters.ph3);
         bridge.setBridgeDimensions(bridgeParameters.bridgeLength, terrainParameters.roadWidth, terrainParameters.riverWidth);
+        bridge.setStrapDistances(bridgeParameters.s1);
 
         bridge.buildBridge();
 
@@ -430,7 +432,7 @@
         //treeTop = new TreeTop(0.01, 0.0);
         plane = new Plane(100, 100);
         //plane.draw_mode = gl.LINE_STRIP;
-        bridgeMainCable = new BridgeMainCable();
+       // bridgeMainCable = new BridgeMainCable();
         
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.enable(gl.DEPTH_TEST);
@@ -478,8 +480,8 @@
         tower.setScale(bridgeParameters.towerScales);
         //tower.draw(m_tb, shaderProgramColoredObject, bridgeParameters.th1, bridgeParameters.th2, bridgeParameters.th3);
 
-        var m_bridgeCable = mat4.create();
-        //bridgeMainCable.draw(m_bridgeCable, shaderProgramColoredObject);
+      //  var m_bridgeCable = mat4.create();
+       // bridgeMainCable.draw(m_bridgeCable, shaderProgramColoredObject);
 
         var m_tt = mat4.create();
         mat4.translate(m_tt, m_tt, [75.0, 25.0, 15.0]);

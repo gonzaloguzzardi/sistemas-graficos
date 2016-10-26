@@ -8,13 +8,25 @@ Dependencies:
 -BSplineCurve.js
 ****************************************/
 
-var BridgeMainCable = function(startPoint, endPoint, radius) 
+var BridgeMainCable = function(startPoint, endPoint, radius, type, ph2) 
 {
+
+	this.type = 1;
+	if (type !== undefined)
+	{
+		this.type = type;
+	}
 
 	this.radius = 5.0;
 	if (radius !== undefined)
 	{
 		this.radius = radius;
+	}
+
+	this.ph2 = 0.0;
+	if (ph2 !== undefined)
+	{
+		this.ph2 = ph2;
 	}
 
 
@@ -30,9 +42,12 @@ var BridgeMainCable = function(startPoint, endPoint, radius)
 		this.endPoint = endPoint;
 	}
 
-	this.step = 0.1;
+	this.step = 0.01;
 
-	var halfHeightPointLeft = [(this.endPoint[0] - this.startPoint[0]) * 0.3, this.startPoint[1] * 0.2, 0.0];
+	var deltaX = this.endPoint[0] - this.startPoint[0];
+	var deltaY = this.startPoint[1] - this.endPoint[1];
+
+/*	var halfHeightPointLeft = [(this.endPoint[0] - this.startPoint[0]) * 0.3, this.startPoint[1] * 0.2, 0.0];
 	var halfHeightPoint = [(this.endPoint[0] - this.startPoint[0]) * 0.5, this.startPoint[1] * 0.2, 0.0];
 	var halfHeightPointRight = [(this.endPoint[0] - this.startPoint[0]) * 0.7, this.startPoint[1] * 0.2, 0.0];
 
@@ -50,6 +65,43 @@ var BridgeMainCable = function(startPoint, endPoint, radius)
 										p2, 
 										this.endPoint, this.endPoint, this.endPoint
 									]);
+									]);*/
+	var curvePath;
+	var p1, p2, halfHeightPoint, halfHeightPointRight;
+	if (this.type == 1)
+	{
+		p1 = [deltaX * 0.4 + this.startPoint[0], -deltaY * 0.8 + this.startPoint[1], 0.0];
+		p2 = [deltaX * 0.6 + this.startPoint[0], -deltaY * 0.8 + this.startPoint[1], 0.0];
+		curvePath = new BezierCurve ([this.startPoint, p1, p2, this.endPoint]);
+	}
+	else if (this.type == 2)
+	{
+		deltaY = this.startPoint[1] - this.ph2;
+		p1 = [deltaX * 0.1 + this.startPoint[0], -deltaY * 0.75 + this.startPoint[1], 0.0];
+		p2 = [deltaX * 0.9 + this.startPoint[0], -deltaY * 0.75 + this.startPoint[1], 0.0];
+		curvePath = new BezierCurve ([this.startPoint, p1, p2, this.endPoint]);
+	}
+	else if (this.type == 3)
+	{
+		p1 = [deltaX * 0.4 + this.startPoint[0], this.startPoint[1] * 0.2, 0.0];
+		p2 = [deltaX * 0.6 + this.startPoint[0], this.startPoint[1] * 0.2, 0.0];
+	}
+	else
+	{
+		curvePath = new BezierCurve ([this.startPoint, p1, p2,this.endPoint]);
+	}
+
+	
+	console.log(this.startPoint);
+	console.log(p1);
+	/*console.log(halfHeightPointLeft);
+	console.log(halfHeightPoint);
+	console.log(halfHeightPointRight);
+	console.log(p2);*/
+	console.log(this.endPoint);
+
+
+	var polygon = new CircleShape(this.radius, this.step);
 	
 	var u = 0;
 	var pathPoints = [];
