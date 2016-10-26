@@ -22,7 +22,7 @@ var BridgeStrap = function(startPoint, endPoint)
 		this.endPoint = endPoint;
 	}
 
-	this.step = 0.1;
+	this.step = 0.01;
 
 	this.baseWidth = 2.5;
 	this.baseHeight = 2.5;

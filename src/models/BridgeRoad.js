@@ -4,7 +4,6 @@ Bridge Road
 Dependencies:
 -SweptSurface.js
 -RoadShape.js
--BezierCurve.js
 -BSplineCurve.js
 ****************************************/
 
@@ -18,7 +17,7 @@ var BridgeRoad = function(length, width, height)
 	this.roadSlopeModifier = 0.8;
 
 
-	var roadShape = new RoadShape(0.1, this.width);
+	var roadShape = new RoadShape(step, this.width);
 
 
 	//roadPath it's made of BSpline Curves, Repeating 3 times the beginning point, height point and end point.

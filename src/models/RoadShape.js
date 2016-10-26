@@ -11,7 +11,7 @@ var RoadShape = function(step, width)
 {
 	this.roadLength = width;
 
-	this.rampHeight = 2.0;
+	this.rampHeight = 4.0;
 	this.rampLength = 2.5;
 	this.rampSlope = 1.0;
 

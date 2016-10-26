@@ -47,6 +47,8 @@
 <script type="text/javascript" src="models/BridgeRoad.js"></script>
 <script type="text/javascript" src="models/Bridge.js"></script>
 
+<script type="text/javascript" src="models/Road.js"></script>
+
 
 
 <script id="shader-fs-colored-obj" type="x-shader/x-fragment">
@@ -356,7 +358,12 @@
     var lastMouseY = null;
     var mouseDown = false;
 
+    ////////////////////// Models /////////////////////////
     var bridge = null;
+    var roadLeft = null;
+    var roadRight = null;
+    //////////////////////////////////////////////////////
+
     var bridgeRoad = null;
     var tower = null;
     var plane = null;
@@ -438,6 +445,8 @@
         bridge.setStrapDistances(bridgeParameters.s1);
         bridge.buildBridge();
 
+        roadLeft = new Road(150.0, terrainParameters.roadWidth, 0.1);
+
         bridgeRoad = new BridgeRoad(50.0, 20.0, 5.0);
         tower = new Tower(0.1, 0.7);
         //treeTop = new TreeTop(0.01, 0.0);
@@ -481,13 +490,15 @@
         var m_bridge = mat4.create();
         bridge.draw(m_bridge, shaderProgramColoredObject);
 
-
-
+        var m_roadLeft = mat4.create();
+        mat4.translate(m_roadLeft, m_roadLeft, [ -bridgeParameters.bridgeLength * 0.5 - 75.0, terrainParameters.terrainHeight, 0.0]);
+        roadLeft.draw(m_roadLeft, shaderProgramColoredObject);
          //////////////////  Tensor //////////////////////////////////////
 
 
         var m_tb = mat4.create();
         mat4.translate(m_tb, m_tb, [5.0, 10.0, 15.0]);
+        mat4.scale(m_tb, m_tb, [bridgeParameters.scale, bridgeParameters.scale, bridgeParameters.scale]);
         tower.setScale(bridgeParameters.towerScales);
         //tower.draw(m_tb, shaderProgramColoredObject, bridgeParameters.th1, bridgeParameters.th2, bridgeParameters.th3);
 
