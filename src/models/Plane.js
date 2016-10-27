@@ -4,11 +4,15 @@
 *
 */
 
-var Plane = function(w, h){
-	this.setRows(w);
-	this.setCols(h);
+var Plane = function(width, height, pointDistance){
+	this.setRows(width);
+	this.setCols(height);
 
 	this.pointsDistance = 5.0;
+	if (pointDistance !== undefined)
+	{
+		this.pointDistance = pointDistance;
+	}
 	
 	Model.call(this, this.gridType);
 	this.tangent_buffer = [];
@@ -58,9 +62,9 @@ Plane.prototype.createPlaneGrid = function()
 			this.position_buffer.push(z);
 
 			// Color
-			this.color_buffer.push(0.35);
-			this.color_buffer.push(0.35);
-			this.color_buffer.push(0.35);
+			this.color_buffer.push(0.0);
+			this.color_buffer.push(1.0);
+			this.color_buffer.push(0.0);
 			
 			// Normals
 			this.normals_buffer.push(0);

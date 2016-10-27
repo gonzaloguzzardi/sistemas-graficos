@@ -49,6 +49,8 @@
 
 <script type="text/javascript" src="models/Road.js"></script>
 
+<script type="text/javascript" src="scenes/BridgeScene.js"></script>
+
 
 
 <script id="shader-fs-colored-obj" type="x-shader/x-fragment">
@@ -359,6 +361,7 @@
     var mouseDown = false;
 
     ////////////////////// Models /////////////////////////
+    var bridgeScene = null;
     var bridge = null;
     var roadLeft = null;
     var roadRight = null;
@@ -439,6 +442,8 @@
     bridgeParameters.towerAmount = 2;
     bridgeParameters.scale = 1.0;
 */
+        bridgeScene = new BridgeScene();
+
         bridge = new Bridge( bridgeParameters.towerAmount);
         bridge.setBridgeHeights( terrainParameters.terrainHeight, bridgeParameters.ph2, bridgeParameters.ph3);
         bridge.setBridgeDimensions(bridgeParameters.bridgeLength, terrainParameters.roadWidth, terrainParameters.riverWidth);
@@ -486,9 +491,12 @@
        // bSplineCurve.draw(bSplineCurve.model_matrix, shaderProgramColoredObject);
 
         //////////////////  Bridge //////////////////////////////////////
+
+
         bridge.setScale(bridgeParameters.scale);
         var m_bridge = mat4.create();
-        bridge.draw(m_bridge, shaderProgramColoredObject);
+      //  bridge.draw(m_bridge, shaderProgramColoredObject);
+        bridgeScene.draw(m_bridge, shaderProgramColoredObject);
 
         var m_roadLeft = mat4.create();
         mat4.translate(m_roadLeft, m_roadLeft, [ -bridgeParameters.bridgeLength * 0.5 - 75.0, terrainParameters.terrainHeight, 0.0]);
@@ -496,10 +504,10 @@
          //////////////////  Tensor //////////////////////////////////////
 
 
-        var m_tb = mat4.create();
+       /* var m_tb = mat4.create();
         mat4.translate(m_tb, m_tb, [5.0, 10.0, 15.0]);
         mat4.scale(m_tb, m_tb, [bridgeParameters.scale, bridgeParameters.scale, bridgeParameters.scale]);
-        tower.setScale(bridgeParameters.towerScales);
+        tower.setScale(bridgeParameters.towerScales);*/
         //tower.draw(m_tb, shaderProgramColoredObject, bridgeParameters.th1, bridgeParameters.th2, bridgeParameters.th3);
 
        // var m_bridgeCable = mat4.create();
@@ -519,7 +527,7 @@
 
         var m_plane = mat4.create();
         mat4.scale(m_plane, m_plane, vec3.fromValues(2.0, 1.0, 2.0));
-        plane.draw(m_plane, shaderProgramColoredObject);
+       // plane.draw(m_plane, shaderProgramColoredObject);
 
     }
 
