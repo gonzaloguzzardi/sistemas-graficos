@@ -6,12 +6,12 @@ var BridgeScene = function()
 {
 	// Terrain Parameters
 	this.terrainElevation = 15.0;
-	this.waterLevel = -25.0;
+	this.waterSubmergence= 25.0;
 
 	this.terrainWidth = 1000.0;
 	this.terrainHeight = 1000.0;
 	this.coastWidth = 100.0;
-	this.distanceBetweenTerrainPoints = 20.0;
+	this.distanceBetweenTerrainPoints = 5.0;
 	this.riverWidth = 125.0;
 
 	// Bridge Parameters
@@ -64,7 +64,12 @@ BridgeScene.prototype.setBridgeParameters = function(towerAmount, length, ph2, p
 	this.s1 = s1;
 
 	//maybe
-	this.bridgeLength = this.riverWidth + this.coastWidth;
+	this.bridgeLength = this.riverWidth + this.coastWidth * 2;
+}
+
+BridgeScene.prototype.setAmountOfTrees = function(amount)
+{
+	this.treeAmount = amount;
 }
 
 BridgeScene.prototype.setRoadParameters = function(roadWidth)
@@ -92,6 +97,7 @@ BridgeScene.prototype.create = function()
 	this.generateTerrain();
 	this.deformTerrain();
 	this.generateBridge();
+	this.generateRoads();
 	this.generateTrees();
 }
 
@@ -143,7 +149,12 @@ BridgeScene.prototype.pointsToTerrain = function(points, canvas2DWidth, canvas2D
 
 BridgeScene.prototype.generateRiver = function()
 {
-	this.river = new River(this.riverWidth, this.riverCurve, this.buildStep);
+	var detail = 50.0
+	var width = this.terrainWidth / detail;
+	var height = this.terrainHeight / detail;
+	this.river = new River(this.riverWidth * 1.1, this.riverCurve, this.buildStep);
+	//this.river = new Plane (width, height, detail);
+	this.river.setColor(getColor("river"));
 }
 
 
@@ -155,7 +166,7 @@ BridgeScene.prototype.generateTerrain = function()
 
 	this.terrain = new Plane (width, height, this.distanceBetweenTerrainPoints);
 
-	this.terrain.draw_mode = gl.LINE_STRIP;
+	//this.terrain.draw_mode = gl.LINE_STRIP;
 }
 
 
@@ -168,9 +179,9 @@ BridgeScene.prototype.generateBridge = function()
         this.bridge.buildBridge();
 
 	    // TODO Place Bridge on scene
-	    var minTangentZ = 1.0;
+	    /*var minTangentZ = 1.0;
 	    var convenientPoint = [0, 0, 0];
-	    for (var i = 1; i < this.riverCurve.maxU - 1; i += 0.1)
+	    for (var i = 1; i < this.riverCurve.maxU - 1; i += 0.01)
 		{
 			var point = this.riverCurve.pointFromCurve(i);
 			if (( point[0] < (-this.terrainWidth * 0.5 * 0.5)) || (point[0] > (this.terrainWidth * 0.5 * 0.5)))
@@ -184,26 +195,18 @@ BridgeScene.prototype.generateBridge = function()
 			{
 				convenientPoint = this.riverCurve.pointFromCurve(i);
 			}
-		}
-		this.bridgePos = convenientPoint;
-		console.log("Convenient point = " + this.bridgePos);
+		}*/
+		this.bridgePos = this.riverCurve.pointFromCurve(this.riverCurve.maxU/2.0);
+		//console.log("Convenient point = " + this.bridgePos);
 }
 
 BridgeScene.prototype.deformTerrain = function()
 {
 	//console.log(this.riverCurve);
 	var pointsInRows = this.terrainWidth / this.distanceBetweenTerrainPoints;
-	var pointsInCol = this.terrainHeight / this.distanceBetweenTerrainPoints;
-	var totalPoints = pointsInRows * pointsInCol;
-
-	for (var i = 0; i < totalPoints/2; i += 1)
-	{
-		var j = i * 3;
-		
-	}
 
 	var lastRow = -1;
-	for (var i = 0; i < this.riverCurve.maxU; i += 0.01)
+	for (var i = 0; i < this.riverCurve.maxU; i += 0.001)
 	{
 		var point = this.riverCurve.pointFromCurve(i);
 		//row = (width/2 - x) / dist
@@ -212,63 +215,111 @@ BridgeScene.prototype.deformTerrain = function()
 		{
 			continue;
 		}
+		//console.log(row);
 
 		var col = Math.floor(((this.terrainHeight * 0.5) - point[2]) / this.distanceBetweenTerrainPoints);
 		
-		//Levels of height
-		var minColRiver = Math.floor(((this.terrainHeight * 0.5) - point[2] - this.riverWidth) / this.distanceBetweenTerrainPoints);
-		var maxColRiver = Math.floor(((this.terrainHeight * 0.5) - point[2] - this.riverWidth) / this.distanceBetweenTerrainPoints);
+		//Terrain Heights
 
-		var bufferPoint = (row * pointsInRows + col) * 3;
-		this.terrain.position_buffer[bufferPoint + 1] += this.waterLevel;
+		//Deformation for water
+		var minColRiver = Math.floor(((this.terrainHeight * 0.5) - point[2] - (this.riverWidth/2)) / this.distanceBetweenTerrainPoints);
+		var maxColRiver = Math.floor(((this.terrainHeight * 0.5) - point[2] + (this.riverWidth/2)) / this.distanceBetweenTerrainPoints);
 
+		for (var j = minColRiver; j < maxColRiver; j++)
+		{
+			var bufferPoint = (row * pointsInRows + j) * 3;
+			this.terrain.position_buffer[bufferPoint + 1] -= (this.waterSubmergence + this.terrainElevation);
+		}
+		//Deformation for coast
+		var minColCoast = Math.floor(((this.terrainHeight * 0.5) - point[2] - (this.riverWidth/2) - this.coastWidth) / this.distanceBetweenTerrainPoints);
+		var maxColCoast = Math.floor(((this.terrainHeight * 0.5) - point[2] + (this.riverWidth/2) + this.coastWidth) / this.distanceBetweenTerrainPoints);
+
+		if (minColCoast > minColRiver) minColCoast = minColRiver;
+		if (maxColCoast < maxColRiver) maxColCoast = maxColRiver;
+
+		for (var j = minColCoast; j < minColRiver; j++)
+		{
+			var bufferPoint = (row * pointsInRows + j) * 3;
+			this.terrain.position_buffer[bufferPoint + 1] -= this.terrainElevation;
+		}
+		//this.terrain.position_buffer[(row * pointsInRows + minColRiver) + 1] -= this.terrainElevation * 0.5;
+		for (var j = maxColRiver; j < maxColCoast; j++)
+		{
+			var bufferPoint = (row * pointsInRows + j) * 3;
+			this.terrain.position_buffer[bufferPoint + 1] -= this.terrainElevation;
+		}
+		//this.terrain.position_buffer[(row * pointsInRows + maxColRiver) + 1] -= this.terrainElevation * 0.5;
 
 		lastRow = row;
 	}
 
-
-	/*for (var dt = 0; dt <= this.terrainWidth; dt += this.distanceBetweenTerrainPoints)
-	{
-		var u = 500 - dt;
-		var point = this.riverCurve.pointFromCurve(u);
-		var row = u / this.distanceBetweenTerrainPoints;
-		var center = point[2];
-		var minCol = (point[2] - this.riverWidth);
-		var maxCol = point[2] + this.riverWidth;
-
-		for (var i = minCol; i <= maxCol; i += this.distanceBetweenTerrainPoints)
-		{
-			var j = i * 3;
-			this.terrain.position_buffer[j + 1] -= this.terrainElevation * 4;
-		}
-	}*/
-
-	/*for (var i = 0; i < this.riverCurve.maxU; i += 0.01)
-	{
-		console.log(i + " / " + this.riverCurve.maxU + " " + this.riverCurve.pointFromCurve(i));
-	}*/
-
 	this.terrain.setupWebGLBuffers();
+}
+
+BridgeScene.prototype.generateRoads = function()
+{
+	//this.leftRoad = new Road(this.terrainHeight * 0.5 + this.bridgePos[2] - this.bridgeLength * 0.5, this.roadWidth, this.buildStep);
+	//this.rightRoad = new Road(this.terrainHeight * 0.5 - this.bridgePos[2] - this.bridgeLength * 0.5, this.roadWidth, this.buildStep);
+	this.leftRoad = new Road(this.terrainHeight * 0.5 + this.bridgePos[2] - this.bridgeLength * 0.5, this.roadWidth, this.buildStep);
+	this.rightRoad = new Road(this.terrainHeight * 0.5 - this.bridgePos[2] - this.bridgeLength * 0.5, this.roadWidth, this.buildStep);
 }
 
 
 BridgeScene.prototype.generateTrees = function()
 {
+	this.trees = [];
+	for (var i = 0; i < this.treeAmount; i++)
+	{
+		var rng = new CustomRandom(21);
+		var tree = new Tree(rng.next(1, 3));
+		var randomY = rng.next(5, 25)/10.0;
+		var randomXZ = rng.next(5,25)/10.0;
+		var randomScale = [randomXZ, randomY, randomXZ];
+		tree.setScale(randomScale);
 
+		//cambiar
+		var randomX = rng.next(-this.terrainWidth*0.5, this.terrainWidth*0.5);
+		var randomZ = rng.next(-this.terrainHeight*0.5, this.terrainHeight*0.5);
+		tree.setPosition([randomX, this.terrainElevation, randomZ]);
+		this.trees.push(tree);
+	}
 }
 
 BridgeScene.prototype.draw = function(matrix, glProgram)
 {
-	this.terrain.draw(matrix, glProgram);
+	var m_terrain = mat4.create();
+	mat4.multiply(m_terrain, m_terrain, matrix);
+	mat4.translate(m_terrain, m_terrain, [0.0, this.terrainElevation, 0.0]);
+	mat4.rotate(m_terrain, m_terrain, Math.PI/2, [0.0, 1.0, 0.0]);
+	this.terrain.draw(m_terrain, glProgram);
 
 	var m_bridge = mat4.create();
 	mat4.multiply(m_bridge, matrix, m_bridge);
 	mat4.translate(m_bridge, m_bridge, [-this.bridgePos[2], -this.bridgePos[1], -this.bridgePos[0]]);
 	this.bridge.draw(m_bridge, glProgram);
 
+	var m_leftRoad = mat4.create();
+	mat4.multiply(m_leftRoad, matrix, m_leftRoad);
+	mat4.translate(m_leftRoad, m_leftRoad, [-this.bridgePos[2] - this.rightRoad.length*0.5 - this.bridgeLength*0.5, -this.bridgePos[1], -this.bridgePos[0]]);
+	mat4.translate(m_leftRoad, m_leftRoad, [0.0, this.terrainElevation + 2.0, 0.0]);
+	this.rightRoad.draw(m_leftRoad, glProgram);
+
+	var m_rightRoad = mat4.create();
+	mat4.multiply(m_rightRoad, matrix, m_rightRoad);
+	mat4.translate(m_rightRoad, m_rightRoad, [-this.bridgePos[2] + this.leftRoad.length*0.5 + this.bridgeLength*0.5, -this.bridgePos[1], -this.bridgePos[0]]);
+	mat4.translate(m_rightRoad, m_rightRoad, [0.0, this.terrainElevation + 2.0, 0.0]);
+	this.leftRoad.draw(m_rightRoad, glProgram);
+
 	var m_river = mat4.create();
-	//mat4.rotate(m_river, m_river,  Math.PI/2, [0, 1, 0]);
+	//mat4.translate(m_river, m_river, [0.0, -2.5, 0.0]);
+	mat4.rotate(m_river, m_river, -Math.PI/2, [0.0, 1.0, 0.0]);
 	this.river.draw(m_river, glProgram);
+
+	for (var i = 0; i < this.trees.length; i++)
+	{
+		//var m_tree = mat4.create();
+		this.trees[i].draw(matrix, glProgram);
+	}
 }
 
 

@@ -33,11 +33,12 @@
 <script type="text/javascript" src="models/CircleShape.js"></script>
 <script type="text/javascript" src="models/RoadShape.js"></script>
 
-<script type="text/javascript" src="models/Tensor.js"></script>
 <script type="text/javascript" src="models/Plane.js"></script>
 <script type="text/javascript" src="models/Cylinder.js"></script>
 
 <script type="text/javascript" src="models/TreeTop.js"></script>
+<script type="text/javascript" src="models/TreeBase.js"></script>
+<script type="text/javascript" src="models/Tree.js"></script>
 
 <script type="text/javascript" src="models/TowerBase.js"></script>
 <script type="text/javascript" src="models/TowerTop.js"></script>
@@ -210,11 +211,12 @@
     //Terrain
     var terrainParameters = {};
     terrainParameters.terrainElevation = 15.0;
-    terrainParameters.terrainWidth = 1000.0;
-    terrainParameters.terrainHeight = 1000.0;
+    terrainParameters.terrainWidth = 750.0;
+    terrainParameters.terrainHeight = 750.0;
     terrainParameters.riverWidth = 125.0;
-    terrainParameters.coastWidth = 100.0;
-    terrainParameters.roadWidth = 40.0;
+    terrainParameters.coastWidth = 55.0;
+    terrainParameters.roadWidth = 55.0;
+    terrainParameters.treeAmount = 8;
     //Puente
     var bridgeParameters = {};
     bridgeParameters.bridgeLength = 250.0;
@@ -380,18 +382,9 @@
     var lastMouseY = null;
     var mouseDown = false;
 
-    ////////////////////// Models /////////////////////////
+    ////////////////////// Scene /////////////////////////
     var bridgeScene = null;
-    var bridge = null;
-    var roadLeft = null;
-    var roadRight = null;
-    //////////////////////////////////////////////////////
 
-    var bridgeRoad = null;
-    var tower = null;
-    var plane = null;
-    var treeTop = null;
-    var bridgeStrap = null;
 
     var deimosRotationMatrix = mat4.create();
     mat4.identity(deimosRotationMatrix);
@@ -466,20 +459,6 @@
 
         generateScene();
 
-        bridge = new Bridge( bridgeParameters.towerAmount);
-        bridge.setBridgeHeights( terrainParameters.terrainHeight, bridgeParameters.ph2, bridgeParameters.ph3);
-        bridge.setBridgeDimensions(bridgeParameters.bridgeLength, terrainParameters.roadWidth, terrainParameters.riverWidth);
-        bridge.setStrapDistances(bridgeParameters.s1);
-        bridge.buildBridge();
-
-        roadLeft = new Road(150.0, terrainParameters.roadWidth, 0.1);
-
-        bridgeRoad = new BridgeRoad(50.0, 20.0, 5.0);
-        tower = new Tower(0.1, 0.7);
-        //treeTop = new TreeTop(0.01, 0.0);
-        plane = new Plane(100, 100);
-        plane.draw_mode = gl.LINE_STRIP;
-        bridgeStrap = new BridgeStrap();
         
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.enable(gl.DEPTH_TEST);
@@ -494,6 +473,7 @@
         bridgeScene.setBridgeParameters (bridgeParameters.towerAmount, bridgeParameters.bridgeLength, bridgeParameters.ph2, bridgeParameters.ph3, bridgeParameters.s1);
         bridgeScene.setRoadParameters(terrainParameters.roadWidth);
         bridgeScene.setRiverWidth(terrainParameters.riverWidth);
+        bridgeScene.setAmountOfTrees(terrainParameters.treeAmount);
 
         bridgeScene.setRiverCurvePoints(riverParameters.riverPathPoints, canvasRiver.width, canvasRiver.height);
 
@@ -517,48 +497,24 @@
         /////////////////////////////////////////////////////
         // Configuración de la luz
         // Se inicializan las variables asociadas con la Iluminación
-        
+        var lighting;
+        lighting = true;
+        gl.uniform1i(shaderProgramColoredObject.useLightingUniform, lighting);       
 
+        gl.uniform3fv(shaderProgramColoredObject.lightingDirectionUniform, vec3.fromValues(-100.0, 0.0, -60.0));
+        gl.uniform3fv(shaderProgramColoredObject.ambientColorUniform, vec3.fromValues(0.5, 0.5, 0.5) );
+        gl.uniform3fv(shaderProgramColoredObject.directionalColorUniform, vec3.fromValues(0.05, 0.05, 0.05));
+        
 
         gl.useProgram(shaderProgramColoredObject);
 
-        //bezierCurve.draw(bezierCurve.model_matrix, shaderProgramColoredObject);
-       // bSplineCurve.draw(bSplineCurve.model_matrix, shaderProgramColoredObject);
-
-        //////////////////  Bridge //////////////////////////////////////
 
 
-        bridge.setScale(bridgeParameters.scale);
-        var m_bridge = mat4.create();
-      //  bridge.draw(m_bridge, shaderProgramColoredObject);
-        bridgeScene.draw(m_bridge, shaderProgramColoredObject);
-
-       // var m_roadLeft = mat4.create();
-        //mat4.translate(m_roadLeft, m_roadLeft, [ -bridgeParameters.bridgeLength * 0.5 - 75.0, terrainParameters.terrainHeight, 0.0]);
-        //roadLeft.draw(m_roadLeft, shaderProgramColoredObject);
-         //////////////////  Tensor //////////////////////////////////////
-
-
-       /* var m_tb = mat4.create();
-        mat4.translate(m_tb, m_tb, [5.0, 10.0, 15.0]);
-        mat4.scale(m_tb, m_tb, [bridgeParameters.scale, bridgeParameters.scale, bridgeParameters.scale]);
-        tower.setScale(bridgeParameters.towerScales);*/
-        //tower.draw(m_tb, shaderProgramColoredObject, bridgeParameters.th1, bridgeParameters.th2, bridgeParameters.th3);
-
-       // var m_bridgeCable = mat4.create();
-        //bridgeStrap.draw(m_bridgeCable, shaderProgramColoredObject);
-
-        var m_tt = mat4.create();
-        mat4.translate(m_tt, m_tt, [75.0, 25.0, 15.0]);
-        //bridgeRoad.draw(m_tt, shaderProgramColoredObject);
-
-
-        //treeTop.draw(treeTop.model_matrix, shaderProgramColoredObject);
+        //////////////////  Scene //////////////////////////////////////
+        var m_scene = mat4.create();
+        bridgeScene.draw(m_scene, shaderProgramColoredObject);
         
         //////////////////  Terrain Plane //////////////////////////////////////
-
-        plane.setUpLighting(shaderProgramColoredObject, vec3.fromValues(-100.0, 0.0, -60.0), vec3.fromValues(0.5, 0.5, 0.5), vec3.fromValues(0.05, 0.05, 0.05));
-        plane.setColor(vec3.fromValues(0.0,1.0,0.0));
 
         var m_plane = mat4.create();
         mat4.scale(m_plane, m_plane, vec3.fromValues(2.0, 1.0, 2.0));
@@ -575,6 +531,27 @@
 
     function tick() 
     {
+        if (camara == 0)
+        {
+            var pos =  [0, 0, 0];
+            eye_point = pos[0];
+            var delta = vec3.create();
+
+            vec3.normalize(delta, pos[1]);
+            vec3.scale(delta, delta, 4);
+            vec3.add(eye_point, eye_point, delta);
+            vec3.normalize(delta, delta);
+            vec3.add(lookat_point, pos[0], delta);
+
+            vec3.add(eye_point, eye_point, vec3.fromValues(0,10,0));
+            vec3.add(lookat_point, lookat_point, vec3.fromValues(0,9.8,0));
+            var binormal = vec3.create();
+            vec3.cross(binormal, vec3.fromValues(0,1,0), delta);
+            vec3.cross(vecArriba,  delta, binormal);
+            vecArriba = vec3.fromValues(0, 1, 0);
+
+            updateView();
+        }
         requestAnimFrame(tick);
         drawScene();
     }
@@ -582,25 +559,62 @@
 
 
     function handleKeyDown(event) {
-      pwgl.listOfPressedKeys[event.keyCode] = true;
+        pwgl.listOfPressedKeys[event.keyCode] = true;
+
+        if (String.fromCharCode(event.keyCode) == "C") 
+        {
+            camara = (camara + 1) % 2;
+            if (camara == 1)
+            {
+                eye_point = vec3.fromValues(0,0,-80);
+                lookat_point = vec3.fromValues(0,0,0);
+                vec_up = vec3.fromValues(0,1,0);
+                updateView();
+            }
+        }
+        if(camara == 0)
+        {
+            var deltaP = vec3.create();
+            vec3.subtract(deltaP, eye_point, lookat_point);
+            vec3.normalize(deltaP, deltaP);
+            if (String.fromCharCode(event.keyCode) == "W") {
+                vec3.subtract(eye_point, eye_point, deltaP);
+                vec3.subtract(lookat_point, lookat_point, deltaP);
+            }
+            if (String.fromCharCode(event.keyCode) == "A") {
+                vec3.cross(deltaP, deltaP, vec_up);
+                vec3.add(eye_point, eye_point, deltaP);
+                vec3.add(lookat_point, lookat_point, deltaP);
+            }
+            if (String.fromCharCode(event.keyCode) == "S") {
+                vec3.add(eye_point, eye_point, deltaP);
+                vec3.add(lookat_point, lookat_point, deltaP);
+            }
+            if (String.fromCharCode(event.keyCode) == "D") {
+                vec3.cross(deltaP, deltaP, vec_up);
+                vec3.subtract(eye_point, eye_point, deltaP);
+                vec3.subtract(lookat_point, lookat_point, deltaP);
+            }
+            if(String.fromCharCode(event.keyCode) == "Z"){
+                vec3.add(eye_point, eye_point, vec3.fromValues(0,1,0));
+            }
+            if(String.fromCharCode(event.keyCode) == "X"){
+                vec3.subtract(eye_point, eye_point, vec3.fromValues(0,1,0));
+            }
+        }
+        updateView();
       
-      // If you want to have a log for keydown you can uncomment the two lines below.
-      // console.log("keydown - keyCode=%d, charCode=%d", 
-      //             event.keyCode, event.charCode);
     }
 
-    function handleKeyUp(event) {
+    function handleKeyUp(event) 
+    {
       pwgl.listOfPressedKeys[event.keyCode] = false;
       
-      // If you want to have a log for keyup you can uncomment the two lines below.
-      // console.log("keyup - keyCode=%d, charCode=%d", 
-      //             event.keyCode, event.charCode);
     }
 
-    function handleKeyPress(event) {
-      // If you want to have a log for keypress you can uncomment the two lines below.
-      // console.log("keypress - keyCode=%d, charCode=%d", 
-      //             event.keyCode, event.charCode);
+    function handleKeyPress(event) 
+    {
+
     }
 
     function handlePressedDownKeys() {
@@ -654,6 +668,29 @@
             lastMouseX = newX;
             lastMouseY = newY;
         }
+        if(camara == 0)
+        {
+            var newX = event.clientX;
+            var newY = event.clientY;
+            var deltaX = newX - lastMouseX;
+            var deltaY = newY - lastMouseY;
+            var deltaP = vec3.create();
+        
+            vec3.subtract(deltaP, lookat_point, eye_point);
+            var matR = mat4.create();
+            
+            mat4.identity(matR);
+            mat4.rotate(matR, matR, -deltaX/150, vecArriba);
+            var rotAxis = vec3.create();
+            vec3.cross(rotAxis, vec_up, deltaP);
+            mat4.rotate(matR, matR, deltaY/150, rotAxis);
+            vec3.transformMat4(deltaP, deltaP, matR);
+            vec3.transformMat4(vec_up, vec_up, matR);
+            vecArriba = vec3.fromValues(0,1,0);
+            vec3.add(lookat_point, deltaP, eye_point);
+            lastMouseX = newX;
+            lastMouseY = newY;
+        }
         updateView();
     }
 
@@ -676,6 +713,7 @@
         mat4.identity(CameraMatrix);
         mat4.lookAt(CameraMatrix, eye_point, lookat_point, vec_up);
         gl.uniformMatrix4fv(view_matrix, false, CameraMatrix);
+
     }
 
     function handleRiverCanvasMouseDown(event) 
@@ -727,6 +765,7 @@ function GUI (){
 
         f2 = gui.addFolder('Terrain');
         f2.add(terrainParameters, 'terrainElevation', 0.0, 100.0).name("Terrain Elevation").step(1);
+        f2.add(terrainParameters, 'treeAmount', 0.0, 25.0).name("Amount of Trees").step(1);
         f2.add(terrainParameters, 'coastWidth', 0.0, 100.0).name("Coast Width").step(1);
         //f2.add(terrainParameters, 'terrainWidth', 500.0, 1000.0).name("Terrain Width").step(1);
         //f2.add(terrainParameters, 'terrainHeight', 500.0, 1000.0).name("Terrain Height").step(1);

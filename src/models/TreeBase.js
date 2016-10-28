@@ -1,31 +1,30 @@
 /****************************************
-Tensor
+Tree Base
 
 Dependencies:
 -SweptSurface.js
--Polygon.js
 -BezierCurve.js
 -BSplineCurve.js
 ****************************************/
 
-var Tensor = function(step) 
+var TreeBase = function(step, height) 
 {
-	this.width = 100.0;
 	this.height = 10.0;
-	this.roadSlopeModifier = 0.9;
-	this.roadSlopeModifier2 = 15.010;
+	if (height !== undefined)
+	{
+		this.height = height;
+	}
+	var circlePoligon = new Polygon();
+	var c = 0.551915024494;
+	var shape = new BezierCurve([ [1, 0, 0], [1, 0, c], [c, 0, 1], [0, 0, 1],
+								  [0, 0, 1],[-c, 0, 1], [-1, 0, c], [-1, 0, 0],
+								   [-1, 0, 0],[-1, 0, -c], [-c, 0, -1], [0, 0, -1],
+								  [0, 0, -1],[c, 0, -1], [1, 0, -c], [0, 1, 0]
+								]);
 
-	var polygon = new Polygon();
-	var circle = new BSplineCurve([[-0.1,0,0],[-0.1,0.1,0],[0.1,0.1,0.1],[0.1,0,0.1],[0.1,-0.1,0],[-0.1,-0.1,0.1],[-0.1,0.05,0.1]]);
+	circlePoligon.generateFromCurve(shape, 0.1);
 
-	var circleStep = 0.1;
-	polygon.generateFromCurve(circle, circleStep);
-
-	//roadPath it's made of BSpline Curves, Repeating 3 times the beginning point, height point and end point.
-	var curvePath = new BSplineCurve([[-this.width/2.0, 0, 0],[-this.width/2.0, 0, 0], [-this.width/2.0, 0, 0],[-this.width/3.0, this.height * this.roadSlopeModifier, 0],
-									[-this.width/this.roadSlopeModifier2, this.height, 0.0],[0.0, this.height, 0.0], [0.0, this.height, 0.0], [0.0, this.height, 0.0],
-									[this.width/this.roadSlopeModifier2, this.height, 0.0],[this.width/3.0, this.height * this.roadSlopeModifier, 0.0], [this.width/2.0, 0.0, 0.0],
-									[this.width/2.0, 0.0, 0.0], [this.width/2.0, 0.0, 0.0]]);
+	var curvePath = new BezierCurve([[0,0,0],[0,this.height/3,0],[0,this.height / 3 * 2,0],[0,this.height,0]]);
 	
 	var u = 0;
 	var pathPoints = [];
@@ -59,10 +58,12 @@ var Tensor = function(step)
 		u += step;
 	}
 
-	SweptSurface.call(this, polygon, pathPoints, pathBases);
+	SweptSurface.call(this, circlePoligon, pathPoints, pathBases);
 
 	this.init();
+
+	this.setColor(getColor("brown"));
 }
 
-Tensor.prototype = Object.create(SweptSurface.prototype);
-Tensor.prototype.constructor = Tensor;
+TreeBase.prototype = Object.create(SweptSurface.prototype);
+TreeBase.prototype.constructor = TreeBase;

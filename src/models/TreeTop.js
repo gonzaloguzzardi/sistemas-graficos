@@ -6,28 +6,26 @@ Dependencies:
 - RevolutionSurface.js
 ****************************************/
 
-var TreeTop = function(step)
+var TreeTop = function(type, step)
 {
-	this.maxHeight = 30.0;
-	this.maxWidth = 18.0;
+	this.height = 25.0;
+	this.width = 15.0;
+	this.maxHeight = 25.0;
+	this.maxWidth = 15.0;
+
+	this.type = 1;
+	if (type !== undefined)
+	{
+		this.type = type;
+	}
 
 	var profile = new Profile();
-	var points = 
-	[[0,0,0], 
-	[0,0,0], 
-	[0,0,0], 
-	[7.5, 1.5, 0],
-	[15.0, 2.5, 0],
-	[7.0,12.5,0], 
-	[6.0, 14.0, 0.0], 
-	[7.5,15.0, 0.0],
-	[11.0,20.0,0],
-	[8.0,22.0,0],
-	[0.0,25.0,0],
-	[0.0,25.0,0],
-	[0.0,24.0,0]];
+	this.points = [];
 
-	var curve = new BSplineCurve(points);
+
+	this.generateTreeTop();
+
+	var curve = new BSplineCurve(this.points);
 	//var curve = this.generateRandomTopCurve();
 	profile.generateFromCurve(curve, 0.1);
 	var axis = [0,1,0];
@@ -36,6 +34,8 @@ var TreeTop = function(step)
 	RevolutionSurface.call(this, profile, axis, angle, step);
 
 	this.init();
+
+	this.setColor(getColor("tree"));
 }
 
 
@@ -55,8 +55,6 @@ TreeTop.prototype.generateRandomTopCurve = function()
 	{
 		points.push([0.0, 0.0, 0.0]);
 	}
-	this.width = rng.next(15, 30);
-	this.height = rng.next (25, 40);
 
 	var halfWidth = this.maxWidth/2.0;
 	var halfHeight = this.maxHeight/2.0;
@@ -77,6 +75,63 @@ TreeTop.prototype.generateRandomTopCurve = function()
 	curve = new BSplineCurve(points);
 
 	return curve;
+
+}
+
+TreeTop.prototype.generateTreeTop = function()
+{
+	if (this.type == 1)
+	{
+		this.points = [[0,0,0], 
+						[0,0,0], 
+						[0,0,0], 
+						[this.width, 1.5, 0],
+						[this.width + this.width * 0.2, 2.5, 0],
+						[this.width *0.6,this.height * 0.5,0], 
+						[this.width * 0.5 - 1, this.height * 0.5 + 1.5, 0.0], 
+						[this.width * 0.48,this.height * 0.5 + 2.5, 0.0],
+						[this.width - 4.0,this.height - 5.0,0],
+						[this.width * 0.45,this.height - 3.0,0],
+						[0.0,this.height,0],
+						[0.0,this.height,0],
+						[0.0,this.height - 1.0,0]];
+	}
+	if (this.type == 2)
+	{
+		this.points = [[0,0,0], 
+						[0,0,0], 
+						[0,0,0], 
+						[this.width, 0, 0], [this.width, 0, 0], [this.width, 0, 0],
+						[this.width * 0.8, this.height * 0.15, 0],
+						[this.width *0.65, this.height * 0.35, 0],[this.width *0.65, this.height * 0.35, 0],[this.width *0.65, this.height * 0.35, 0],
+
+						[this.width *0.85, this.height * 0.35, 0],[this.width *0.85, this.height * 0.35, 0],[this.width *0.85, this.height * 0.35, 0],
+						[this.width * 0.6, this.height * 0.6, 0],
+						[this.width *0.3, this.height * 0.75, 0],[this.width *0.3, this.height * 0.75, 0],[this.width *0.3, this.height * 0.75, 0],
+						[this.width * 0.5, this.height * 0.75, 0],[this.width * 0.5, this.height * 0.75, 0],[this.width * 0.5, this.height * 0.75, 0],
+						[this.width * 0.4, this.height * 0.9, 0],
+						[0.0,this.height,0],
+						[0.0,this.height,0],
+						[0.0,this.height - 1.0,0]];
+	}
+
+	if (this.type == 3)
+	{
+		this.points = [[0,0,0], 
+						[0,0,0], 
+						[0,0,0], 
+						[this.width, 0, 0], [this.width, 0, 0], [this.width, 0, 0],
+						[this.width *0.55, this.height * 0.45, 0],[this.width *0.55, this.height * 0.45, 0],[this.width *0.55, this.height * 0.45, 0],
+
+						[this.width *0.75, this.height * 0.45, 0],[this.width *0.75, this.height * 0.45, 0],[this.width *0.75, this.height * 0.47, 0],
+						//[this.width * 0.6, this.height * 0.6, 0],
+						[this.width *0.35, this.height * 0.75, 0],[this.width *0.35, this.height * 0.75, 0],[this.width *0.35, this.height * 0.75, 0],
+						[this.width * 0.5, this.height * 0.75, 0],[this.width * 0.5, this.height * 0.75, 0],[this.width * 0.5, this.height * 0.75, 0],
+						//[this.width * 0.4, this.height * 0.9, 0],
+						[0.0,this.height,0],
+						[0.0,this.height,0],
+						[0.0,this.height - 1.0,0]];
+	}
 
 }
 

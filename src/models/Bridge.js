@@ -90,7 +90,7 @@ Bridge.prototype.setTowerTopScales = function(scale)
 
 Bridge.prototype.setBridgeHeights = function(ph1, ph2, ph3)
 {
-	this.ph1 = ph1;
+	this.ph1 = ph1 + 2.0;
 	this.ph2 = ph2;
 	this.ph3 = ph3;
 
