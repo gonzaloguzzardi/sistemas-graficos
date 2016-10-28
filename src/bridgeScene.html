@@ -417,12 +417,12 @@
         initRiverCanvas();
 
         var canvas = document.getElementById("canvas-tp");
-        document.addEventListener('keydown', handleKeyDown, false);
-        document.addEventListener('keyup', handleKeyUp, false);
-        document.addEventListener('keypress', handleKeyPress, false); 
-        document.addEventListener('mousemove', handleMouseMove, false);
-        document.addEventListener('mousedown', handleMouseDown, false);
-        document.addEventListener('mouseup', handleMouseUp, false);
+        canvas.addEventListener('keydown', handleKeyDown, false);
+        canvas.addEventListener('keyup', handleKeyUp, false);
+        canvas.addEventListener('keypress', handleKeyPress, false); 
+        canvas.addEventListener('mousemove', handleMouseMove, false);
+        canvas.addEventListener('mousedown', handleMouseDown, false);
+        canvas.addEventListener('mouseup', handleMouseUp, false);
         canvas.addEventListener('mousewheel', handleMouseWheel, false);
 
         GUI();
@@ -435,7 +435,7 @@
         // Pensamos por el momento marsamente la posición de la cámara, la cual siempre mira al mars.
         var matriz_camara = mat4.create();
         mat4.identity(matriz_camara);
-        vec3.set(eye_point, 250, 475, 250);
+        vec3.set(eye_point, 75, 75, 75);
 
         vec3.set(lookat_point, 0, 0, 0);
         vec3.set(vec_up, 0, 1, 0);
@@ -531,7 +531,27 @@
 
     function tick() 
     {
-        console.log(eye_point);
+        if (camara == 0)
+        {
+            var pos =  [0, 0, 0];
+            eye_point = pos[0];
+            var delta = vec3.create();
+
+            vec3.normalize(delta, pos[1]);
+            vec3.scale(delta, delta, 4);
+            vec3.add(eye_point, eye_point, delta);
+            vec3.normalize(delta, delta);
+            vec3.add(lookat_point, pos[0], delta);
+
+            vec3.add(eye_point, eye_point, vec3.fromValues(0,10,0));
+            vec3.add(lookat_point, lookat_point, vec3.fromValues(0,9.8,0));
+            var binormal = vec3.create();
+            vec3.cross(binormal, vec3.fromValues(0,1,0), delta);
+            vec3.cross(vecArriba,  delta, binormal);
+            vecArriba = vec3.fromValues(0, 1, 0);
+
+            updateView();
+        }
         requestAnimFrame(tick);
         drawScene();
     }
@@ -543,27 +563,18 @@
 
         if (String.fromCharCode(event.keyCode) == "C") 
         {
-            console.log(camara);
             camara = (camara + 1) % 2;
             if (camara == 1)
             {
-                eye_point = vec3.fromValues(250,500,250);
+                eye_point = vec3.fromValues(0,0,-80);
                 lookat_point = vec3.fromValues(0,0,0);
                 vec_up = vec3.fromValues(0,1,0);
                 updateView();
             }
-            if (camara == 0)
-            {
-                eye_point = vec3.fromValues(-50 ,terrainParameters.terrainElevation + bridgeParameters.ph2 + 15,0);
-                lookat_point = vec3.fromValues(0,0,0);
-                vec_up = vec3.fromValues(0,1,0);
-                updateView();
-            } 
         }
         if(camara == 0)
         {
             var deltaP = vec3.create();
-            vec3.scale(deltaP, deltaP, [4, 4, 4]);
             vec3.subtract(deltaP, eye_point, lookat_point);
             vec3.normalize(deltaP, deltaP);
             if (String.fromCharCode(event.keyCode) == "W") {
@@ -583,6 +594,12 @@
                 vec3.cross(deltaP, deltaP, vec_up);
                 vec3.subtract(eye_point, eye_point, deltaP);
                 vec3.subtract(lookat_point, lookat_point, deltaP);
+            }
+            if(String.fromCharCode(event.keyCode) == "Z"){
+                vec3.add(eye_point, eye_point, vec3.fromValues(0,1,0));
+            }
+            if(String.fromCharCode(event.keyCode) == "X"){
+                vec3.subtract(eye_point, eye_point, vec3.fromValues(0,1,0));
             }
         }
         updateView();
@@ -663,13 +680,13 @@
             var matR = mat4.create();
             
             mat4.identity(matR);
-            mat4.rotate(matR, matR, -deltaX/150, vec_up);
+            mat4.rotate(matR, matR, -deltaX/150, vecArriba);
             var rotAxis = vec3.create();
             vec3.cross(rotAxis, vec_up, deltaP);
             mat4.rotate(matR, matR, deltaY/150, rotAxis);
             vec3.transformMat4(deltaP, deltaP, matR);
             vec3.transformMat4(vec_up, vec_up, matR);
-            vec_up = vec3.fromValues(0,1,0);
+            vecArriba = vec3.fromValues(0,1,0);
             vec3.add(lookat_point, deltaP, eye_point);
             lastMouseX = newX;
             lastMouseY = newY;
