@@ -13,6 +13,7 @@
 
 <script type="text/javascript" src="utils/CustomRandom.js"></script>
 <script type="text/javascript" src="utils/Color.js"></script>
+<script type="text/javascript" src="utils/RiverCanvasHelper.js"></script>
 
 <script type="text/javascript" src="core/Model.js"></script>
 <script type="text/javascript" src="core/Polygon.js"></script>
@@ -188,7 +189,8 @@
     var canvas;
 
     var canvasRiver;
-    var riverPathPoints = [];
+    var riverParameters = {}
+    riverParameters.riverPathPoints = [];
 
     // Variables para Eventos mouse
     var mouseDown = false;
@@ -199,9 +201,15 @@
 
     // Build Parameters
 
+    var sceneParameters = {};
+    sceneParameters.shouldRegenerate = false;
+
     //Terrain
     var terrainParameters = {};
-    terrainParameters.terrainHeight = 15.0;
+    terrainParameters.terrainElevation = 15.0;
+    terrainParameters.terrainWidth = 500.0;
+    terrainParameters.terrainHeight = 500.0;
+    terrainParameters.terrainElevation = 15.0;
     terrainParameters.riverWidth = 125.0;
     terrainParameters.roadWidth = 40.0;
     //Puente
@@ -218,10 +226,18 @@
     bridgeParameters.scale = 1.0;
     bridgeParameters.towerAmount = 4;
 
-    bridgeParameters.regenerate = function()
+    riverParameters.reset = function()
     {
-
+        riverParameters.riverPathPoints = [];
+        resetRiverCurve(riverParameters.riverPathPoints);
+        drawRiverCurve(riverParameters.riverPathPoints);
     }
+
+    sceneParameters.regenerate = function()
+    {
+        sceneParameters.shouldRegenerate = true;
+    }
+
 
     //Shaders Programs
     var shaderProgramColoredObject;
@@ -235,6 +251,7 @@
 
         canvasRiver.addEventListener('click', handleRiverCanvasMouseDown, false);
 
+        riverParameters.reset();
     }
 
     function initGL(canvas) 
@@ -444,6 +461,8 @@
 */
         bridgeScene = new BridgeScene();
 
+        regenerateScene();
+
         bridge = new Bridge( bridgeParameters.towerAmount);
         bridge.setBridgeHeights( terrainParameters.terrainHeight, bridgeParameters.ph2, bridgeParameters.ph3);
         bridge.setBridgeDimensions(bridgeParameters.bridgeLength, terrainParameters.roadWidth, terrainParameters.riverWidth);
@@ -463,6 +482,19 @@
         gl.enable(gl.DEPTH_TEST);
 
         tick();
+    }
+
+    function regenerateScene()
+    {
+        //bridgeScene = new BridgeScene();
+        bridgeScene.setTerrainParameters(terrainParameters.terrainElevation, terrainParameters.terrainWidth, terrainParameters.terrainHeight);
+        bridgeScene.setBridgeParameters (bridgeParameters.towerAmount, bridgeParameters.bridgeLength, bridgeParameters.ph2, bridgeParameters.ph3, bridgeParameters.s1);
+        bridgeScene.setRoadParameters(terrainParameters.roadWidth);
+        bridgeScene.setRiverWidth(terrainParameters.riverWidth);
+
+        bridgeScene.generateRiverCurve(riverParameters.riverPathPoints, canvasRiver.width, canvasRiver.height);
+
+        bridgeScene.create();
     }
 
 
@@ -528,6 +560,12 @@
         var m_plane = mat4.create();
         mat4.scale(m_plane, m_plane, vec3.fromValues(2.0, 1.0, 2.0));
        // plane.draw(m_plane, shaderProgramColoredObject);
+
+       if (sceneParameters.shouldRegenerate == true)
+       {
+            regenerateScene();
+            sceneParameters.shouldRegenerate = false;
+       }
 
     }
 
@@ -648,10 +686,13 @@
         var rect = canvasRiver.getBoundingClientRect();
         x = event.clientX - rect.left,
         y = event.clientY - rect.top
-
         var point = [x, y, 0.0];
-        riverPathPoints.push(point);
+
+        riverParameters.riverPathPoints.push(point);
+        console.log(riverParameters.riverPathPoints);
+        sortRiverPoints(riverParameters.riverPathPoints);
         //alert("Clicked: " + x + " , " + y);
+        drawRiverCurve(riverParameters.riverPathPoints);
     }
 
     //////////////////////////////////////////////////////////GUI//////////////////////////////////////////////
@@ -679,7 +720,7 @@ function GUI (){
         
         var f1 = gui.addFolder('Comandos');     
         //f1.add(bridgeParameters, 'buildBridge').name("Build Bridge");
-        f1.add(app, 'detener').name("detener");         
+        f1.add(sceneParameters, 'regenerate').name("Regenerate");         
         f1.open();
 
         var f2 = gui.addFolder('Bridge Parameters');     
@@ -692,8 +733,8 @@ function GUI (){
         f2.add(app, 'modo',["random","secuencial"]).name("modo");
 
     
-        var f3 = gui.addFolder('Parametros Especiales ');               
-        f3.add(app,'umbral',0.0,1.0).name("umbral");
+        var f3 = gui.addFolder('River');               
+        f3.add(riverParameters,'reset').name("Reset");
 
         f1.open();
         f2.open();

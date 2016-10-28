@@ -37,14 +37,14 @@ var BridgeScene = function()
 	this.treeAmount = 10;
 	this.riverCurve = null;
 
-
-	this.create();
 }
 
 BridgeScene.prototype.constructor = BridgeScene;
 
-BridgeScene.prototype.setTerrainParameters = function(terrainHeight)
+BridgeScene.prototype.setTerrainParameters = function(terrainElevation, terrainWidth, terrainHeight)
 {
+	this.terrainElevation = terrainElevation;
+	this.terrainWidth = terrainWidth;
 	this.terrainHeight = terrainHeight;
 }
 
@@ -92,15 +92,24 @@ BridgeScene.prototype.generateDefaultRiverCurve = function()
 }
 
 
-BridgeScene.prototype.generateRiverCurve = function(points)
+BridgeScene.prototype.generateRiverCurve = function(points, originalWidth, originalHeight)
 {
-	if (points === undefined)
+	if ((points === undefined) || (points.length < 4))
 	{
 		return;
 	}
+	var transformPoints = this.pointsToTerrain(points, originalWidth, originalHeight);
+	this.riverCurve = new BSplineCurve(points);
 	// TODO: generate curve
 	this.isRiverInitialized = true;
 }
+
+BridgeScene.prototype.pointsToTerrain = function(points, originalWidth, originalHeight)
+{
+	console.log(originalWidth);
+}
+
+
 
 BridgeScene.prototype.generateRiver = function()
 {
