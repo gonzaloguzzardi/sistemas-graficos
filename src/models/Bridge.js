@@ -68,7 +68,7 @@ var Bridge = function(towerAmount)
 	this.mainCableRight34 = null;
 	this.mainCableRight40 = null;
 
-	this.towerOneTwoPositionModifier = 0.9;
+	this.towerOneTwoPositionModifier = 0.8;
 	this.towerThreeFourPositionModifier = 0.25;
 
 	if (towerAmount !== undefined)
@@ -93,6 +93,15 @@ Bridge.prototype.setBridgeHeights = function(ph1, ph2, ph3)
 	this.ph1 = ph1;
 	this.ph2 = ph2;
 	this.ph3 = ph3;
+
+	if (this.ph2 < this.ph1)
+	{
+		this.ph2 = this.ph1;
+	}
+	if (this.ph3 < this.ph2)
+	{
+		this.ph3 = this.ph2;
+	}
 }
 Bridge.prototype.setTowerAmount = function(amount)
 {

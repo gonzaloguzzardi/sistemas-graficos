@@ -4,15 +4,17 @@
 *
 */
 
-var Plane = function(width, height, pointDistance){
-	this.setRows(width);
-	this.setCols(height);
+var Plane = function(width, height, pointDistance)
+{
+	this.pointsDistance = 25.0;
 
-	this.pointsDistance = 5.0;
 	if (pointDistance !== undefined)
 	{
-		this.pointDistance = pointDistance;
+		this.pointsDistance = pointDistance;
 	}
+
+	this.setRows(width);
+	this.setCols(height);
 	
 	Model.call(this, this.gridType);
 	this.tangent_buffer = [];
@@ -68,8 +70,8 @@ Plane.prototype.createPlaneGrid = function()
 			
 			// Normals
 			this.normals_buffer.push(0);
-			this.normals_buffer.push(0);
 			this.normals_buffer.push(1);
+			this.normals_buffer.push(0);
 			
 			// Tangents
 			this.tangent_buffer.push(1);
@@ -78,8 +80,8 @@ Plane.prototype.createPlaneGrid = function()
 			
 			//Binormals
 			this.binormal_buffer.push(0);
-			this.binormal_buffer.push(1);
 			this.binormal_buffer.push(0);
+			this.binormal_buffer.push(1);
 		};
 	};
 };

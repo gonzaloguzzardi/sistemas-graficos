@@ -110,6 +110,12 @@ Curve.prototype.firstDerivFromCurve = function(u)
 	point.push(this.base0der(uLocal) * p0[1] + this.base1der(uLocal) * p1[1] + this.base2der(uLocal) * p2[1] + this.base3der(uLocal) * p3[1]);
 	point.push(this.base0der(uLocal) * p0[2] + this.base1der(uLocal) * p1[2] + this.base2der(uLocal) * p2[2] + this.base3der(uLocal) * p3[2]);
 
+	var tangente = vec3.fromValues(point[0], point[1], point[2]);
+	vec3.normalize(tangente, tangente);
+	point = [];
+	point.push(tangente[0]);
+	point.push(tangente[1]);
+	point.push(tangente[2]);
 	return point;
 }
 
@@ -137,28 +143,31 @@ Curve.prototype.createGrid = function()
 		this.color_buffer.push(0.5);
 
 		//Tangent
+
 		var derivedPoint = this.firstDerivFromCurve(u);
+
 		this.tangent_buffer.push(derivedPoint[0]);
 		this.tangent_buffer.push(derivedPoint[1]);
 		this.tangent_buffer.push(derivedPoint[2]);
 		
 		var tangente = vec3.fromValues(derivedPoint[0], derivedPoint[1], derivedPoint[2]);
+		//vec3.normalize(tangente, tangente);
 		var axisZ = vec3.fromValues(0,0,1);
 		vec3.cross(vec_product, axisZ, tangente);
 		vec3.cross(normal, vec_product, tangente);
 
 		//Z MUST NOT BE PARALLEL TO THE TANGENT
 		vec3.normalize(normal, normal);
-		this.normals_buffer.push(normal.x);
-		this.normals_buffer.push(normal.y);
-		this.normals_buffer.push(normal.z);
+		this.normals_buffer.push(normal[0]);
+		this.normals_buffer.push(normal[1]);
+		this.normals_buffer.push(normal[2]);
 
 		binormal = vec3.create();
 		vec3.cross(binormal,tangente,normal);
 		vec3.normalize(binormal, binormal)
-		this.binormal_buffer.push(binormal.z);
-		this.binormal_buffer.push(binormal.y);
-		this.binormal_buffer.push(binormal.x);
+		this.binormal_buffer.push(binormal[2]);
+		this.binormal_buffer.push(binormal[1]);
+		this.binormal_buffer.push(binormal[0]);
 
 		this.texture_coord_buffer.push(0.0);
 		this.texture_coord_buffer.push(0.0);

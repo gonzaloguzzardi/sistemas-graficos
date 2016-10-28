@@ -102,6 +102,7 @@ Polygon.prototype = {
 		return displacedPoints;
 	},
 
+
 	getTransformedPolygon: function(newCenter, newBase, scale)
 	{
 		if (scale === undefined)
@@ -112,7 +113,8 @@ Polygon.prototype = {
 
 		transformPolygon.setCenter(newCenter);
 
-		var distance = vec3.fromValues(newCenter[0] - this.center[0], newCenter[1] - this.center[1], newCenter[2] - this.center[2] )
+		var distance = vec3.fromValues(newCenter[0] - this.center[0], newCenter[1] - this.center[1], newCenter[2] - this.center[2]);
+
 		var changeBaseMat = this.changeBaseMatrix(newBase, scale);
 
 		var transformPoints = this.transformVectors(this.points, changeBaseMat);
