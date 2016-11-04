@@ -22,10 +22,10 @@ var BridgeStrap = function(startPoint, endPoint)
 		this.endPoint = endPoint;
 	}
 
-	this.step = 0.01;
+	this.step = 0.1;
 
-	this.baseWidth = 2.5;
-	this.baseHeight = 2.5;
+	this.baseWidth = 1.0;
+	this.baseHeight = 1.0;
 
 	var p1SegmentPercent = 1.0 / 3.0;
 	var p2SegmentPercent = 2.0 / 3.0;

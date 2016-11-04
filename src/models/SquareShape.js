@@ -10,22 +10,22 @@ Dependencies:
 
 var SquareShape = function(width, height, step) 
 {
-	this.width = width;
+	this.width = 2.5;
 	if (width !== undefined)
 	{
-		this.width = 2.5;
+		this.width = width;
 	}
 
-	this.height = height;
+	this.height = 2.5;
 	if (height !== undefined)
 	{
-		this.height = 2.5;
+		this.height = height;
 	}
 
 	this.step = 0.1;
 	if (step !== undefined)
 	{
-		this.step = 0.1;
+		this.step = step;
 	}
 
 	this.roundness = 0.5;

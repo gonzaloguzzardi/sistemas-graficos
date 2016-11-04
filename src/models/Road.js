@@ -10,19 +10,19 @@ Dependencies:
 var Road = function(length, width, step) 
 {
 	this.step = 0.1;
-	if (this.step !== undefined)
+	if (step !== undefined)
 	{
 		this.step = step;
 	}
 
 	this.length = 50;
-	if (this.length !== undefined)
+	if (length !== undefined)
 	{
 		this.length = length;
 	}
 
 	this.width = 25;
-	if (this.width !== undefined)
+	if (width !== undefined)
 	{
 		this.width = width;
 	}
@@ -32,11 +32,12 @@ var Road = function(length, width, step)
 
 	var halfLength = this.length * 0.5;
 
+	var normalAxis = [0, 0, 1];
 	this.roadPath = new BezierCurve([[-halfLength, 0, 0],
 									[-halfLength * 0.5, 0, 0],
 									[halfLength * 0.5, 0, 0],
 									[halfLength, 0, 0]
-									]);
+									], normalAxis);
 
 
 	var u = 0;
@@ -48,7 +49,7 @@ var Road = function(length, width, step)
 	var normal;
 	var nNormal;
 	var normaVec;
-	var axisZ = vec3.fromValues(0,1,0);
+	var axisZ = vec3.fromValues(0,0,0);
 	var vecAux = vec3.create();
 	var nTangent;
 

@@ -19,6 +19,8 @@ var Tree = function(type)
 	this.generateTreeBase();
 	this.generateTreeTop();
 
+	console.log(this)
+
 }
 
 Tree.prototype.constructor = Tree;
@@ -58,4 +60,16 @@ Tree.prototype.setScale = function(scale)
 Tree.prototype.setPosition = function(position)
 {
 	this.position = position;
+}
+
+Tree.prototype.setupShaders = function(glProgram)
+{
+	this.treeBase.setupShaders(glProgram);
+	this.treeTop.setupShaders(glProgram);
+}
+
+Tree.prototype.setUpLighting = function(glProgram, lightPosition, ambientColor, diffuseColor)
+{
+	this.treeBase.setupShaders(glProgram, lightPosition, ambientColor, diffuseColor);
+	this.treeTop.setupShaders(glProgram, lightPosition, ambientColor, diffuseColor);
 }

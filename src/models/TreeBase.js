@@ -24,7 +24,8 @@ var TreeBase = function(step, height)
 
 	circlePoligon.generateFromCurve(shape, 0.1);
 
-	var curvePath = new BezierCurve([[0,0,0],[0,this.height/3,0],[0,this.height / 3 * 2,0],[0,this.height,0]]);
+	var normalAxis = [0,0,1];
+	var curvePath = new BezierCurve([[0,0,0],[0,this.height/3,0],[0,this.height / 3 * 2,0],[0,this.height,0]], normalAxis);
 	
 	var u = 0;
 	var pathPoints = [];

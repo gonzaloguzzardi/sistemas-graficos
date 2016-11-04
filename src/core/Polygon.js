@@ -60,6 +60,7 @@ Polygon.prototype = {
 	changeBaseMatrix: function(pathBase, scale)
 	{
 		var matrix = mat3.create();
+		
 		var base;
 		for (var col = 0; col < pathBase.length; col++)
 		{
@@ -102,13 +103,43 @@ Polygon.prototype = {
 		return displacedPoints;
 	},
 
+	addScaling: function(points, scale)
+	{
+		var scaledPoints = [];
+		var scaledPoint;
+		var point;
+		for (var i = 0; i < points.length; i++)
+		{
+			point = vec3.fromValues(points[i][0], points[i][1],points[i][2]);
+			scaledPoint = vec3.fromValues(point[0] * scale[0], point[1] * scale[1], point[2] + scale[2]);
+			scaledPoints.push(scaledPoint);
+		}
+		return scaledPoints;
+	},
+
+	addRotation: function(points, angle)
+	{
+		var rotatedPoints = [];
+		var scaledPoint;
+		var point;
+		for (var i = 0; i < points.length; i++)
+		{
+			point = vec3.fromValues(points[i][0], points[i][1],points[i][2]);
+			scaledPoint = vec3.fromValues(point[0] * scale[0], point[1] * scale[1], point[2] + scale[2]);
+			scaledPoints.push(scaledPoint);
+		}
+		return scaledPoints;
+	},
+
 
 	getTransformedPolygon: function(newCenter, newBase, scale)
 	{
+		//enewBase is an erray with [normal, vecAux, tangent];
 		if (scale === undefined)
 		{
 			scale = [1.0,1.0,1.0];
 		}
+
 		var transformPolygon = new Polygon();
 
 		transformPolygon.setCenter(newCenter);
@@ -118,7 +149,9 @@ Polygon.prototype = {
 		var changeBaseMat = this.changeBaseMatrix(newBase, scale);
 
 		var transformPoints = this.transformVectors(this.points, changeBaseMat);
+
 		transformPoints = this.addDisplacement(transformPoints, distance);
+
 		transformPolygon.setPoints(transformPoints);
 
 		var transformTangents = this.transformVectors(this.tangents, changeBaseMat);
@@ -131,7 +164,6 @@ Polygon.prototype = {
 	},
 
 	generateFromCurve: function(curve, step)
-	// curves must be closed to be a polygon
 	//curve is Curve object from Curve.js
 	{
 		var points = [];
@@ -161,6 +193,7 @@ Polygon.prototype = {
 		var centerY = y / points.length;
 		var centerZ = z / points.length;
 		var center = vec3.fromValues(centerX, centerY, centerZ);
+		
 		this.setPoints(points);
 		this.setTangents(tangents);
 		this.setNormals(normals);

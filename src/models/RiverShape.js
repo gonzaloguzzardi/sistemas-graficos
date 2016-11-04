@@ -16,8 +16,8 @@ var RiverShape = function(step, width)
 
 	var halfLength = this.riverWidth * 0.5;
 
-	var shape = new BezierCurve([ [-halfLength, 0, 0], [0.0, 0, 0], [0.0, 0, 0], [halfLength, 0, 0]]); //x
-	var shape = new BezierCurve([ [0, -halfLength, 0], [0.0, 0, 0], [0.0, 0, 0], [0, halfLength, 0]]); //y
+	//var shape = new BezierCurve([ [-halfLength, 0, 0], [0.0, 0, 0], [0.0, 0, 0], [halfLength, 0, 0]]); //x
+	//var shape = new BezierCurve([ [0, -halfLength, 0], [0.0, 0, 0], [0.0, 0, 0], [0, halfLength, 0]]); //y
 	var shape = new BezierCurve([ [0, 0, -halfLength], [0.0, 0, 0], [0.0, 0, 0], [0, 0, halfLength]]); //x
 
 	Polygon.call(this);

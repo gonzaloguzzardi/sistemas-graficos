@@ -47,40 +47,41 @@ var BridgeMainCable = function(startPoint, endPoint, radius, type, ph2)
 	var deltaX = this.endPoint[0] - this.startPoint[0];
 	var deltaY = this.startPoint[1] - this.endPoint[1];
 
-
+	var normalAxis = [0, 0, 1];
 	this.curvePath;
 	var p1, p2, halfHeightPoint, halfHeightPointRight;
 	if (this.type == 1)
 	{
 		p1 = [deltaX * 0.4 + this.startPoint[0], -deltaY * 0.8 + this.startPoint[1], 0.0];
 		p2 = [deltaX * 0.6 + this.startPoint[0], -deltaY * 0.8 + this.startPoint[1], 0.0];
-		curvePath = new BezierCurve ([this.startPoint, p1, p2, this.endPoint]);
+		this.curvePath = new BezierCurve ([this.startPoint, p1, p2, this.endPoint], normalAxis);
 	}
 	else if (this.type == 2)
 	{
 		deltaY = this.startPoint[1] - this.ph2;
 		p1 = [deltaX * 0.1 + this.startPoint[0], -deltaY * 0.775 + this.startPoint[1], 0.0];
 		p2 = [deltaX * 0.9 + this.startPoint[0], -deltaY * 0.775 + this.startPoint[1], 0.0];
-		curvePath = new BezierCurve ([this.startPoint, p1, p2, this.endPoint]);
+		this.curvePath = new BezierCurve ([this.startPoint, p1, p2, this.endPoint], normalAxis);
 	}
 	else if (this.type == 3)
 	{
 		deltaY = this.startPoint[1] - this.ph2;
 		p1 = [deltaX * 0.35 + this.startPoint[0], -deltaY * 0.75 + this.startPoint[1], 0.0];
 		p2 = [deltaX * 0.65 + this.startPoint[0], -deltaY * 0.75 + this.startPoint[1], 0.0];
-		curvePath = new BezierCurve ([this.startPoint, p1, p2, this.endPoint]);
+		this.curvePath = new BezierCurve ([this.startPoint, p1, p2, this.endPoint], normalAxis);
 	}
 	else if (this.type == 4)
 	{
 		deltaY = this.startPoint[1] - this.ph2;
 		p1 = [deltaX * 0.4 + this.startPoint[0], -deltaY * 0.725 + this.startPoint[1], 0.0];
 		p2 = [deltaX * 0.6 + this.startPoint[0], -deltaY * 0.725 + this.startPoint[1], 0.0];
-		curvePath = new BezierCurve ([this.startPoint, p1, p2, this.endPoint]);
+		this.curvePath = new BezierCurve ([this.startPoint, p1, p2, this.endPoint], normalAxis);
 	}
 	else
 	{
-		curvePath = new BezierCurve ([this.startPoint, p1, p2,this.endPoint]);
+		this.curvePath = new BezierCurve ([this.startPoint, p1, p2,this.endPoint], normalAxis);
 	}
+
 
 	var cableShape = new CircleShape(this.radius, this.step);
 	
@@ -97,11 +98,11 @@ var BridgeMainCable = function(startPoint, endPoint, radius, type, ph2)
 	var vecAux = vec3.create();
 	var nTangent;
 
-	while(u <= curvePath.maxU)
+	while(u <= this.curvePath.maxU)
 	{
-		point = curvePath.pointFromCurve(u);
+		point = this.curvePath.pointFromCurve(u);
 		pathPoints.push(point);
-		tangent = curvePath.firstDerivFromCurve(u);
+		tangent = this.curvePath.firstDerivFromCurve(u);
 		nTangent = Math.sqrt ( Math.pow ( tangent[0], 2) + Math.pow (tangent[1], 2) + Math.pow (tangent[2], 2));
 		tangent = [-tangent[0] / nTangent, tangent[1] / nTangent, -tangent[2] / nTangent];
 		normal = vec3.create();

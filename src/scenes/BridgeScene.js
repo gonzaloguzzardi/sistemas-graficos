@@ -152,7 +152,7 @@ BridgeScene.prototype.generateRiver = function()
 	var detail = 50.0
 	var width = this.terrainWidth / detail;
 	var height = this.terrainHeight / detail;
-	this.river = new River(this.riverWidth * 1.1, this.riverCurve, this.buildStep);
+	this.river = new River(this.riverWidth , this.riverCurve, this.buildStep);
 	//this.river = new Plane (width, height, detail);
 	this.river.setColor(getColor("river"));
 }
@@ -165,6 +165,7 @@ BridgeScene.prototype.generateTerrain = function()
 	var height = this.terrainHeight / this.distanceBetweenTerrainPoints;
 
 	this.terrain = new Plane (width, height, this.distanceBetweenTerrainPoints);
+	//this.terrain = new Terrain(this.riverCurve, this.coastWidth, this.terrainWidth, this.terrainElevation, false, 0.1);
 
 	//this.terrain.draw_mode = gl.LINE_STRIP;
 }
@@ -256,12 +257,22 @@ BridgeScene.prototype.deformTerrain = function()
 	this.terrain.setupWebGLBuffers();
 }
 
+BridgeScene.prototype.smoothTerrain = function()
+{
+	for (var i = 0; i < this.terrain.position_buffer.length; i += 3)
+	{
+		var ada = Math.max(Math.abs(Math.acos(this.terrain.normals_buffer[i].n(j))));
+	}
+}
+
+
+
 BridgeScene.prototype.generateRoads = function()
 {
 	//this.leftRoad = new Road(this.terrainHeight * 0.5 + this.bridgePos[2] - this.bridgeLength * 0.5, this.roadWidth, this.buildStep);
 	//this.rightRoad = new Road(this.terrainHeight * 0.5 - this.bridgePos[2] - this.bridgeLength * 0.5, this.roadWidth, this.buildStep);
-	this.leftRoad = new Road(this.terrainHeight * 0.5 + this.bridgePos[2] - this.bridgeLength * 0.5, this.roadWidth, this.buildStep);
-	this.rightRoad = new Road(this.terrainHeight * 0.5 - this.bridgePos[2] - this.bridgeLength * 0.5, this.roadWidth, this.buildStep);
+	this.leftRoad = new Road(this.terrainHeight * 0.5 + this.bridgePos[2] - this.bridgeLength * 0.5, this.roadWidth + 5, this.buildStep);
+	this.rightRoad = new Road(this.terrainHeight * 0.5 - this.bridgePos[2] - this.bridgeLength * 0.5, this.roadWidth + 5, this.buildStep);
 }
 
 
@@ -321,5 +332,8 @@ BridgeScene.prototype.draw = function(matrix, glProgram)
 		this.trees[i].draw(matrix, glProgram);
 	}
 }
+
+
+
 
 

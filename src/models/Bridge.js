@@ -68,6 +68,8 @@ var Bridge = function(towerAmount)
 	this.mainCableRight34 = null;
 	this.mainCableRight40 = null;
 
+	this.straps = [];
+
 	this.towerOneTwoPositionModifier = 0.8;
 	this.towerThreeFourPositionModifier = 0.25;
 
@@ -152,6 +154,7 @@ Bridge.prototype.buildBridge = function()
 	this.buildBridgeRoad();
 	this.buildTowers();
 	this.placeTowers();
+	this.buildMainCables();
 	this.buildStraps();
 
 	this.initialized = true;
@@ -160,7 +163,7 @@ Bridge.prototype.buildBridge = function()
 Bridge.prototype.buildBridgeRoad = function()
 {
 	var roadHeight = this.ph2;
-	this.bridgeRoad = new BridgeRoad(this.bridgeLength, this.bridgeWidth, roadHeight);
+	this.bridgeRoad = new BridgeRoad(this.bridgeLength, this.bridgeWidth + 5, roadHeight);
 	this.addModel(this.bridgeRoad);
 
 	/*for (var i = 0; i < this.bridgeRoad.roadPath.sections; i++)
@@ -239,45 +242,94 @@ Bridge.prototype.placeTowers = function()
 	//left tower 1
 	ml1 = mat4.create();
 	mat4.translate(ml1, ml1, posTowerLeft1);
+	mat4.rotate(ml1, ml1, Math.PI/2.0, [0.0,1.0,0.0]);
 	this.leftTower1.applyMatrix(ml1);
 
 	//right tower 1
 	mr1 = mat4.create();
 	mat4.translate(mr1, mr1, posTowerRight1);
+	mat4.rotate(mr1, mr1, Math.PI/2.0, [0.0,1.0,0.0]);
 	this.rightTower1.applyMatrix(mr1);
 
 	//left tower 2
 	ml2 = mat4.create();
 	mat4.translate(ml2, ml2, posTowerLeft2);
+	mat4.rotate(ml2, ml2, Math.PI/2.0, [0.0,1.0,0.0]);
 	this.leftTower2.applyMatrix(ml2);
 
 	//right tower 2
 	mr2 = mat4.create();
 	mat4.translate(mr2, mr2, posTowerRight2);
+	mat4.rotate(mr2, mr2, Math.PI/2.0, [0.0,1.0,0.0]);
 	this.rightTower2.applyMatrix(mr2);
 
 	//left tower 3
 	ml3 = mat4.create();
 	mat4.translate(ml3, ml3, posTowerLeft3);
+	mat4.rotate(ml3, ml3, Math.PI/2.0, [0.0,1.0,0.0]);
 	this.leftTower3.applyMatrix(ml3);
 
 	//right tower 3
 	mr3 = mat4.create();
 	mat4.translate(mr3, mr3, posTowerRight3);
+	mat4.rotate(mr3, mr3, Math.PI/2.0, [0.0,1.0,0.0]);
 	this.rightTower3.applyMatrix(mr3);
 
 	//left tower 4
 	ml4 = mat4.create();
 	mat4.translate(ml4, ml4, posTowerLeft4);
+	mat4.rotate(ml4, ml4, Math.PI/2.0, [0.0,1.0,0.0]);
 	this.leftTower4.applyMatrix(ml4);
 
 	//right tower 4
 	mr4 = mat4.create();
 	mat4.translate(mr4, mr4, posTowerRight4);
+	mat4.rotate(mr4, mr4, Math.PI/2.0, [0.0,1.0,0.0]);
 	this.rightTower4.applyMatrix(mr4);
 }
 
 Bridge.prototype.buildStraps = function()
+{
+	var halfLength = this.bridgeLength * 0.5;
+	var halfRiverWidth = this.riverWidth * 0.5;
+	var halfBridgeWidth = this.bridgeWidth * 0.5;
+
+	var moveToLeftMatrix = mat4.create();
+	var moveToRightMatrix = mat4.create();
+	mat4.translate(moveToLeftMatrix, moveToLeftMatrix, [0.0, 0.0, halfBridgeWidth]);
+	mat4.translate(moveToRightMatrix, moveToRightMatrix, [0.0, 0.0, -halfBridgeWidth]);
+
+	var offset = 2.5;
+
+	//First Segment
+	var segmentLength = halfLength - halfRiverWidth * this.towerOneTwoPositionModifier;
+	var strapAmount = (halfLength - offset - halfRiverWidth * this.towerOneTwoPositionModifier) / this.s1;
+	for (var i = 1; i <= strapAmount; i++)
+	{	
+		var x = -offset - halfRiverWidth * this.towerOneTwoPositionModifier - i * this.s1;
+		// u between 5 and 11
+		var roadU = ((x + this.bridgeLength/2.0)/ this.bridgeLength) * 8 + 4;
+		var startHeight = this.bridgeRoad.roadPath.pointFromCurve(roadU);
+		var startPoint = [x , startHeight[1] + this.ph1, 0];
+		//console.log(startHeight);
+
+		//Strap Height
+		var cableU = (Math.abs(x + halfRiverWidth * this.towerOneTwoPositionModifier + offset) / Math.abs(halfLength - halfRiverWidth * this.towerOneTwoPositionModifier));
+		var strapHeight = this.mainCableLeft01.curvePath.pointFromCurve(cableU);
+		var endPoint = [x, strapHeight[1] - 2.5, 0];
+		//console.log(cableU);
+
+		var strapLeft = new BridgeStrap(startPoint, endPoint);
+		strapLeft.applyMatrix(moveToLeftMatrix);
+		this.straps.push(strapLeft);
+
+		var strapRight = new BridgeStrap(startPoint, endPoint);
+		strapRight.applyMatrix(moveToRightMatrix);
+		this.straps.push(strapRight);
+	}
+}
+
+Bridge.prototype.buildMainCables = function()
 {
 	// left --> +z
 	// right --> -z
@@ -445,6 +497,7 @@ Bridge.prototype.draw = function(parentMatrix, glProgram)
 	var th1 = this.getFirstSegmentTowerHeight(1);
 	var th2 = this.getLeftoverTowerHeight(th1) * 0.5;
 	var th3 = th2;
+
 	this.leftTower1.draw(m_bridge, glProgram, th1 , th2, th3);
 	this.leftTower2.draw(m_bridge, glProgram, th1, th2, th3);
 	this.rightTower1.draw(m_bridge, glProgram, th1, th2, th3);
@@ -485,6 +538,12 @@ Bridge.prototype.draw = function(parentMatrix, glProgram)
 	{
 		this.mainCableLeft34.draw(m_bridge, glProgram);
 		this.mainCableRight34.draw(m_bridge, glProgram);
+	}
+
+	/////////////////////////// Draw Straps/////////////////////////////////////////////////////////
+	for (var i = 0; i < this.straps.length; i++)
+	{
+		this.straps[i].draw(m_bridge, glProgram);
 	}
 }
 

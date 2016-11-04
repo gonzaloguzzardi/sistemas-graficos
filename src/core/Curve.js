@@ -4,7 +4,7 @@ Abstract Class for Curves
 section = segment
 ****************************************/
 
-var Curve = function(points) 
+var Curve = function(points, normalAxis) 
 {
 	if(this.constructor == Curve)
 	{
@@ -29,6 +29,12 @@ var Curve = function(points)
 	this.deltaU = 0.2; //detail
 	this.controlPoints = null; // List of 3D points
 
+	this.normalAxis = [0, 0, 1];
+	if (normalAxis !== undefined)
+	{
+		this.normalAxis = normalAxis;
+	}
+
 	Model.call(this);
 
 }
@@ -43,6 +49,11 @@ Curve.prototype.init = function(points)
 
 	Model.prototype.init.call(this);
 
+}
+
+Curve.prototype.setNormalAxis = function(normalVector)
+{
+	this.normalAxis = normalVector;
 }
 
 	
@@ -152,8 +163,8 @@ Curve.prototype.createGrid = function()
 		
 		var tangente = vec3.fromValues(derivedPoint[0], derivedPoint[1], derivedPoint[2]);
 		//vec3.normalize(tangente, tangente);
-		var axisZ = vec3.fromValues(0,0,1);
-		vec3.cross(vec_product, axisZ, tangente);
+		//var axisZ = vec3.fromValues(0,0,1);
+		vec3.cross(vec_product, this.normalAxis, tangente);
 		vec3.cross(normal, vec_product, tangente);
 
 		//Z MUST NOT BE PARALLEL TO THE TANGENT

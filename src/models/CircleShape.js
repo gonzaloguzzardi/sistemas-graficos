@@ -25,11 +25,12 @@ var CircleShape = function(radius, step)
 
 	//var diag = Math.sqrt( this.radius * this.radius + this.radius * this.radius);
 	var c = 0.551915024494;
+	var normalAxis = [1, 0, 0];
 	var shape = new BezierCurve([ [0, 1, 0], [0, 1, c], [0, c, 1], [0, 0, 1],
 								  [0, 0, 1],[0, -c, 1], [0, -1, c], [0, -1, 0],
 								   [0, -1, 0],[0, -1, -c], [0, -c, -1], [0, 0, -1],
 								  [0, 0, -1],[0, c, -1], [0, 1, -c], [0, 1, 0]
-								]);
+								], normalAxis);
 
 	Polygon.call(this);
 

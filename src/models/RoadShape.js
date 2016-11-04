@@ -11,14 +11,14 @@ var RoadShape = function(step, width)
 {
 	this.roadLength = width;
 
-	this.rampHeight = 4.0;
-	this.rampLength = 2.5;
+	this.rampHeight = 5.0;
+	this.rampLength = 7.25;
 	this.rampSlope = 1.0;
 
 
 	var halfLength = this.roadLength/2.0;
 
-
+	var normalAxis = [1, 0, 0];
 	var shape = new BSplineCurve([ [0.0, 0.0, halfLength], [0.0, 0.0, halfLength], [0.0, 0.0, halfLength],  //inicio
 								[0.0, this.rampHeight, halfLength], [0.0, this.rampHeight, halfLength], [0.0, this.rampHeight, halfLength],  //sube
 								[0.0, this.rampHeight, halfLength - this.rampLength], [0.0, this.rampHeight, halfLength - this.rampLength], [0.0, this.rampHeight, halfLength - this.rampLength],  //dobla
@@ -32,7 +32,7 @@ var RoadShape = function(step, width)
 								[0.0, 0.0, -halfLength], [0.0, 0.0, -halfLength], [0.0, 0.0, -halfLength], 
 								[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], 
 								[0.0, 0.0, halfLength], [0.0, 0.0, halfLength], [0.0, 0.0, halfLength], 
-								]);
+								], normalAxis);
 
 
 	Polygon.call(this);
@@ -45,3 +45,38 @@ var RoadShape = function(step, width)
 
 RoadShape.prototype = Object.create(Polygon.prototype);
 RoadShape.prototype.constructor = TowerShape;
+
+RoadShape.prototype.generateFromCurve = function(curve, step)
+{
+	var points = [];
+	var normals = [];
+	var tangents = [];
+	var point;
+	var tangent;
+	var axisZ = vec3.fromValues(0,0,1);
+	var x = 0; 
+	var y = 0;
+	var z = 0;
+
+	for (var u = curve.minU ; u <= curve.maxU; u += step)
+	{
+		var normal = vec3.create();
+		point = curve.pointFromCurve(u);
+		x += point[0];
+		y += point[1];
+		z += point[2];
+		tangent = curve.firstDerivFromCurve(u);
+		vec3.cross(normal, tangent, axisZ);
+		points.push(point);
+		tangents.push(tangent);
+		normals.push(normal);
+	}
+	var centerX = x / points.length;
+	var centerY = y / points.length;
+	var centerZ = z / points.length;
+	var center = vec3.fromValues(centerX, centerY, centerZ);
+	this.setPoints(points);
+	this.setTangents(tangents);
+	this.setNormals(normals);
+	this.setCenter(center);
+}

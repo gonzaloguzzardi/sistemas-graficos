@@ -66,6 +66,24 @@ Group.prototype = {
 			this.models.splice(index, 1);
 		}
 	},
+
+
+    setupShaders: function(glProgram)
+    {
+        for ( var i = 0, l = this.models.length; i < l; i ++ ) 
+		{
+			this.models[i].setupShaders(glProgram);  
+		}
+	},
+
+
+	setUpLighting: function(glProgram, lightPosition, ambientColor, diffuseColor)
+	{
+        for ( var i = 0, l = this.models.length; i < l; i ++ ) 
+		{
+			this.models[i].setUpLighting(glProgram, lightPosition, ambientColor, diffuseColor);
+   		}
+	},
 	
 	draw: function(m, shaderProgram)
 	{

@@ -200,6 +200,12 @@ Model.prototype = {
 		}
 	},
 
+    setupShaders: function(glProgram)
+    {
+        gl.useProgram(glProgram);
+    },
+
+
 	setUpLighting: function(glProgram, lightPosition, ambientColor, diffuseColor)
 	{
             // Configuración de la luz
@@ -239,11 +245,11 @@ Model.prototype = {
         this.webgl_color_buffer.numItems = this.color_buffer.length / 3;
 
         // Textures coords
-        /*this.webgl_texture_coord_buffer = gl.createBuffer();
+        this.webgl_texture_coord_buffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.webgl_texture_coord_buffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.texture_coord_buffer), gl.STATIC_DRAW);
         this.webgl_texture_coord_buffer.itemSize = 3;
-        this.webgl_texture_coord_buffer.numItems = this.texture_coord_buffer.length / 3;*/
+        this.webgl_texture_coord_buffer.numItems = this.texture_coord_buffer.length / 3;
 
 		// Index Buffer
 		this.webgl_index_buffer = gl.createBuffer();
@@ -260,7 +266,7 @@ Model.prototype = {
         this.webgl_normals_buffer.numItems = this.normals_buffer.length / 3;
 
 		// Tangent
-		/*if(this.tangent_buffer != null)
+		if(this.tangent_buffer != null)
 		{
 			this.webgl_tangent_buffer = gl.createBuffer();
 			gl.bindBuffer(gl.ARRAY_BUFFER, this.webgl_tangent_buffer);
@@ -277,7 +283,7 @@ Model.prototype = {
 			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.binormal_buffer), gl.STATIC_DRAW);
 			this.webgl_binormal_buffer.itemSize = 3;
         	this.webgl_binormal_buffer.numItems = this.binormal_buffer.length / 3;
-		}*/
+		}
 	},
 
 	// draw vertexGrid applying his parent transformations
@@ -285,8 +291,16 @@ Model.prototype = {
 	{
 		gl.useProgram(glProgram);
 
-        gl.uniformMatrix4fv(shaderProgramColoredObject.pMatrixUniform, false, pMatrix);
-        gl.uniformMatrix4fv(shaderProgramColoredObject.ViewMatrixUniform, false, CameraMatrix); 
+		/*var lighting;
+        lighting = true;
+        gl.uniform1i(shaderProgramColoredObject.useLightingUniform, lighting);       
+
+        gl.uniform3fv(shaderProgramColoredObject.lightingDirectionUniform, vec3.fromValues(-100.0, 0.0, -60.0));
+        gl.uniform3fv(shaderProgramColoredObject.ambientColorUniform, vec3.fromValues(0.5, 0.5, 0.5) );
+        gl.uniform3fv(shaderProgramColoredObject.directionalColorUniform, vec3.fromValues(0.05, 0.05, 0.05));*/
+
+        gl.uniformMatrix4fv(glProgram.pMatrixUniform, false, pMatrix);
+        gl.uniformMatrix4fv(glProgram.ViewMatrixUniform, false, CameraMatrix); 
 
 		// Bind Position Buffer
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.webgl_position_buffer);
@@ -310,10 +324,16 @@ Model.prototype = {
 		gl.uniformMatrix4fv(glProgram.ModelMatrixUniform, false, model_matrix_final);
 
 		//Normals Matrix
-        var normals_matrix = mat4.create();
+        /*var normals_matrix = mat4.create();
         mat4.invert(normals_matrix, model_matrix_final);
 		mat4.transpose(normals_matrix, normals_matrix);
-		gl.uniformMatrix4fv(glProgram.nMatrixUniform, false, normals_matrix);
+		gl.uniformMatrix4fv(glProgram.nMatrixUniform, false, normals_matrix);*/
+
+		var normals_matrix = mat3.create();
+        mat3.fromMat4(normals_matrix, model_matrix_final);
+        mat3.invert(normals_matrix, normals_matrix);
+		mat3.transpose(normals_matrix, normals_matrix);
+		gl.uniformMatrix3fv(glProgram.nMatrixUniform, false, normals_matrix);
 
 		
 		//Tangent Buffer
