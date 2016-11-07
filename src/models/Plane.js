@@ -63,6 +63,10 @@ Plane.prototype.createPlaneGrid = function()
 			this.position_buffer.push(0);
 			this.position_buffer.push(z);
 
+			this.texture_coord_buffer.push(x);
+			this.texture_coord_buffer.push(0);
+			this.texture_coord_buffer.push(z);
+
 			// Color
 			this.color_buffer.push(0.0);
 			this.color_buffer.push(1.0);

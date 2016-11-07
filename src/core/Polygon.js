@@ -163,7 +163,7 @@ Polygon.prototype = {
 		return transformPolygon;
 	},
 
-	generateFromCurve: function(curve, step)
+	generateFromCurve: function(curve, step, normalAxis)
 	//curve is Curve object from Curve.js
 	{
 		var points = [];
@@ -172,6 +172,10 @@ Polygon.prototype = {
 		var point;
 		var tangent;
 		var axisZ = vec3.fromValues(0,0,-1);
+		if (normalAxis !== undefined)
+		{
+			axisZ = normalAxis;
+		}
 		var x = 0; 
 		var y = 0;
 		var z = 0;

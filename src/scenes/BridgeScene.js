@@ -4,6 +4,12 @@ Bridge Scene
 
 var BridgeScene = function() 
 {
+	//sun
+	this.sunLight = null;
+	this.sunLightDirection = [-10,-50,-10 ];
+	this.sunLightAmbient = [0.992, 0.985, 0.937];
+	this.sunLightIntensity = [1.0, 1.0, 1.0];
+
 	// Terrain Parameters
 	this.terrainElevation = 15.0;
 	this.waterSubmergence= 25.0;
@@ -92,13 +98,30 @@ BridgeScene.prototype.create = function()
 			this.generateDefaultRiverCurve();
 		}
 	}
-
+	this.generateSun();
 	this.generateRiver();
 	this.generateTerrain();
 	this.deformTerrain();
 	this.generateBridge();
 	this.generateRoads();
 	this.generateTrees();
+}
+
+BridgeScene.prototype.generateSun = function()
+{
+	this.sunLight = new DirectionalLight();
+	this.sunLight.setParameters(this.sunLightDirection, this.sunLightAmbient, this.sunLightIntensity);
+}
+
+BridgeScene.prototype.setSunAmbientLight = function(sunLightAmbient)
+{
+	if (sunLightAmbient === undefined) return;
+	this.sunLightAmbient = sunLightAmbient;
+}
+BridgeScene.prototype.setSunLightIntensity = function(sunLightIntensity)
+{
+	if (sunLightIntensity === undefined) return;
+	this.sunLightIntensity = sunLightIntensity;
 }
 
 BridgeScene.prototype.generateDefaultRiverCurve = function()
@@ -296,8 +319,22 @@ BridgeScene.prototype.generateTrees = function()
 	}
 }
 
+BridgeScene.prototype.drawSunLight = function(glProgram)
+{        
+	var lighting;
+	lighting = true;
+	gl.uniform1i(glProgram.uUseLighting, lighting);       
+	var lightPosition = vec3.fromValues(-100.0, -75.0, -10.0); 
+	gl.uniform3fv(glProgram.uLightPosition, lightPosition);   
+	this.sunLight.setParameters(this.sunLightDirection, this.sunLightAmbient, this.sunLightIntensity);  
+	this.sunLight.render(glProgram);
+}
+
 BridgeScene.prototype.draw = function(matrix, glProgram)
 {
+
+	this.drawSunLight(glProgram);
+
 	var m_terrain = mat4.create();
 	mat4.multiply(m_terrain, m_terrain, matrix);
 	mat4.translate(m_terrain, m_terrain, [0.0, this.terrainElevation, 0.0]);
@@ -312,13 +349,13 @@ BridgeScene.prototype.draw = function(matrix, glProgram)
 	var m_leftRoad = mat4.create();
 	mat4.multiply(m_leftRoad, matrix, m_leftRoad);
 	mat4.translate(m_leftRoad, m_leftRoad, [-this.bridgePos[2] - this.rightRoad.length*0.5 - this.bridgeLength*0.5, -this.bridgePos[1], -this.bridgePos[0]]);
-	mat4.translate(m_leftRoad, m_leftRoad, [0.0, this.terrainElevation + 2.0, 0.0]);
+	mat4.translate(m_leftRoad, m_leftRoad, [0.0, this.terrainElevation + 2.5, 0.0]);
 	this.rightRoad.draw(m_leftRoad, glProgram);
 
 	var m_rightRoad = mat4.create();
 	mat4.multiply(m_rightRoad, matrix, m_rightRoad);
 	mat4.translate(m_rightRoad, m_rightRoad, [-this.bridgePos[2] + this.leftRoad.length*0.5 + this.bridgeLength*0.5, -this.bridgePos[1], -this.bridgePos[0]]);
-	mat4.translate(m_rightRoad, m_rightRoad, [0.0, this.terrainElevation + 2.0, 0.0]);
+	mat4.translate(m_rightRoad, m_rightRoad, [0.0, this.terrainElevation + 2.5, 0.0]);
 	this.leftRoad.draw(m_rightRoad, glProgram);
 
 	var m_river = mat4.create();

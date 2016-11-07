@@ -121,6 +121,8 @@ var BridgeMainCable = function(startPoint, endPoint, radius, type, ph2)
 
 	this.init();
 
+	this.setUpMaterial();
+
 	this.setColor(getColor("mainCables"));
 }
 
@@ -130,4 +132,18 @@ BridgeMainCable.prototype.constructor = BridgeMainCable;
 BridgeMainCable.prototype.setRadius = function(radius)
 {
 	this.radius = radius;
+}
+
+BridgeMainCable.prototype.setUpMaterial = function()
+{
+	this.loadDiffuseMap("../files/textures/alambres.jpg");
+	this.loadNormalMap("../files/textures/alambres-normalmap.jpg");
+
+	this.ka = 0.55;
+	this.kd = 0.65;
+	this.ks = 0.8;
+	this.shininess = 0.1;
+
+	this.color_specular = vec3.fromValues(0.125, 0.125, 0.125);
+	this.reflectiveness = 0.8;
 }

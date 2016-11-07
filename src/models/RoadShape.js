@@ -39,7 +39,7 @@ var RoadShape = function(step, width)
 
 	this.center = [0,0,0];
 
-	this.generateFromCurve(shape, step);
+	this.generateFromCurve(shape, step, [-1, 0, 0]);
 
 }
 

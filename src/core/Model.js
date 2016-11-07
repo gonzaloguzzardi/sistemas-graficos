@@ -14,7 +14,10 @@ var Model = function() {
 	this.draw_mode = gl.TRIANGLE_STRIP; //use Triangle Strip by default
 	this.childs = [];
 
-	// textures?
+	// textures
+	this.useTexture = 0.0;
+	this.diffuseMap = null;
+	this.normalMap = null;
 	
 	// buffers
 	this.position_buffer = [];
@@ -38,6 +41,18 @@ var Model = function() {
 	
 	// Model Matrux
 	this.model_matrix = mat4.create();
+
+	//shader variables
+
+	this.ka = 0.2;
+	this.kd = 0.5;
+	this.ks = 0.3;
+	this.shininess = 0.01;
+
+	this.color_specular = vec3.fromValues(0.125, 0.125, 0.125);
+	this.reflectiveness = 0.8;
+
+	this.useNormalMap = false;
 	
 }
 
@@ -200,6 +215,46 @@ Model.prototype = {
 		}
 	},
 
+	loadTexture: function(fileName)
+	{
+        var auxTex = gl.createTexture();
+        var texture = auxTex;
+        texture.image = new Image();
+
+        var model = this;
+
+        texture.image.onload = function () 
+        {
+        	model.handleLoadedTexture(texture)
+        }
+        texture.image.src = fileName;
+    	return texture;
+    },
+
+    handleLoadedTexture: function(texture) 
+    {
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+        gl.generateMipmap(gl.TEXTURE_2D);
+
+        gl.bindTexture(gl.TEXTURE_2D, null);
+    },
+
+	loadDiffuseMap: function(fileName)
+	{
+		this.diffuseMap = this.loadTexture(fileName);
+		this.useTexture = 1.0;
+	},
+
+	loadNormalMap: function(fileName)
+	{
+		this.normalMap = this.loadTexture(fileName);
+		this.useNormalMap = true;
+	},
+
     setupShaders: function(glProgram)
     {
         gl.useProgram(glProgram);
@@ -291,13 +346,17 @@ Model.prototype = {
 	{
 		gl.useProgram(glProgram);
 
-		/*var lighting;
-        lighting = true;
-        gl.uniform1i(shaderProgramColoredObject.useLightingUniform, lighting);       
+        gl.uniform1i(glProgram.uUseNormalMap, this.useNormalMap);
+        gl.uniform1f(glProgram.uUseTexture, this.useTexture)
+    	gl.uniform3fv(glProgram.uSpecularColor, this.color_specular);
 
-        gl.uniform3fv(shaderProgramColoredObject.lightingDirectionUniform, vec3.fromValues(-100.0, 0.0, -60.0));
-        gl.uniform3fv(shaderProgramColoredObject.ambientColorUniform, vec3.fromValues(0.5, 0.5, 0.5) );
-        gl.uniform3fv(shaderProgramColoredObject.directionalColorUniform, vec3.fromValues(0.05, 0.05, 0.05));*/
+        //Shader Phong Variables
+        gl.uniform1f(glProgram.uKa, this.ka);
+        gl.uniform1f(glProgram.uKd, this.kd);
+        gl.uniform1f(glProgram.uKs, this.ks);
+        gl.uniform1f(glProgram.uShininess, this.shininess);
+        gl.uniform1f(glProgram.uReflectiveness, this.reflectiveness);
+
 
         gl.uniformMatrix4fv(glProgram.pMatrixUniform, false, pMatrix);
         gl.uniformMatrix4fv(glProgram.ViewMatrixUniform, false, CameraMatrix); 
@@ -311,9 +370,23 @@ Model.prototype = {
 		gl.vertexAttribPointer(glProgram.vertexColorAttribute, 3, gl.FLOAT, false, 0, 0);
 
 		// Bind Textures Coords
-		/*gl.bindBuffer(gl.ARRAY_BUFFER, this.webgl_texture_coord_buffer);
-        gl.vertexAttribPointer(glProgram.textureCoordAttribute, this.webgl_texture_coord_buffer.itemSize, gl.FLOAT, false, 0, 0);*/
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.webgl_texture_coord_buffer);
+        gl.vertexAttribPointer(glProgram.textureCoordAttribute, this.webgl_texture_coord_buffer.itemSize, gl.FLOAT, false, 0, 0);
 
+        // Active Textures
+        if (this.useTexture > 0)
+        {
+	        gl.activeTexture(gl.TEXTURE0);
+	        gl.bindTexture(gl.TEXTURE_2D, this.diffuseMap);
+	        gl.uniform1i(glProgram.uSampler, 0);
+    	}
+    	if (this.useNormalMap == true)
+    	{
+	        gl.activeTexture(gl.TEXTURE1);
+	        gl.bindTexture(gl.TEXTURE_2D, this.normalMap);
+	        gl.uniform1i(glProgram.uNormalSampler, 1);
+   		}
+		
         //Bind Normal Buffers
    		gl.bindBuffer(gl.ARRAY_BUFFER, this.webgl_normals_buffer);
 		gl.vertexAttribPointer(glProgram.vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
@@ -337,7 +410,7 @@ Model.prototype = {
 
 		
 		//Tangent Buffer
-		/*if(this.webgl_tangent_buffer != null)
+		if(this.webgl_tangent_buffer != null)
 		{
 			gl.bindBuffer(gl.ARRAY_BUFFER, this.webgl_tangent_buffer);
 			gl.vertexAttribPointer(glProgram.vertexTangentAttribute, 3, gl.FLOAT, false, 0, 0);
@@ -348,7 +421,7 @@ Model.prototype = {
 		{
 			gl.bindBuffer(gl.ARRAY_BUFFER, this.webgl_binormal_buffer);
 			gl.vertexAttribPointer(glProgram.vertexBinormalAttribute, 3, gl.FLOAT, false, 0, 0);
-		}*/
+		}
 
 		//Bind Index Buffer
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.webgl_index_buffer);

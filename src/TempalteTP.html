@@ -15,6 +15,8 @@
 <script type="text/javascript" src="utils/Color.js"></script>
 <script type="text/javascript" src="utils/RiverCanvasHelper.js"></script>
 
+<script type="text/javascript" src="lights/DirectionalLight.js"></script>
+
 <script type="text/javascript" src="core/Model.js"></script>
 <script type="text/javascript" src="core/Polygon.js"></script>
 <script type="text/javascript" src="core/Profile.js"></script>
@@ -60,22 +62,105 @@
 
 
 <script id="shader-fs-colored-obj" type="x-shader/x-fragment">
+
+    //TODO USE DIFFERENT SHADERS FOR DIFFERENT MODELS TO REDUCE SHADER COMPLEXITY
+
     precision mediump float;
 
+    //Lights
+    struct DirectionalLight 
+    {
+        vec3 direction;
+        vec3 ambient;
+        vec3 intensity;
+    };
+
+    uniform DirectionalLight uSunLight; //sun
+    uniform vec3 uLightPosition;
+
+    // Material Information
+    uniform float uKa;
+    uniform float uKd;
+    uniform float uKs;
+    uniform float uShininess;
+    uniform float uReflectiveness;
+    uniform vec3 uColorSpecular;
+    
+    uniform vec3 uViewPos;
+ 
+    uniform float uUseTexture;
+    uniform bool uUseNormalMap;
+
+    varying vec3 vTextureCoordinates;
+    varying vec3 vVertexPosition;
     varying vec3 vVertexColor;
-    varying vec3 vLightWeighting;
+    varying vec3 vVertexNormal;
+    varying vec3 vVertexTangent;
+    varying vec3 vVertexBinormal;
 
     uniform sampler2D uSampler;
+    uniform sampler2D uNormalSampler;
 
-    void main(void) {
-        gl_FragColor = vec4(vVertexColor.rgb * vLightWeighting, 1.0);
+    void main(void) 
+    {
+        vec2 texCoord = vTextureCoordinates.xy;
+        vec3 normal = normalize(vVertexNormal);
+
+
+        if (uUseNormalMap)
+        {
+            vec3 tangent = normalize(vVertexTangent);
+            vec3 binormal = normalize(vVertexBinormal);
+        
+            mat3 tbn = mat3(tangent, binormal, normal);
+            normal = texture2D(uNormalSampler, texCoord).rgb;
+            normal = normalize((normal - vec3(0.5, 0.5, 0.5)) * 2.0); //xyz between -1 and 1
+        
+            //Transform the normal vector in the RGB channels to tangent space
+            normal = normalize(tbn * normal);
+        }
+
+        vec3 textureColor = texture2D(uSampler, texCoord).rgb * uUseTexture;
+
+        vec3 vertexColor = vVertexColor * (1.0 - uUseTexture); 
+        vec3 color = textureColor + vertexColor;
+
+        vec3 viewDir = normalize(vVertexPosition - uViewPos);
+
+        vec3 color_final = vec3(0.0,0.0,0.0);
+
+        //Phong model with sunlight as directional light
+        vec3 Ia = uSunLight.ambient;
+        vec3 Ip = uSunLight.intensity;
+
+        vec3 lightDir = normalize(uSunLight.direction);
+
+        //vec3 vectorToLightSource = normalize(uLightPosition - vVertexPosition);
+        
+        vec3 reflectDir = normalize(reflect(lightDir, normal));        
+        float lambertian = max(dot(lightDir,normal), 0.0);
+        float specular = 0.0;
+        if(lambertian > 0.0) 
+        {
+           float specAngle = max(dot(reflectDir, viewDir), 0.0);
+           specular = pow(specAngle, uShininess);
+        }
+
+        //Iphong = ka*Ia + kd*Id * max(n * l, 0) + ks * Is * max(r * v, 0) ^ alpha
+        color_final += Ia * color  * uKa + Ip * (color * uKd * lambertian + uColorSpecular * uKs * specular);
+
+        gl_FragColor = vec4(color_final, 1.0);
     }
 </script>
 
 <script id="shader-vs-colored-obj" type="x-shader/x-vertex">
+
     attribute vec3 aVertexPosition;
     attribute vec3 aVertexNormal;
     attribute vec3 aVertexColor;
+    attribute vec3 aVertexTangent;
+    attribute vec3 aVertexBinormal;
+    attribute vec3 aTextureCoordinates;
 
     uniform mat4 uViewMatrix;
     uniform mat4 uModelMatrix;
@@ -84,42 +169,43 @@
 
     uniform vec3 uAmbientColor;
 
-    uniform vec3 uLightPosition;
     uniform vec3 uDirectionalColor;
 
     uniform bool uUseLighting;
 
+    varying vec3 vTextureCoordinates;
+    varying vec3 vVertexPosition;
     varying vec3 vVertexColor;
-    varying vec3 vLightWeighting;
+    varying vec3 vVertexNormal;
+    varying vec3 vVertexTangent;
+    varying vec3 vVertexBinormal;
 
     void main(void) {
     
-        // Transformamos al vértice al espacio de la cámara
-        vec4 pos_camera_view = uViewMatrix * uModelMatrix * vec4(aVertexPosition, 1.0);
-        
+
+        // get the vertex position in eye coordinates
+        vec4 vertexPositionEye4 = uViewMatrix * uModelMatrix * vec4(aVertexPosition, 1.0);
+        vec3 vertexPositionEye3 = vertexPositionEye4.xyz / vertexPositionEye4.w;
+
+        // calculate the vector (l) to the light source
+       /* vec3 vectorToLightSource = normalize(uLightPosition - vertexPositionEye3);
+
+        //transform normal (n) to eye coordinates
+        vec3 normalEye = normalize(uNMatrix * aVertexNormal);
+
+        // calculate n dot l for diffuse lighting
+        float diffuseLightingWeighting =  max (dot(normalEye, vectorToLightSource), 0.0);*/
+
         // Transformamos al vértice al espacio de la proyección
-        gl_Position = uPMatrix * pos_camera_view;
-
-        vec4 pos_world = uModelMatrix * vec4(aVertexPosition, 1.0);
-        
-        // Coordenada de textura sin modifiaciones
+        gl_Position = uPMatrix * vertexPositionEye4;
+        vTextureCoordinates = aTextureCoordinates;
+        //vVertexPosition = vec3(uModelMatrix * vec4(aVertexPosition, 1.0));
+        vVertexPosition = vertexPositionEye3;
         vVertexColor = aVertexColor;
-                            
-        ////////////////////////////////////////////
-        // Calculos de la iluminación
-        vec3 light_dir =  uLightPosition - vec3( pos_world );
+        vVertexNormal = normalize(uNMatrix * normalize(aVertexNormal));
+        vVertexTangent = normalize(uNMatrix * normalize(aVertexTangent));
+        vVertexBinormal = normalize(uNMatrix * normalize(aVertexBinormal));
 
-        normalize(light_dir);
-        if (!uUseLighting) 
-        {
-            vLightWeighting = vec3(1.0, 1.0, 1.0);
-        }
-        else 
-        {
-            vec3 transformedNormal = normalize(uNMatrix * aVertexNormal);
-            float directionalLightWeighting = max(dot(transformedNormal, light_dir), 0.0);
-            vLightWeighting = uAmbientColor + uDirectionalColor * directionalLightWeighting;
-        }
         ////////////////////////////////////////////
     }
 </script>
@@ -149,6 +235,11 @@
     var sceneParameters = {};
     sceneParameters.shouldRegenerate = false;
 
+    //Sun
+    var SunParameters = {};
+    SunParameters.sunLightAmbient = [0.992, 0.985, 0.937];
+    SunParameters.sunLightIntensity = [1.0, 1.0, 1.0];
+
     //Terrain
     var terrainParameters = {};
     terrainParameters.terrainElevation = 15.0;
@@ -158,6 +249,7 @@
     terrainParameters.coastWidth = 55.0;
     terrainParameters.roadWidth = 55.0;
     terrainParameters.treeAmount = 8;
+
     //Puente
     var bridgeParameters = {};
     bridgeParameters.bridgeLength = 250.0;
@@ -294,15 +386,47 @@
         shaderProgramColoredObject.vertexNormalAttribute = gl.getAttribLocation(shaderProgramColoredObject, "aVertexNormal");
         gl.enableVertexAttribArray(shaderProgramColoredObject.vertexNormalAttribute);
 
+        shaderProgramColoredObject.textureCoordAttribute = gl.getAttribLocation(shaderProgramColoredObject, "aTextureCoordinates");
+        gl.enableVertexAttribArray(shaderProgramColoredObject.textureCoordAttribute);
+
+
+        shaderProgramColoredObject.vertexBinormalAttribute = gl.getAttribLocation(shaderProgramColoredObject, "aVertexBinormal");
+        gl.enableVertexAttribArray(shaderProgramColoredObject.vertexBinormalAttribute);
+
+        shaderProgramColoredObject.vertexTangentAttribute = gl.getAttribLocation(shaderProgramColoredObject, "aVertexTangent");
+        gl.enableVertexAttribArray(shaderProgramColoredObject.vertexTangentAttribute);
+
         shaderProgramColoredObject.pMatrixUniform = gl.getUniformLocation(shaderProgramColoredObject, "uPMatrix");
         shaderProgramColoredObject.ViewMatrixUniform = gl.getUniformLocation(shaderProgramColoredObject, "uViewMatrix");
         shaderProgramColoredObject.ModelMatrixUniform = gl.getUniformLocation(shaderProgramColoredObject, "uModelMatrix");
         shaderProgramColoredObject.nMatrixUniform = gl.getUniformLocation(shaderProgramColoredObject, "uNMatrix");
-        shaderProgramColoredObject.samplerUniform = gl.getUniformLocation(shaderProgramColoredObject, "uSampler");
+
         shaderProgramColoredObject.useLightingUniform = gl.getUniformLocation(shaderProgramColoredObject, "uUseLighting");
         shaderProgramColoredObject.ambientColorUniform = gl.getUniformLocation(shaderProgramColoredObject, "uAmbientColor");
         shaderProgramColoredObject.lightingDirectionUniform = gl.getUniformLocation(shaderProgramColoredObject, "uLightPosition");
         shaderProgramColoredObject.directionalColorUniform = gl.getUniformLocation(shaderProgramColoredObject, "uDirectionalColor");
+
+        shaderProgramColoredObject.UseTexture = gl.getUniformLocation(shaderProgramColoredObject, "uUseTexture");
+        shaderProgramColoredObject.uUseNormalMap = gl.getUniformLocation(shaderProgramColoredObject, "uUseNormalMap");
+
+        shaderProgramColoredObject.uViewPos = gl.getUniformLocation(shaderProgramColoredObject, "uViewPos");
+        shaderProgramColoredObject.uColorSpecular = gl.getUniformLocation(shaderProgramColoredObject, "uColorSpecular");
+        shaderProgramColoredObject.uKa = gl.getUniformLocation(shaderProgramColoredObject, "uKa");
+        shaderProgramColoredObject.uKd = gl.getUniformLocation(shaderProgramColoredObject, "uKd");
+        shaderProgramColoredObject.uKs = gl.getUniformLocation(shaderProgramColoredObject, "uKs");
+        shaderProgramColoredObject.uShininess = gl.getUniformLocation(shaderProgramColoredObject, "uShininess");
+        shaderProgramColoredObject.uReflectiveness = gl.getUniformLocation(shaderProgramColoredObject, "uReflectiveness");
+
+        shaderProgramColoredObject.sunLightDirection = gl.getUniformLocation(shaderProgramColoredObject, "uSunLight.direction");
+        shaderProgramColoredObject.sunLightAmbient = gl.getUniformLocation(shaderProgramColoredObject, "uSunLight.ambient");
+        shaderProgramColoredObject.sunLightIntensity = gl.getUniformLocation(shaderProgramColoredObject, "uSunLight.intensity");
+
+        shaderProgramColoredObject.uSampler = gl.getUniformLocation(shaderProgramColoredObject, "uSampler");
+       // gl.uniform1i(shaderProgramColoredObject.uSampler, 0);
+        shaderProgramColoredObject.uNormalSampler = gl.getUniformLocation(shaderProgramColoredObject, "uNormalSampler");
+      //  gl.uniform1i(shaderProgramColoredObject.uNormalSampler, 1);
+
+
     }
 
 
@@ -444,7 +568,7 @@
         lighting = true;
         gl.uniform1i(shaderProgramColoredObject.useLightingUniform, lighting);       
 
-        gl.uniform3fv(shaderProgramColoredObject.lightingDirectionUniform, vec3.fromValues(1.0, -1.0, 1.0));
+        gl.uniform3fv(shaderProgramColoredObject.lightingDirectionUniform, vec3.fromValues(1.0, -10.0, 1.0));
         gl.uniform3fv(shaderProgramColoredObject.ambientColorUniform, vec3.fromValues(0.5, 0.5, 0.5) );
         gl.uniform3fv(shaderProgramColoredObject.directionalColorUniform, vec3.fromValues(0.05, 0.05, 0.05));
         
@@ -454,6 +578,9 @@
 
 
         //////////////////  Scene //////////////////////////////////////
+
+        bridgeScene.setSunAmbientLight(SunParameters.sunLightAmbient);
+        bridgeScene.setSunLightIntensity(SunParameters.sunLightIntensity);
         var m_scene = mat4.create();
         bridgeScene.draw(m_scene, shaderProgramColoredObject);
         
@@ -696,26 +823,31 @@ function GUI (){
         //f2.add(terrainParameters, 'terrainWidth', 500.0, 1000.0).name("Terrain Width").step(1);
         //f2.add(terrainParameters, 'terrainHeight', 500.0, 1000.0).name("Terrain Height").step(1);
 
-        var f3 = gui.addFolder('Bridge');     
-        f3.add(bridgeParameters, 'bridgeLength', 20.0, 1000.0).name("Bridge Length").step(1);
-        f3.add(bridgeParameters, 'towerAmount', 2.0, 4.0).name("Amount of Towers").step(1);
-        f3.add(terrainParameters, 'roadWidth', 10.0, 250.0).name("Road Width").step(1);
-        f3.add(bridgeParameters, 'ph2', 1.0, 250.0).name("ph2: Bridge Road Height").step(1);
-        f3.add(bridgeParameters, 'ph3', 0.0, 500.0).name("ph3: Bridge Height").step(1);
-        f3.add(bridgeParameters, 's1', 0.0, 25.0).name("s1: Strap Separation").step(1);
-        //f3.add(bridgeParameters, 's1',0.0,50.0).name("Bridge Strap Distances").step(0.1);
+        var f3 = gui.addFolder('Sun');
+        gui.addColor(SunParameters, 'sunLightAmbient').name("Sunlight Color");
+        gui.addColor(SunParameters, 'sunLightIntensity').name("Sunlight Intensity");
 
-       // f2.add(app, 'modo',["random","secuencial"]).name("modo");
+        var f4 = gui.addFolder('Bridge');     
+        f4.add(bridgeParameters, 'bridgeLength', 20.0, 1000.0).name("Bridge Length").step(1);
+        f4.add(bridgeParameters, 'towerAmount', 2.0, 4.0).name("Amount of Towers").step(1);
+        f4.add(terrainParameters, 'roadWidth', 10.0, 250.0).name("Road Width").step(1);
+        f4.add(bridgeParameters, 'ph2', 1.0, 250.0).name("ph2: Bridge Road Height").step(1);
+        f4.add(bridgeParameters, 'ph3', 0.0, 500.0).name("ph3: Bridge Height").step(1);
+        f4.add(bridgeParameters, 's1', 0.0, 25.0).name("s1: Strap Separation").step(1);
+        //f4.add(bridgeParameters, 's1',0.0,50.0).name("Bridge Strap Distances").step(0.1);
+
+       // f4.add(app, 'modo',["random","secuencial"]).name("modo");
 
     
-        var f4 = gui.addFolder('River');        
-        f4.add(terrainParameters, 'riverWidth', 10.0, 500.0).name("River Width").step(1);       
-        f4.add(riverParameters,'reset').name("Reset");
+        var f5 = gui.addFolder('River');        
+        f5.add(terrainParameters, 'riverWidth', 10.0, 500.0).name("River Width").step(1);       
+        f5.add(riverParameters,'reset').name("Reset");
 
         f1.open();
         f2.open();
         f3.open();
         f4.open();
+        f5.open();
 };
 
 
