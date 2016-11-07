@@ -49,7 +49,7 @@ var Road = function(length, width, step)
 	var normal;
 	var nNormal;
 	var normaVec;
-	var axisZ = vec3.fromValues(0,0,0);
+	var axisZ = vec3.fromValues(1,0,0);
 	var vecAux = vec3.create();
 	var nTangent;
 

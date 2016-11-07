@@ -72,7 +72,7 @@ Profile.prototype = {
 		var point;
 		var tangent;
 		var normal;
-		var axisZ = vec3.fromValues(0,0,-1);
+		var axisZ = vec3.fromValues(0,0,1);
 
 		for (var u = curve.minU ; u <= curve.maxU; u += step)
 		{

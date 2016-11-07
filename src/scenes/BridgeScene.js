@@ -6,7 +6,7 @@ var BridgeScene = function()
 {
 	//sun
 	this.sunLight = null;
-	this.sunLightDirection = [-10,-50,-10 ];
+	this.sunLightDirection = [-30,-10,-10 ];
 	this.sunLightAmbient = [0.992, 0.985, 0.937];
 	this.sunLightIntensity = [1.0, 1.0, 1.0];
 
