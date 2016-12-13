@@ -150,6 +150,7 @@
         color_final += Ia * color  * uKa + Ip * (color * uKd * lambertian + uColorSpecular * uKs * specular);
 
         gl_FragColor = vec4(color_final, 1.0);
+        //gl_FragColor = vec4(normal, 1.0);
     }
 </script>
 
@@ -557,7 +558,7 @@
         gl.clearColor(0, 0, 0, 0);
 
 		// Se configura la matriz de proyección
-        mat4.perspective(pMatrix, 3.14 / 12.0, gl.viewportWidth / gl.viewportHeight, 0.1, 5000.0);
+        mat4.perspective(pMatrix, 3.14 / 12.0, gl.viewportWidth / gl.viewportHeight, 0.1, 3000.0);
 
         gl.useProgram(shaderProgramColoredObject);
 
@@ -568,9 +569,9 @@
         lighting = true;
         gl.uniform1i(shaderProgramColoredObject.useLightingUniform, lighting);       
 
-        gl.uniform3fv(shaderProgramColoredObject.lightingDirectionUniform, vec3.fromValues(1.0, -10.0, 1.0));
-        gl.uniform3fv(shaderProgramColoredObject.ambientColorUniform, vec3.fromValues(0.5, 0.5, 0.5) );
-        gl.uniform3fv(shaderProgramColoredObject.directionalColorUniform, vec3.fromValues(0.05, 0.05, 0.05));
+        gl.uniform3fv(shaderProgramColoredObject.sunLightDirection, vec3.fromValues(0.0, -10.0, 1.0));
+        gl.uniform3fv(shaderProgramColoredObject.sunLightAmbient, vec3.fromValues(0.5, 0.5, 0.5) );
+        gl.uniform3fv(shaderProgramColoredObject.sunLightIntensity, vec3.fromValues(0.05, 0.05, 0.05));
         
 
 
@@ -823,9 +824,9 @@ function GUI (){
         //f2.add(terrainParameters, 'terrainWidth', 500.0, 1000.0).name("Terrain Width").step(1);
         //f2.add(terrainParameters, 'terrainHeight', 500.0, 1000.0).name("Terrain Height").step(1);
 
-        var f3 = gui.addFolder('Sun');
-        gui.addColor(SunParameters, 'sunLightAmbient').name("Sunlight Color");
-        gui.addColor(SunParameters, 'sunLightIntensity').name("Sunlight Intensity");
+       // var f3 = gui.addFolder('Sun');
+       // gui.addColor(SunParameters, 'sunLightAmbient').name("Sunlight Color");
+       // gui.addColor(SunParameters, 'sunLightIntensity').name("Sunlight Intensity");
 
         var f4 = gui.addFolder('Bridge');     
         f4.add(bridgeParameters, 'bridgeLength', 20.0, 1000.0).name("Bridge Length").step(1);
@@ -843,11 +844,11 @@ function GUI (){
         f5.add(terrainParameters, 'riverWidth', 10.0, 500.0).name("River Width").step(1);       
         f5.add(riverParameters,'reset').name("Reset");
 
-        f1.open();
+        /*f1.open();
         f2.open();
         f3.open();
         f4.open();
-        f5.open();
+        f5.open();*/
 };
 
 

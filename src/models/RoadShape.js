@@ -15,11 +15,13 @@ var RoadShape = function(step, width)
 	this.rampLength = 7.25;
 	this.rampSlope = 1.0;
 
+	this.roadWidth = 0.0;
+
 
 	var halfLength = this.roadLength/2.0;
 
 	var normalAxis = [1, 0, 0];
-	var shape = new BSplineCurve([ [0.0, 0.0, halfLength], [0.0, 0.0, halfLength], [0.0, 0.0, halfLength],  //inicio
+	this.shape = new BSplineCurve([ [-this.roadWidth, 0.0, halfLength], [-this.roadWidth, 0.0, halfLength], [-this.roadWidth, 0.0, halfLength],  //inicio
 								[0.0, this.rampHeight, halfLength], [0.0, this.rampHeight, halfLength], [0.0, this.rampHeight, halfLength],  //sube
 								[0.0, this.rampHeight, halfLength - this.rampLength], [0.0, this.rampHeight, halfLength - this.rampLength], [0.0, this.rampHeight, halfLength - this.rampLength],  //dobla
 								[0.0, 0.0, halfLength - this.rampLength - this.rampSlope], [0.0, 0.0, halfLength - this.rampLength - this.rampSlope], [0.0, 0.0, halfLength - this.rampLength - this.rampSlope],  //baja
@@ -29,9 +31,9 @@ var RoadShape = function(step, width)
 								[0.0, 0.0, -halfLength + this.rampLength + this.rampSlope], [0.0, 0.0, -halfLength + this.rampLength + this.rampSlope], [0.0, 0.0, -halfLength + this.rampLength + this.rampSlope], 
 								[0.0, this.rampHeight, -halfLength + this.rampLength], [0.0, this.rampHeight, -halfLength + this.rampLength], [0.0, this.rampHeight, -halfLength + this.rampLength], 
 								[0.0, this.rampHeight, -halfLength], [0.0, this.rampHeight, -halfLength], [0.0, this.rampHeight, -halfLength], 
-								[0.0, 0.0, -halfLength], [0.0, 0.0, -halfLength], [0.0, 0.0, -halfLength], 
-								[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], 
-								[0.0, 0.0, halfLength], [0.0, 0.0, halfLength], [0.0, 0.0, halfLength], 
+								[0-this.roadWidth, 0.0, -halfLength], [-this.roadWidth, 0.0, -halfLength], [-this.roadWidth, 0.0, -halfLength], 
+								//[-this.roadWidth, 0.0, 0.0], [-this.roadWidth, 0.0, 0.0], [-this.roadWidth, 0.0, 0.0], 
+								//[-this.roadWidth, 0.0, halfLength], [-this.roadWidth, 0.0, halfLength], [-this.roadWidth, 0.0, halfLength], 
 								], normalAxis);
 
 
@@ -39,7 +41,7 @@ var RoadShape = function(step, width)
 
 	this.center = [0,0,0];
 
-	this.generateFromCurve(shape, step, [1, 0, 0]);
+	this.generateFromCurve(this.shape, step, [1, 0, 0]);
 
 }
 
@@ -53,7 +55,7 @@ RoadShape.prototype.generateFromCurve = function(curve, step)
 	var tangents = [];
 	var point;
 	var tangent;
-	var axisZ = vec3.fromValues(0,0,1);
+	var axisZ = vec3.fromValues(-1,0,0);
 	var x = 0; 
 	var y = 0;
 	var z = 0;

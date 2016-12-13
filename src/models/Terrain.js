@@ -17,7 +17,7 @@ var Terrain = function(riverCurve, coastWidth, terrainWidth, terrainElevation, f
 	this.coastWidth = 50;
 	if (coastWidth !== undefined)
 	{
-		this.length = coastWidth;
+		this.coastWidth = coastWidth;
 	}
 
 	this.terrainWidth = 500;
@@ -55,23 +55,31 @@ var Terrain = function(riverCurve, coastWidth, terrainWidth, terrainElevation, f
 	}*/
 
 	//var curve = new BSplineCurve(this.riverCurve);
-	terrainShape.generateFromCurve(this.riverCurve, 0.1);
+
+	//terrainShape.generateFromCurve(this.riverCurve, 0.1, [0.0, 0.0, 1.0]);
 
 
 	var facingRightMultiplayer = facingRight? -1 : 1;
 	var modifiedCoastWidth = this.coastWidth * facingRightMultiplayer;
-	var modifiedTerrainWidth = this.terrainWidth * facingRightMultiplayer;
+	var modifiedTerrainWidth = this.terrainWidth * facingRightMultiplayer * 0.5;
 
 	this.terrainCurve = new BSplineCurve([[0, 0, modifiedCoastWidth],[0, 0, modifiedCoastWidth],[0, 0, modifiedCoastWidth],
-										  [0, this.coastElevation * 0.25 , modifiedCoastWidth * 1.25],
-										  [0,this.coastElevation * 0.75 , modifiedCoastWidth * 1.75],
-										  [0 ,this.coastElevation * 0.95, modifiedCoastWidth * 1.95],
-
-										  [0 ,this.terrainElevation * 0.95 , modifiedCoastWidth * 2.15],
+										  //[0, this.coastElevation * 0.25 , modifiedCoastWidth * 1.25],
+										  [0,this.coastElevation * 0.5 , modifiedCoastWidth * 1.25],
+										  [0 ,this.coastElevation * 0.85, modifiedCoastWidth * 1.95],
+										  //[0 ,this.coastElevation * 0.95, modifiedCoastWidth * 1.95],
+										  [0 ,this.terrainElevation , modifiedCoastWidth * 2.15],
 										  [0, this.terrainElevation, modifiedTerrainWidth + modifiedCoastWidth], [0, this.terrainElevation, modifiedTerrainWidth + modifiedCoastWidth], [0, this.terrainElevation, modifiedTerrainWidth + modifiedCoastWidth]
-									]);
+									], [1.0, 0.0, 0.0]);
+
+		this.terrainCurve = new BSplineCurve([[-10.0, -this.coastElevation * 0.2, 0],[-10.0, -this.coastElevation * 0.2, 0],[0, this.coastElevation * 0.2, 0],
+											[0, this.coastElevation * 0.7, modifiedCoastWidth * 0.25],[0, this.coastElevation * 0.75, modifiedCoastWidth * 0.5],[0, this.coastElevation, modifiedCoastWidth * 0.85],
+										  [0,this.terrainElevation * 0.75 , modifiedCoastWidth ], [0,this.terrainElevation * 0.9  , modifiedCoastWidth * 1.25 ], [0,this.terrainElevation  , modifiedCoastWidth * 1.45],
+										  [0, this.terrainElevation, modifiedTerrainWidth], [0, this.terrainElevation, modifiedTerrainWidth], [0, this.terrainElevation, modifiedTerrainWidth]
+									], [1.0, 0.0, 0.0]);
 
 	//this.terrainCurve = new BezierCurve([[0,0,0], [0,0,0],[0,0,0],[0,0,500]]);
+	terrainShape.generateFromCurve(this.terrainCurve, 0.1, [1.0, 0.0, 0.0]);
 
 
 	var u = 0;
@@ -83,18 +91,18 @@ var Terrain = function(riverCurve, coastWidth, terrainWidth, terrainElevation, f
 	var normal;
 	var nNormal;
 	var normaVec;
-	var axisZ = vec3.fromValues(0,1,0);
+	var axisZ = vec3.fromValues(-1.0, 0.0, 0.0);
 	var vecAux = vec3.create();
 	var nTangent;
 
-	while(u <= this.terrainCurve.maxU)
+	while(u <=  this.riverCurve.maxU)
 	{
-		point = this.terrainCurve.pointFromCurve(u);
+		point = this.riverCurve.pointFromCurve(u);
 		pathPoints.push(point);
 
-		tangent = this.terrainCurve.firstDerivFromCurve(u);
+		tangent = this.riverCurve.firstDerivFromCurve(u);
 		nTangent = Math.sqrt ( Math.pow ( tangent[0], 2) + Math.pow (tangent[1], 2) + Math.pow (tangent[2], 2));
-		tangent = [-tangent[0] / nTangent, tangent[1] / nTangent, -tangent[2] / nTangent];
+		tangent = [tangent[0] / nTangent, -tangent[1] / nTangent, tangent[2] / nTangent];
 
 		normal = vec3.create();
 		vec3.cross(vecAux, axisZ, tangent);
@@ -115,8 +123,9 @@ var Terrain = function(riverCurve, coastWidth, terrainWidth, terrainElevation, f
 
 	this.init();
 
-	this.setColor(getColor("grass"));
+	this.setColor(getColor("green"));
 
+	console.log(this)
 }
 
 Terrain.prototype = Object.create(SweptSurface.prototype);

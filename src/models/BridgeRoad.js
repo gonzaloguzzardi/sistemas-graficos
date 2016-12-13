@@ -16,7 +16,6 @@ var BridgeRoad = function(length, width, height)
 	this.height = height;
 	this.roadSlopeModifier = 0.8;
 
-
 	var roadShape = new RoadShape(step, this.width);
 
 
@@ -30,7 +29,7 @@ var BridgeRoad = function(length, width, height)
 									[this.length/3.0, this.height * this.roadSlopeModifier, 0],
 									[this.length/2.0, 0.0, 0.0], [this.length/2.0, 0.0, 0.0], [this.length/2.0, 0.0, 0.0],
 									[this.length/2.0 + 5.0, 0.0, 0.0], [this.length/2.0 +5.0, 0.0, 0.0], [this.length/2.0 + 5.0, 0.0, 0.0], //union con calle
-									]);
+									], [0, 0, 1]);
 	//Repite 3 veces union calle
 	//Repite 3 inicio curva
 	// 1 desvio 1
@@ -51,7 +50,7 @@ var BridgeRoad = function(length, width, height)
 	var normal;
 	var nNormal;
 	var normaVec;
-	var axisZ = vec3.fromValues(0,1,0);
+	var axisZ = vec3.fromValues(1,0,0);
 	var vecAux = vec3.create();
 	var nTangent;
 
@@ -62,7 +61,7 @@ var BridgeRoad = function(length, width, height)
 
 		tangent = this.roadPath.firstDerivFromCurve(u);
 		nTangent = Math.sqrt ( Math.pow ( tangent[0], 2) + Math.pow (tangent[1], 2) + Math.pow (tangent[2], 2));
-		tangent = [-tangent[0] / nTangent, tangent[1] / nTangent, -tangent[2] / nTangent];
+		tangent = [tangent[0] / nTangent, tangent[1] / nTangent, tangent[2] / nTangent];
 
 		normal = vec3.create();
 		vec3.cross(vecAux, axisZ, tangent);

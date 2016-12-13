@@ -38,6 +38,7 @@ var BridgeScene = function()
 
 	//Terrain models
 	this.terrain = null;
+	this.terrain2 = null; // Agregado en el cambio de implementación. La implementación anterior, deformando el terreno, se complicaba para calcular las normales.
 	this.river = null;
 	this.trees = [];
 
@@ -101,7 +102,7 @@ BridgeScene.prototype.create = function()
 	this.generateSun();
 	this.generateRiver();
 	this.generateTerrain();
-	this.deformTerrain();
+	//this.deformTerrain();
 	this.generateBridge();
 	this.generateRoads();
 	this.generateTrees();
@@ -175,8 +176,8 @@ BridgeScene.prototype.generateRiver = function()
 	var detail = 50.0
 	var width = this.terrainWidth / detail;
 	var height = this.terrainHeight / detail;
-	this.river = new River(this.riverWidth , this.riverCurve, this.buildStep);
-	//this.river = new Plane (width, height, detail);
+	//this.river = new River(this.riverWidth , this.riverCurve, this.buildStep);
+	this.river = new Plane (width, height, detail);
 	this.river.setColor(getColor("river"));
 }
 
@@ -187,9 +188,10 @@ BridgeScene.prototype.generateTerrain = function()
 	var width = this.terrainWidth / this.distanceBetweenTerrainPoints;
 	var height = this.terrainHeight / this.distanceBetweenTerrainPoints;
 
-	this.terrain = new Plane (width, height, this.distanceBetweenTerrainPoints);
-	//this.terrain = new Terrain(this.riverCurve, this.coastWidth, this.terrainWidth, this.terrainElevation, false, 0.1);
+	//this.terrain = new Plane (width, height, this.distanceBetweenTerrainPoints);
+	this.terrain = new Terrain(this.riverCurve, this.coastWidth, this.terrainWidth, this.terrainElevation, false, 0.1);
 
+	this.terrain2 = new Terrain(this.riverCurve, this.coastWidth, this.terrainWidth, this.terrainElevation, false, 0.1);
 	//this.terrain.draw_mode = gl.LINE_STRIP;
 }
 
@@ -337,9 +339,15 @@ BridgeScene.prototype.draw = function(matrix, glProgram)
 
 	var m_terrain = mat4.create();
 	mat4.multiply(m_terrain, m_terrain, matrix);
-	mat4.translate(m_terrain, m_terrain, [0.0, this.terrainElevation, 0.0]);
-	mat4.rotate(m_terrain, m_terrain, Math.PI/2, [0.0, 1.0, 0.0]);
+	mat4.translate(m_terrain, m_terrain, [-this.coastWidth * 1.75, this.terrainElevation*0.5, 0.0]);
+	mat4.rotate(m_terrain, m_terrain, -Math.PI/2, [0.0, 1.0, 0.0]);
 	this.terrain.draw(m_terrain, glProgram);
+
+	var m_terrain2 = mat4.create();
+	mat4.multiply(m_terrain2, m_terrain2, matrix);
+	mat4.translate(m_terrain2, m_terrain2, [this.coastWidth * 1.75, this.terrainElevation*0.5, 0.0]);
+	mat4.rotate(m_terrain2, m_terrain2, Math.PI/2, [0.0, 1.0, 0.0]);
+	this.terrain.draw(m_terrain2, glProgram);
 
 	var m_bridge = mat4.create();
 	mat4.multiply(m_bridge, matrix, m_bridge);

@@ -19,8 +19,6 @@ var Tree = function(type)
 	this.generateTreeBase();
 	this.generateTreeTop();
 
-	console.log(this)
-
 }
 
 Tree.prototype.constructor = Tree;

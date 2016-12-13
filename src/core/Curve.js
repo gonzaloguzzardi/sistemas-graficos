@@ -117,7 +117,7 @@ Curve.prototype.firstDerivFromCurve = function(u)
 
 	var point = [];
 
-	point.push(this.base0der(uLocal) * p0[0] + this.base1der(uLocal) * p1[0] + this.base2der(uLocal) * p2[0]+this.base3der(uLocal) * p3[0]);
+	point.push(this.base0der(uLocal) * p0[0] + this.base1der(uLocal) * p1[0] + this.base2der(uLocal) * p2[0] + this.base3der(uLocal) * p3[0]);
 	point.push(this.base0der(uLocal) * p0[1] + this.base1der(uLocal) * p1[1] + this.base2der(uLocal) * p2[1] + this.base3der(uLocal) * p3[1]);
 	point.push(this.base0der(uLocal) * p0[2] + this.base1der(uLocal) * p1[2] + this.base2der(uLocal) * p2[2] + this.base3der(uLocal) * p3[2]);
 

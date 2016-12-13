@@ -36,6 +36,9 @@ var TreeTop = function(type, step)
 	this.init();
 
 	this.setColor(getColor("tree"));
+
+	this.useNormal = false;
+	this.loadDiffuseMap("../files/textures/hojas.jpg");
 }
 
 

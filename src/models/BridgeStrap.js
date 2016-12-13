@@ -41,7 +41,7 @@ var BridgeStrap = function(startPoint, endPoint)
 	var curvePath = new BezierCurve ( [ this.startPoint, 
 										p1, 
 										p2, 
-										this.endPoint]);
+										this.endPoint], [0, 0, 1]);
 	
 	var strapShape = new SquareShape(this.baseWidth, this.baseHeight, this.step);
 	
@@ -64,7 +64,7 @@ var BridgeStrap = function(startPoint, endPoint)
 		pathPoints.push(point);
 		tangent = curvePath.firstDerivFromCurve(u);
 		nTangent = Math.sqrt ( Math.pow ( tangent[0], 2) + Math.pow (tangent[1], 2) + Math.pow (tangent[2], 2));
-		tangent = [-tangent[0] / nTangent, tangent[1] / nTangent, -tangent[2] / nTangent];
+		tangent = [tangent[0] / nTangent, tangent[1] / nTangent, tangent[2] / nTangent];
 		normal = vec3.create();
 		vec3.cross(vecAux, axisZ, tangent);
 		normaVec = Math.sqrt (Math.pow(vecAux[0], 2) + Math.pow(vecAux[1], 2) + Math.pow(vecAux[2], 2));

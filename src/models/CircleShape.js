@@ -36,7 +36,7 @@ var CircleShape = function(radius, step)
 
 	this.center = [0,0,0];
 
-	this.generateFromCurve(shape, this.step);
+	this.generateFromCurve(shape, this.step, normalAxis);
 
 
 }

@@ -53,6 +53,7 @@ var Model = function() {
 	this.reflectiveness = 0.8;
 
 	this.useNormalMap = false;
+
 	
 }
 
@@ -220,6 +221,7 @@ Model.prototype = {
         var auxTex = gl.createTexture();
         var texture = auxTex;
         texture.image = new Image();
+        texture.image.src = fileName;
 
         var model = this;
 
@@ -227,7 +229,6 @@ Model.prototype = {
         {
         	model.handleLoadedTexture(texture)
         }
-        texture.image.src = fileName;
     	return texture;
     },
 

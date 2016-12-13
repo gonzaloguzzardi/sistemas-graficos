@@ -20,11 +20,11 @@ var TreeBase = function(step, height)
 								  [0, 0, 1],[-c, 0, 1], [-1, 0, c], [-1, 0, 0],
 								   [-1, 0, 0],[-1, 0, -c], [-c, 0, -1], [0, 0, -1],
 								  [0, 0, -1],[c, 0, -1], [1, 0, -c], [0, 1, 0]
-								]);
+								], [0, 1, 0]);
 
-	circlePoligon.generateFromCurve(shape, 0.1);
+	circlePoligon.generateFromCurve(shape, 0.1, [0, -1, 0]);
 
-	var normalAxis = [0,0,1];
+	var normalAxis = [1,0,0];
 	var curvePath = new BezierCurve([[0,0,0],[0,this.height/3,0],[0,this.height / 3 * 2,0],[0,this.height,0]], normalAxis);
 	
 	var u = 0;
@@ -36,7 +36,7 @@ var TreeBase = function(step, height)
 	var normal;
 	var nNormal;
 	var normaVec;
-	var axisZ = vec3.fromValues(0,0,1);
+	var axisZ = vec3.fromValues(1,0,0);
 	var vecAux = vec3.create();
 	var nTangent;
 
