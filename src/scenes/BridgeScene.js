@@ -6,8 +6,8 @@ var BridgeScene = function()
 {
 	//sun
 	this.sunLight = null;
-	this.sunLightDirection = [-30,-10,-10 ];
-	this.sunLightAmbient = [0.992, 0.985, 0.937];
+	this.sunLightDirection = [3.5, 3.0,2.25 ];
+	this.sunLightAmbient = [1.0, 1.0, 1.0];
 	this.sunLightIntensity = [1.0, 1.0, 1.0];
 
 	// Terrain Parameters
@@ -191,7 +191,7 @@ BridgeScene.prototype.generateTerrain = function()
 	//this.terrain = new Plane (width, height, this.distanceBetweenTerrainPoints);
 	this.terrain = new Terrain(this.riverCurve, this.coastWidth, this.terrainWidth, this.terrainElevation, false, 0.1);
 
-	this.terrain2 = new Terrain(this.riverCurve, this.coastWidth, this.terrainWidth, this.terrainElevation, false, 0.1);
+	this.terrain2 = new Terrain(this.riverCurve, this.coastWidth, this.terrainWidth, this.terrainElevation, true, 0.1);
 	//this.terrain.draw_mode = gl.LINE_STRIP;
 }
 
@@ -332,6 +332,7 @@ BridgeScene.prototype.drawSunLight = function(glProgram)
 	this.sunLight.render(glProgram);
 }
 
+
 BridgeScene.prototype.draw = function(matrix, glProgram)
 {
 
@@ -339,13 +340,13 @@ BridgeScene.prototype.draw = function(matrix, glProgram)
 
 	var m_terrain = mat4.create();
 	mat4.multiply(m_terrain, m_terrain, matrix);
-	mat4.translate(m_terrain, m_terrain, [-this.coastWidth * 1.75, this.terrainElevation*0.5, 0.0]);
+	mat4.translate(m_terrain, m_terrain, [-this.coastWidth * 1.75 * 1.333333333, this.terrainElevation*0.3, 0.0]); //va 0.5 en verdad en terrain elevation
 	mat4.rotate(m_terrain, m_terrain, -Math.PI/2, [0.0, 1.0, 0.0]);
 	this.terrain.draw(m_terrain, glProgram);
 
 	var m_terrain2 = mat4.create();
 	mat4.multiply(m_terrain2, m_terrain2, matrix);
-	mat4.translate(m_terrain2, m_terrain2, [this.coastWidth * 1.75, this.terrainElevation*0.5, 0.0]);
+	mat4.translate(m_terrain2, m_terrain2, [this.coastWidth * 1.75 * 1.3333333, this.terrainElevation*0.3, 0.0]);
 	mat4.rotate(m_terrain2, m_terrain2, Math.PI/2, [0.0, 1.0, 0.0]);
 	this.terrain.draw(m_terrain2, glProgram);
 

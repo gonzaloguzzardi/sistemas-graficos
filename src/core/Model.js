@@ -44,12 +44,12 @@ var Model = function() {
 
 	//shader variables
 
-	this.ka = 0.2;
-	this.kd = 0.5;
-	this.ks = 0.3;
+	this.ka = 0.5; // ambient
+	this.kd = 0.5; // diffuse
+	this.ks = 0.3; // specular
 	this.shininess = 0.01;
 
-	this.color_specular = vec3.fromValues(0.125, 0.125, 0.125);
+	this.color_specular = vec3.fromValues(0.925, 0.125, 0.125);
 	this.reflectiveness = 0.8;
 
 	this.useNormalMap = false;
@@ -221,32 +221,42 @@ Model.prototype = {
         var auxTex = gl.createTexture();
         var texture = auxTex;
         texture.image = new Image();
-        texture.image.src = fileName;
 
         var model = this;
 
         texture.image.onload = function () 
         {
-        	model.handleLoadedTexture(texture)
+        	texture = model.handleLoadedTexture(texture)
+        	console.log("Texture " + fileName + " loaded.");
         }
+        texture.image.src = fileName;
     	return texture;
     },
 
     handleLoadedTexture: function(texture) 
     {
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-        gl.bindTexture(gl.TEXTURE_2D, texture);
+    	gl.bindTexture(gl.TEXTURE_2D, texture);
+        //gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        //gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
         gl.generateMipmap(gl.TEXTURE_2D);
 
         gl.bindTexture(gl.TEXTURE_2D, null);
+
     },
 
 	loadDiffuseMap: function(fileName)
 	{
 		this.diffuseMap = this.loadTexture(fileName);
+		/*this.diffuseMap = gl.createTexture();
+		this.diffuseMap.image = new Image();
+		this.diffuseMap.image.onload = function() 
+		{
+			this.handleLoadedTexture(this.diffuseMap.image, this.diffuseMap); 
+		}
+		this.diffuseMap.image.src = fileName;*/
 		this.useTexture = 1.0;
 	},
 

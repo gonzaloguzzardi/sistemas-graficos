@@ -425,7 +425,7 @@
         shaderProgramColoredObject.uSampler = gl.getUniformLocation(shaderProgramColoredObject, "uSampler");
        // gl.uniform1i(shaderProgramColoredObject.uSampler, 0);
         shaderProgramColoredObject.uNormalSampler = gl.getUniformLocation(shaderProgramColoredObject, "uNormalSampler");
-      //  gl.uniform1i(shaderProgramColoredObject.uNormalSampler, 1);
+        //gl.uniform1i(shaderProgramColoredObject.uNormalSampler, 1);
 
 
     }
@@ -580,8 +580,8 @@
 
         //////////////////  Scene //////////////////////////////////////
 
-        bridgeScene.setSunAmbientLight(SunParameters.sunLightAmbient);
-        bridgeScene.setSunLightIntensity(SunParameters.sunLightIntensity);
+        //bridgeScene.setSunAmbientLight(SunParameters.sunLightAmbient);
+        //bridgeScene.setSunLightIntensity(SunParameters.sunLightIntensity);
         var m_scene = mat4.create();
         bridgeScene.draw(m_scene, shaderProgramColoredObject);
         

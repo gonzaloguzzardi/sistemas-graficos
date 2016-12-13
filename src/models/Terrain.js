@@ -59,9 +59,18 @@ var Terrain = function(riverCurve, coastWidth, terrainWidth, terrainElevation, f
 	//terrainShape.generateFromCurve(this.riverCurve, 0.1, [0.0, 0.0, 1.0]);
 
 
-	var facingRightMultiplayer = facingRight? -1 : 1;
-	var modifiedCoastWidth = this.coastWidth * facingRightMultiplayer;
+	var facingRightMultiplayer = 1.0;
+	if (this.facingRight)
+	{
+		facingRightMultiplayer = -1.0;
+	}
+	else
+	{
+		facingRightMultiplayer = 1.0;
+	}
+	var modifiedCoastWidth = this.coastWidth * 2.0 * facingRightMultiplayer;
 	var modifiedTerrainWidth = this.terrainWidth * facingRightMultiplayer * 0.5;
+	var startingPos = 25.0 * facingRightMultiplayer;
 
 	this.terrainCurve = new BSplineCurve([[0, 0, modifiedCoastWidth],[0, 0, modifiedCoastWidth],[0, 0, modifiedCoastWidth],
 										  //[0, this.coastElevation * 0.25 , modifiedCoastWidth * 1.25],
@@ -72,7 +81,7 @@ var Terrain = function(riverCurve, coastWidth, terrainWidth, terrainElevation, f
 										  [0, this.terrainElevation, modifiedTerrainWidth + modifiedCoastWidth], [0, this.terrainElevation, modifiedTerrainWidth + modifiedCoastWidth], [0, this.terrainElevation, modifiedTerrainWidth + modifiedCoastWidth]
 									], [1.0, 0.0, 0.0]);
 
-		this.terrainCurve = new BSplineCurve([[-10.0, -this.coastElevation * 0.2, 0],[-10.0, -this.coastElevation * 0.2, 0],[0, this.coastElevation * 0.2, 0],
+		this.terrainCurve = new BSplineCurve([[startingPos, -this.coastElevation * 0.2, 0],[startingPos, -this.coastElevation * 0.2, 0],[0, this.coastElevation * 0.2, 0],
 											[0, this.coastElevation * 0.7, modifiedCoastWidth * 0.25],[0, this.coastElevation * 0.75, modifiedCoastWidth * 0.5],[0, this.coastElevation, modifiedCoastWidth * 0.85],
 										  [0,this.terrainElevation * 0.75 , modifiedCoastWidth ], [0,this.terrainElevation * 0.9  , modifiedCoastWidth * 1.25 ], [0,this.terrainElevation  , modifiedCoastWidth * 1.45],
 										  [0, this.terrainElevation, modifiedTerrainWidth], [0, this.terrainElevation, modifiedTerrainWidth], [0, this.terrainElevation, modifiedTerrainWidth]
