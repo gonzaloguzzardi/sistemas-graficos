@@ -147,9 +147,9 @@ Terrain.prototype.setUpMaterial = function()
 	this.loadDiffuseMap("../files/textures/pasto1.jpg");
 	this.loadNormalMap("../files/textures/rocas2-normalmap.jpg");
 
-	this.ka = 0.55;
+	this.ka = 0.75;
 	this.kd = 0.65;
-	this.ks = 0.8;
+	this.ks = 0.1;
 	this.shininess = 0.1;
 
 	this.color_specular = vec3.fromValues(0.125, 0.125, 0.125);

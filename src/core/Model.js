@@ -18,6 +18,12 @@ var Model = function() {
 	this.useTexture = 0.0;
 	this.diffuseMap = null;
 	this.normalMap = null;
+	this.reflectionMap = null;
+
+	this.secondDiffuseMap = null;
+	this.thirdDiffuseMap = null;
+	this.secondNormalMap = null;
+	this.thirdNormalMap = null;
 	
 	// buffers
 	this.position_buffer = [];
@@ -53,7 +59,10 @@ var Model = function() {
 	this.reflectiveness = 0.8;
 
 	this.useNormalMap = false;
+	this.useReflectionMap = false;
 
+	this.useTwoTextures = false;
+	this.useThreeTextures = false;
 	
 }
 
@@ -252,23 +261,44 @@ Model.prototype = {
 
 	loadDiffuseMap: function(fileName)
 	{
-		//this.diffuseMap = this.loadTexture(fileName);
-		this.diffuseMap = gl.createTexture();
-		this.diffuseMap.image = new Image();
-		var model = this;
-		this.diffuseMap.image.onload = function() 
-		{
-			model.handleLoadedTexture(model.diffuseMap); 
-			console.log("Texture " + fileName + " loaded.");
-		}
-		this.diffuseMap.image.src = fileName;
+		this.diffuseMap = this.loadTexture(fileName);
 		this.useTexture = 1.0;
+	},
+
+	loadSecondDiffuseMap: function(fileName)
+	{
+		this.secondDiffuseMap = this.loadTexture(fileName);
+		this.useTwoTextures = true;
+	},
+
+	loadThirdDiffuseMap: function(fileName)
+	{
+		this.thirdDiffuseMap = this.loadTexture(fileName);
+		this.useThreeTextures = true;
 	},
 
 	loadNormalMap: function(fileName)
 	{
 		this.normalMap = this.loadTexture(fileName);
 		this.useNormalMap = true;
+	},
+
+	loadSecondNormalMap: function(fileName)
+	{
+		this.secondNormalMap = this.loadTexture(fileName);
+		this.useTwoTextures = true;
+	},
+
+	loadThirdNormalMap: function(fileName)
+	{
+		this.thirdNormalMap = this.loadTexture(fileName);
+		this.useThreeTextures = true;
+	},
+
+	loadReflectionMap: function(fileName)
+	{
+		this.reflectionMap = this.loadTexture(fileName);
+		this.useReflectionMap = true;
 	},
 
 	isPowerOf2: function (value) 
@@ -389,6 +419,7 @@ Model.prototype = {
 
         gl.uniform1i(glProgram.uUseNormalMap, this.useNormalMap);
         gl.uniform1f(glProgram.UseTexture, this.useTexture)
+        gl.uniform1i(glProgram.uUseReflection, this.useReflexMap);
     	gl.uniform3fv(glProgram.uSpecularColor, this.color_specular);
 
         //Shader Phong Variables
@@ -427,6 +458,38 @@ Model.prototype = {
 	        gl.bindTexture(gl.TEXTURE_2D, this.normalMap);
 	        gl.uniform1i(glProgram.uNormalSampler, 1);
    		}
+   		if (this.useReflectionMap)
+   		{
+	   		gl.activeTexture(gl.TEXTURE2);
+	        gl.bindTexture(gl.TEXTURE_2D, this.reflexMap);
+	        gl.uniform1i(glProgram.uReflectionSampler, 2);
+   		}
+   		if (this.useTwoTextures)
+   		{
+	   		gl.activeTexture(gl.TEXTURE3);
+	        gl.bindTexture(gl.TEXTURE_2D, this.secondDiffuseMap);
+	        gl.uniform1i(glProgram.uSampler2, 3);
+
+	        gl.activeTexture(gl.TEXTURE4);
+	        gl.bindTexture(gl.TEXTURE_2D, this.secondNormalMap);
+	        gl.uniform1i(glProgram.uNormalSampler2, 5);
+   		}
+
+   		if (this.useThreeTextures)
+   		{
+	   		gl.activeTexture(gl.TEXTURE5);
+	        gl.bindTexture(gl.TEXTURE_2D, this.thirdDiffuseMap);
+	        gl.uniform1i(glProgram.uSampler3, 4);
+
+	        gl.activeTexture(gl.TEXTURE6);
+	        gl.bindTexture(gl.TEXTURE_2D, this.thirdNormalMap);
+	        gl.uniform1i(glProgram.uNormalSampler3, 6);
+   		}
+
+   		// booleans for mixing textures
+		gl.uniform1i(glProgram.uMixTwoTextures, this.useTwoTextures);
+		gl.uniform1i(glProgram.uMixThreeTextures, this.useThreeTextures);
+
 		
         //Bind Normal Buffers
    		gl.bindBuffer(gl.ARRAY_BUFFER, this.webgl_normals_buffer);

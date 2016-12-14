@@ -51,6 +51,7 @@
 <script type="text/javascript" src="models/BridgeRoad.js"></script>
 <script type="text/javascript" src="models/Bridge.js"></script>
 
+<script type="text/javascript" src="models/SkyDome.js"></script>
 <script type="text/javascript" src="models/Terrain.js"></script>
 <script type="text/javascript" src="models/RiverShape.js"></script>
 <script type="text/javascript" src="models/River.js"></script>
@@ -90,6 +91,11 @@
  
     uniform float uUseTexture;
     uniform bool uUseNormalMap;
+    uniform bool uUseReflection;
+
+	uniform bool uUseLighting;
+	uniform bool uMixTwoTextures;
+	uniform bool uMixThreeTextures;
 
     varying vec3 vTextureCoordinates;
     varying vec3 vVertexPosition;
@@ -99,7 +105,13 @@
     varying vec3 vVertexBinormal;
 
     uniform sampler2D uSampler;
+	uniform sampler2D uSampler2;
+	uniform sampler2D uSampler3;
     uniform sampler2D uNormalSampler;
+    uniform sampler2D uNormalSampler2;
+    uniform sampler2D uNormalSampler3;
+    uniform sampler2D uReflectionSampler;
+
 
     void main(void) 
     {
@@ -124,8 +136,41 @@
         vec3 textureColor;
         textureColor = texture2D(uSampler, texCoord).rgb * uUseTexture;
 
+        if (uMixTwoTextures)
+        {
+        	if (indice == 0.0)
+        	{
+	        	vec3 tangent = normalize(vVertexTangent);
+	            vec3 binormal = normalize(vVertexBinormal);
+	            mat3 tbn = mat3(tangent, binormal, normal);
+	            normal = texture2D(uNormalSampler, texCoord).rgb;
+	            normal = normalize((normal - vec3(0.5, 0.5, 0.5)) * 2.0); //xyz between -1 and 1
+	            normal = normalize(tbn * normal);
+
+                textureColor = texture2D(uSampler, texCoord).rgb;
+        	}
+            if (indice == 1.0)
+            {
+	        	vec3 tangent = normalize(vVertexTangent);
+	            vec3 binormal = normalize(vVertexBinormal);
+	            mat3 tbn = mat3(tangent, binormal, normal);
+	            normal = texture2D(uNormalSampler2, texCoord).rgb;
+	            normal = normalize((normal - vec3(0.5, 0.5, 0.5)) * 2.0); //xyz between -1 and 1
+	            normal = normalize(tbn * normal);
+
+                textureColor = texture2D(uSampler2, texCoord).rgb;
+            }
+        }
+
         vec3 vertexColor = vVertexColor * (1.0 - uUseTexture); 
         vec3 color = textureColor + vertexColor;
+
+         //Avoid using Phong Model
+        if(!uUseLighting)
+        {
+            gl_FragColor = vec4(color, 1.0);
+            return;
+        }
 
         vec3 viewDir = normalize(vVertexPosition - uViewPos);
 
@@ -174,8 +219,6 @@
     uniform vec3 uAmbientColor;
 
     uniform vec3 uDirectionalColor;
-
-    uniform bool uUseLighting;
 
     varying vec3 vTextureCoordinates;
     varying vec3 vVertexPosition;
@@ -414,6 +457,9 @@
 
         shaderProgramColoredObject.UseTexture = gl.getUniformLocation(shaderProgramColoredObject, "uUseTexture");
         shaderProgramColoredObject.uUseNormalMap = gl.getUniformLocation(shaderProgramColoredObject, "uUseNormalMap");
+        shaderProgramColoredObject.uUseReflection = gl.getUniformLocation(shaderProgramColoredObject, "uUseReflection");
+        shaderProgramColoredObject.uMixTwoTextures = gl.getUniformLocation(shaderProgramColoredObject, "uMixTwoTextures");
+        shaderProgramColoredObject.uMixThreeTextures = gl.getUniformLocation(shaderProgramColoredObject, "uMixThreeTextures");
 
         shaderProgramColoredObject.uViewPos = gl.getUniformLocation(shaderProgramColoredObject, "uViewPos");
         shaderProgramColoredObject.uColorSpecular = gl.getUniformLocation(shaderProgramColoredObject, "uColorSpecular");
@@ -431,6 +477,17 @@
         gl.uniform1i(shaderProgramColoredObject.uSampler, 0);
         shaderProgramColoredObject.uNormalSampler = gl.getUniformLocation(shaderProgramColoredObject, "uNormalSampler");
         gl.uniform1i(shaderProgramColoredObject.uNormalSampler, 1);
+        shaderProgramColoredObject.uReflectionSampler = gl.getUniformLocation(shaderProgramColoredObject, "uReflectionSampler");
+        gl.uniform1i(shaderProgramColoredObject.uReflectionSampler, 2);
+        shaderProgramColoredObject.uSampler2 = gl.getUniformLocation(shaderProgramColoredObject, "uSampler2");
+        gl.uniform1i(shaderProgramColoredObject.uSampler2, 3);
+        shaderProgramColoredObject.uSampler3 = gl.getUniformLocation(shaderProgramColoredObject, "uSampler3");
+        gl.uniform1i(shaderProgramColoredObject.uSampler3, 4);
+
+        shaderProgramColoredObject.uNormalSampler2 = gl.getUniformLocation(shaderProgramColoredObject, "uNormalSampler2");
+        gl.uniform1i(shaderProgramColoredObject.uSampler2, 5);
+        shaderProgramColoredObject.uNormalSampler3 = gl.getUniformLocation(shaderProgramColoredObject, "uNormalSampler3");
+        gl.uniform1i(shaderProgramColoredObject.uSampler3, 6);
 
 
     }
@@ -506,7 +563,8 @@
         // Pensamos por el momento marsamente la posición de la cámara, la cual siempre mira al mars.
         var matriz_camara = mat4.create();
         mat4.identity(matriz_camara);
-        vec3.set(eye_point, 250, 475, 250);
+        var sceneScale = 0.05;
+        vec3.set(eye_point, 250 * sceneScale, 475 * sceneScale, 250 * sceneScale);
 
         vec3.set(lookat_point, 0, 0, 0);
         vec3.set(vec_up, 0, 1, 0);
@@ -562,7 +620,7 @@
         gl.clearColor(0, 0, 0, 0);
 
 		// Se configura la matriz de proyección
-        mat4.perspective(pMatrix, 3.14 / 12.0, gl.viewportWidth / gl.viewportHeight, 0.1, 3000.0);
+        mat4.perspective(pMatrix, 3.14 / 12.0, gl.viewportWidth / gl.viewportHeight, 0.1, 1000.0);
 
         gl.useProgram(shaderProgramColoredObject);
 
@@ -587,6 +645,8 @@
         //bridgeScene.setSunAmbientLight(SunParameters.sunLightAmbient);
         //bridgeScene.setSunLightIntensity(SunParameters.sunLightIntensity);
         var m_scene = mat4.create();
+        var sceneScale = 0.05;
+		mat4.scale(m_scene, m_scene, [sceneScale, sceneScale, sceneScale]);
         bridgeScene.draw(m_scene, shaderProgramColoredObject);
         
         //////////////////  Terrain Plane //////////////////////////////////////

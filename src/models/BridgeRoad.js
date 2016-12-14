@@ -50,7 +50,7 @@ var BridgeRoad = function(length, width, height)
 	var normal;
 	var nNormal;
 	var normaVec;
-	var axisZ = vec3.fromValues(1,0,0);
+	var axisZ = vec3.fromValues(0,0,1);
 	var vecAux = vec3.create();
 	var nTangent;
 
@@ -83,8 +83,94 @@ var BridgeRoad = function(length, width, height)
 
 	this.setColor(getColor("road"));
 
+	this.setUpMaterial();
+
 }
 
 BridgeRoad.prototype = Object.create(SweptSurface.prototype);
 BridgeRoad.prototype.constructor = BridgeRoad;
+
+BridgeRoad.prototype.createGrid = function()
+{
+	this.draw_mode = gl.TRIANGLE_STRIP;
+	this.tangent_buffer = [];
+
+	this.cols = this.polygon.points.length;
+	this.rows = this.pathPoints.length;
+	
+	var points;
+	var point;
+	var tangent;
+	var normal;
+	var transformedPolygon;
+	var pathPoint;
+	var pathBase;
+	var tangents;
+	var normals;
+	var textureValues = this.polygon.textureValues;
+				
+	for (var row = 0.0; row < this.rows; row++)
+	{
+		pathPoint = this.pathPoints[row];
+		pathBase = this.pathPoints[row];
+		transformedPolygon = this.polygon.getTransformedPolygon(pathPoint, pathBase);
+		points = transformedPolygon.points;
+		tangents = transformedPolygon.tangents;
+		normals = transformedPolygon.normals;
+
+		for (var col = 0.0; col < this.cols; col++)
+		{
+			point = points[col];
+			this.position_buffer.push(point[0]);
+			this.position_buffer.push(point[1]);
+			this.position_buffer.push(point[2]);
+
+			this.color_buffer.push(0.25);
+			this.color_buffer.push(0.5); //Color default
+			this.color_buffer.push(0.25);
+
+			tangent = tangents[col];
+			this.tangent_buffer.push(tangent[0]);
+			this.tangent_buffer.push(tangent[1]);
+			this.tangent_buffer.push(tangent[2]);
+
+			normal = normals[col];
+			this.normals_buffer.push(normal[0]);
+			this.normals_buffer.push(normal[1]);
+			this.normals_buffer.push(normal[2]);
+
+			binormal = vec3.create();
+			vec3.cross(binormal, tangent, normal);
+			this.binormal_buffer.push(binormal[0]);
+			this.binormal_buffer.push(binormal[1]);
+			this.binormal_buffer.push(binormal[2]);
+
+			this.texture_coord_buffer.push(1.0 - col / this.cols);
+			this.texture_coord_buffer.push(1.0 - row / this.rows);
+			this.texture_coord_buffer.push(textureValues[col]);
+		}
+	}
+
+}
+
+BridgeRoad.prototype.setUpMaterial = function()
+{
+	this.loadDiffuseMap("../files/textures/vereda.jpg");
+	this.loadSecondDiffuseMap("../files/textures/tramo-doblemarilla.jpg");
+	this.loadNormalMap("../files/textures/vereda-normalmap.jpg");
+	this.loadSecondNormalMap("../files/textures/ruta-normal.jpg");
+
+	this.ka = 0.55;
+	this.kd = 0.65;
+	this.ks = 0.8;
+	this.shininess = 0.1;
+
+	this.color_specular = vec3.fromValues(0.125, 0.125, 0.125);
+	this.reflectiveness = 0.8;
+
+	this.useTexture = 1.0;
+	this.useThreeTextures = false;
+	this.useTwoTextures = true;
+	this.useNormalMap = true; // para evitar entrar en un branch
+}
 

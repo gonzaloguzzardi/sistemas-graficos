@@ -42,6 +42,8 @@ var BridgeScene = function()
 	this.river = null;
 	this.trees = [];
 
+	this.skyDome = null;
+
 
 	// Variables
 	this.treeAmount = 10;
@@ -99,6 +101,7 @@ BridgeScene.prototype.create = function()
 			this.generateDefaultRiverCurve();
 		}
 	}
+	this.generateSkybox();
 	this.generateSun();
 	this.generateRiver();
 	this.generateTerrain();
@@ -107,6 +110,12 @@ BridgeScene.prototype.create = function()
 	this.generateRoads();
 	this.generateTrees();
 }
+
+BridgeScene.prototype.generateSkybox = function()
+{
+	this.skyDome = new SkyDome();
+}
+
 
 BridgeScene.prototype.generateSun = function()
 {
@@ -338,15 +347,21 @@ BridgeScene.prototype.draw = function(matrix, glProgram)
 
 	this.drawSunLight(glProgram);
 
+	var m_skyDome = mat4.create();
+	mat4.multiply(m_skyDome, m_skyDome, matrix);
+	var domeScale = 3000.0;
+	mat4.scale(m_skyDome, m_skyDome, [domeScale, domeScale, domeScale]);
+	this.skyDome.draw(m_skyDome, glProgram);
+
 	var m_terrain = mat4.create();
 	mat4.multiply(m_terrain, m_terrain, matrix);
-	mat4.translate(m_terrain, m_terrain, [-this.coastWidth * 1.75 * 1.333333333, this.terrainElevation*0.3, 0.0]); //va 0.5 en verdad en terrain elevation
+	mat4.translate(m_terrain, m_terrain, [-this.coastWidth * 1.75 * 1.333333333, this.terrainElevation*0.45, 0.0]);
 	mat4.rotate(m_terrain, m_terrain, -Math.PI/2, [0.0, 1.0, 0.0]);
 	this.terrain.draw(m_terrain, glProgram);
 
 	var m_terrain2 = mat4.create();
 	mat4.multiply(m_terrain2, m_terrain2, matrix);
-	mat4.translate(m_terrain2, m_terrain2, [this.coastWidth * 1.75 * 1.3333333, this.terrainElevation*0.3, 0.0]);
+	mat4.translate(m_terrain2, m_terrain2, [this.coastWidth * 1.75 * 1.3333333, this.terrainElevation*0.45, 0.0]);
 	mat4.rotate(m_terrain2, m_terrain2, Math.PI/2, [0.0, 1.0, 0.0]);
 	this.terrain.draw(m_terrain2, glProgram);
 
@@ -368,7 +383,8 @@ BridgeScene.prototype.draw = function(matrix, glProgram)
 	this.leftRoad.draw(m_rightRoad, glProgram);
 
 	var m_river = mat4.create();
-	//mat4.translate(m_river, m_river, [0.0, -2.5, 0.0]);
+	mat4.multiply(m_river, m_river, matrix);
+	mat4.translate(m_river, m_river, [0.0, 1.0, 0.0]); // estetico nomas
 	mat4.rotate(m_river, m_river, -Math.PI/2, [0.0, 1.0, 0.0]);
 	this.river.draw(m_river, glProgram);
 

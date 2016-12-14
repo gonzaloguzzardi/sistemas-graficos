@@ -11,6 +11,7 @@ var Polygon = function()
 	this.normals
 	this.center;
 	this.base; //Orthonormal
+	this.textureValues;
 }
 
 Polygon.prototype = {
@@ -30,6 +31,15 @@ Polygon.prototype = {
 	setTangents: function(tangents)
 	{
 		this.tangents = tangents.slice(0);
+	},
+
+	setTextureValues: function(texValues)
+	{
+		if (texValues === undefined)
+		{
+			return;
+		}
+		this.textureValues = texValues.slice(0);
 	},
 
 	setCenter: function(center)
@@ -159,6 +169,8 @@ Polygon.prototype = {
 
 		var transformNormals = this.transformVectors(this.normals, changeBaseMat);
 		transformPolygon.setNormals(transformNormals);
+
+		//transformPolygon.setTextureValues(this.textureValues);
 
 		return transformPolygon;
 	},

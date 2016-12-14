@@ -63,6 +63,8 @@ var TowerTop = function(step, scaleLimit)
 	SweptSurface.call(this, polygon, pathPoints, pathBases);
 
 	this.init();
+
+	this.setUpMaterial();
 }
 
 TowerTop.prototype = Object.create(SweptSurface.prototype);
@@ -145,4 +147,18 @@ TowerTop.prototype.createGrid = function()
 			this.texture_coord_buffer.push(0);
 		}
 	}
+}
+
+TowerTop.prototype.setUpMaterial = function()
+{
+	this.loadDiffuseMap("../files/textures/oxido.jpg");
+	this.loadNormalMap("../files/textures/oxido-normal map.jpg");
+
+	this.ka = 0.55;
+	this.kd = 0.75;
+	this.ks = 0.1;
+	this.shininess = 0.1;
+
+	this.color_specular = vec3.fromValues(0.125, 0.125, 0.125);
+	this.reflectiveness = 0.8;
 }

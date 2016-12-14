@@ -53,6 +53,7 @@ RoadShape.prototype.generateFromCurve = function(curve, step)
 	var points = [];
 	var normals = [];
 	var tangents = [];
+	var textureValues = [];
 	var point;
 	var tangent;
 	var axisZ = vec3.fromValues(-1,0,0);
@@ -72,6 +73,14 @@ RoadShape.prototype.generateFromCurve = function(curve, step)
 		points.push(point);
 		tangents.push(tangent);
 		normals.push(normal);
+
+		var textureValue = 0.0;
+		if ((u >= 9) && (u <= 15))
+		{
+			textureValue = 1.0;
+		}
+		textureValues.push(textureValue);
+
 	}
 	var centerX = x / points.length;
 	var centerY = y / points.length;
@@ -81,4 +90,5 @@ RoadShape.prototype.generateFromCurve = function(curve, step)
 	this.setTangents(tangents);
 	this.setNormals(normals);
 	this.setCenter(center);
+	this.setTextureValues(textureValues);
 }

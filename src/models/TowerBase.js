@@ -54,7 +54,23 @@ var TowerBase = function(step)
 	SweptSurface.call(this, this.towerShape, pathPoints, pathBases);
 
 	this.init();
+
+	this.setUpMaterial();
 }
 
 TowerBase.prototype = Object.create(SweptSurface.prototype);
 TowerBase.prototype.constructor = TowerBase;
+
+TowerBase.prototype.setUpMaterial = function()
+{
+	this.loadDiffuseMap("../files/textures/oxido.jpg");
+	this.loadNormalMap("../files/textures/oxido-normal map.jpg");
+
+	this.ka = 0.5;
+	this.kd = 0.85;
+	this.ks = 0.1;
+	this.shininess = 0.1;
+
+	this.color_specular = vec3.fromValues(0.125, 0.125, 0.125);
+	this.reflectiveness = 0.8;
+}
