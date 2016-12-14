@@ -105,6 +105,7 @@
     {
         vec2 texCoord = vTextureCoordinates.xy;
         vec3 normal = normalize(vVertexNormal);
+        float indice = vTextureCoordinates.z;
 
 
         if (uUseNormalMap)
@@ -120,7 +121,8 @@
             normal = normalize(tbn * normal);
         }
 
-        vec3 textureColor = texture2D(uSampler, texCoord).rgb * uUseTexture;
+        vec3 textureColor;
+        textureColor = texture2D(uSampler, texCoord).rgb * uUseTexture;
 
         vec3 vertexColor = vVertexColor * (1.0 - uUseTexture); 
         vec3 color = textureColor + vertexColor;
@@ -149,8 +151,9 @@
         //Iphong = ka*Ia + kd*Id * max(n * l, 0) + ks * Is * max(r * v, 0) ^ alpha
         color_final += Ia * color  * uKa + Ip * (color * uKd * lambertian + uColorSpecular * uKs * specular);
 
-        gl_FragColor = vec4(color_final, 1.0);
-        //gl_FragColor = vec4(normal, 1.0);
+        gl_FragColor = vec4(color_final, 1.0); 
+        //gl_FragColor = vec4(normal, 1.0); //ver normales
+        //gl_FragColor = vec4(color, 1.0); //ver color de texture diffuse o vertex color
     }
 </script>
 
@@ -377,6 +380,8 @@
             alert("Could not initialise shaders");
         }
 
+        gl.useProgram(shaderProgramColoredObject);
+
 
         shaderProgramColoredObject.vertexPositionAttribute = gl.getAttribLocation(shaderProgramColoredObject, "aVertexPosition");
         gl.enableVertexAttribArray(shaderProgramColoredObject.vertexPositionAttribute);
@@ -423,9 +428,9 @@
         shaderProgramColoredObject.sunLightIntensity = gl.getUniformLocation(shaderProgramColoredObject, "uSunLight.intensity");
 
         shaderProgramColoredObject.uSampler = gl.getUniformLocation(shaderProgramColoredObject, "uSampler");
-       // gl.uniform1i(shaderProgramColoredObject.uSampler, 0);
+        gl.uniform1i(shaderProgramColoredObject.uSampler, 0);
         shaderProgramColoredObject.uNormalSampler = gl.getUniformLocation(shaderProgramColoredObject, "uNormalSampler");
-        //gl.uniform1i(shaderProgramColoredObject.uNormalSampler, 1);
+        gl.uniform1i(shaderProgramColoredObject.uNormalSampler, 1);
 
 
     }
@@ -524,7 +529,6 @@
         bridgeScene = new BridgeScene();
 
         generateScene();
-
         
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.enable(gl.DEPTH_TEST);

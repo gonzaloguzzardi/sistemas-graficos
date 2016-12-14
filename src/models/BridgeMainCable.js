@@ -137,7 +137,7 @@ BridgeMainCable.prototype.setRadius = function(radius)
 BridgeMainCable.prototype.setUpMaterial = function()
 {
 	this.loadDiffuseMap("../files/textures/alambres.jpg");
-	this.loadNormalMap("../files/textures/alambres-normalmap.jpg");
+	this.loadNormalMap("../files/textures/rocas2-normalmap.jpg");
 
 	this.ka = 0.55;
 	this.kd = 0.65;

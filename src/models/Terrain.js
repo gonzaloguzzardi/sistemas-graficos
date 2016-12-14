@@ -72,14 +72,14 @@ var Terrain = function(riverCurve, coastWidth, terrainWidth, terrainElevation, f
 	var modifiedTerrainWidth = this.terrainWidth * facingRightMultiplayer * 0.5;
 	var startingPos = 25.0 * facingRightMultiplayer;
 
-	this.terrainCurve = new BSplineCurve([[0, 0, modifiedCoastWidth],[0, 0, modifiedCoastWidth],[0, 0, modifiedCoastWidth],
+	/*this.terrainCurve = new BSplineCurve([[0, 0, modifiedCoastWidth],[0, 0, modifiedCoastWidth],[0, 0, modifiedCoastWidth],
 										  //[0, this.coastElevation * 0.25 , modifiedCoastWidth * 1.25],
 										  [0,this.coastElevation * 0.5 , modifiedCoastWidth * 1.25],
 										  [0 ,this.coastElevation * 0.85, modifiedCoastWidth * 1.95],
 										  //[0 ,this.coastElevation * 0.95, modifiedCoastWidth * 1.95],
 										  [0 ,this.terrainElevation , modifiedCoastWidth * 2.15],
 										  [0, this.terrainElevation, modifiedTerrainWidth + modifiedCoastWidth], [0, this.terrainElevation, modifiedTerrainWidth + modifiedCoastWidth], [0, this.terrainElevation, modifiedTerrainWidth + modifiedCoastWidth]
-									], [1.0, 0.0, 0.0]);
+									], [1.0, 0.0, 0.0]);*/
 
 		this.terrainCurve = new BSplineCurve([[startingPos, -this.coastElevation * 0.2, 0],[startingPos, -this.coastElevation * 0.2, 0],[0, this.coastElevation * 0.2, 0],
 											[0, this.coastElevation * 0.7, modifiedCoastWidth * 0.25],[0, this.coastElevation * 0.75, modifiedCoastWidth * 0.5],[0, this.coastElevation, modifiedCoastWidth * 0.85],
@@ -134,8 +134,25 @@ var Terrain = function(riverCurve, coastWidth, terrainWidth, terrainElevation, f
 
 	this.setColor(getColor("green"));
 
+	this.setUpMaterial();
+
 	console.log(this)
 }
 
 Terrain.prototype = Object.create(SweptSurface.prototype);
 Terrain.prototype.constructor = Terrain;
+
+Terrain.prototype.setUpMaterial = function()
+{
+	this.loadDiffuseMap("../files/textures/pasto1.jpg");
+	this.loadNormalMap("../files/textures/rocas2-normalmap.jpg");
+
+	this.ka = 0.55;
+	this.kd = 0.65;
+	this.ks = 0.8;
+	this.shininess = 0.1;
+
+	this.color_specular = vec3.fromValues(0.125, 0.125, 0.125);
+	this.reflectiveness = 0.8;
+	this.useTexture = 1.0;
+}

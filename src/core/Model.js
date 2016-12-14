@@ -226,7 +226,7 @@ Model.prototype = {
 
         texture.image.onload = function () 
         {
-        	texture = model.handleLoadedTexture(texture)
+        	model.handleLoadedTexture(texture)
         	console.log("Texture " + fileName + " loaded.");
         }
         texture.image.src = fileName;
@@ -239,9 +239,12 @@ Model.prototype = {
         //gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
         //gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
         gl.generateMipmap(gl.TEXTURE_2D);
+
+       // var model = this;
+       // model.setupTextureFilteringAndMips(texture.image.width, texture.image.height);
 
         gl.bindTexture(gl.TEXTURE_2D, null);
 
@@ -249,14 +252,16 @@ Model.prototype = {
 
 	loadDiffuseMap: function(fileName)
 	{
-		this.diffuseMap = this.loadTexture(fileName);
-		/*this.diffuseMap = gl.createTexture();
+		//this.diffuseMap = this.loadTexture(fileName);
+		this.diffuseMap = gl.createTexture();
 		this.diffuseMap.image = new Image();
+		var model = this;
 		this.diffuseMap.image.onload = function() 
 		{
-			this.handleLoadedTexture(this.diffuseMap.image, this.diffuseMap); 
+			model.handleLoadedTexture(model.diffuseMap); 
+			console.log("Texture " + fileName + " loaded.");
 		}
-		this.diffuseMap.image.src = fileName;*/
+		this.diffuseMap.image.src = fileName;
 		this.useTexture = 1.0;
 	},
 
@@ -264,6 +269,31 @@ Model.prototype = {
 	{
 		this.normalMap = this.loadTexture(fileName);
 		this.useNormalMap = true;
+	},
+
+	isPowerOf2: function (value) 
+	{
+		return (value & (value - 1)) == 0;
+	},
+
+	setupTextureFilteringAndMips: function (width, height) 
+	{
+		var model = this;
+		if (model.isPowerOf2(width) && model.isPowerOf2(height))
+		{
+			// the dimensions are power of 2 so generate mips and turn on 
+			// tri-linear filtering.
+			gl.generateMipmap(gl.TEXTURE_2D);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+		} 
+		else 
+		{
+			// at least one of the dimensions is not a power of 2 so set the filtering
+			// so WebGL will render it.
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+		}
 	},
 
     setupShaders: function(glProgram)
@@ -358,7 +388,7 @@ Model.prototype = {
 		gl.useProgram(glProgram);
 
         gl.uniform1i(glProgram.uUseNormalMap, this.useNormalMap);
-        gl.uniform1f(glProgram.uUseTexture, this.useTexture)
+        gl.uniform1f(glProgram.UseTexture, this.useTexture)
     	gl.uniform3fv(glProgram.uSpecularColor, this.color_specular);
 
         //Shader Phong Variables
@@ -385,7 +415,7 @@ Model.prototype = {
         gl.vertexAttribPointer(glProgram.textureCoordAttribute, this.webgl_texture_coord_buffer.itemSize, gl.FLOAT, false, 0, 0);
 
         // Active Textures
-        if (this.useTexture > 0)
+        if (this.useTexture > 0.0)
         {
 	        gl.activeTexture(gl.TEXTURE0);
 	        gl.bindTexture(gl.TEXTURE_2D, this.diffuseMap);

@@ -37,8 +37,10 @@ var TreeTop = function(type, step)
 
 	this.setColor(getColor("tree"));
 
+	this.loadDiffuseMap("../files/textures/foliage.jpg");
+
 	this.useNormal = false;
-	this.loadDiffuseMap("../files/textures/tramo-doblemarilla.jpg");
+
 }
 
 
