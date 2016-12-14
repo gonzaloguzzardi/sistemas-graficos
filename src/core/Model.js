@@ -470,14 +470,14 @@ Model.prototype = {
 	        gl.bindTexture(gl.TEXTURE_2D, this.secondDiffuseMap);
 	        gl.uniform1i(glProgram.uSampler2, 3);
 
-	        gl.activeTexture(gl.TEXTURE4);
+	        gl.activeTexture(gl.TEXTURE5);
 	        gl.bindTexture(gl.TEXTURE_2D, this.secondNormalMap);
 	        gl.uniform1i(glProgram.uNormalSampler2, 5);
    		}
 
    		if (this.useThreeTextures)
    		{
-	   		gl.activeTexture(gl.TEXTURE5);
+	   		gl.activeTexture(gl.TEXTURE4);
 	        gl.bindTexture(gl.TEXTURE_2D, this.thirdDiffuseMap);
 	        gl.uniform1i(glProgram.uSampler3, 4);
 
