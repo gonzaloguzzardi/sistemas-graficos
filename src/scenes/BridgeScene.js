@@ -428,8 +428,8 @@ BridgeScene.prototype.draw = function(matrix, glProgram)
 	// Draw Transparent models at the end
 	gl.enable(gl.BLEND);
 	gl.blendEquation( gl.FUNC_ADD );
-	//gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-	//gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+	//gl.blendFunc( gl.SRC_COLOR, gl.ONE_MINUS_SRC_COLOR );
+	gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 	//gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 	//gl.depthMask(false)
 	//gl.disable(gl.DEPTH_TEST);

@@ -150,11 +150,11 @@
         }
 
         vec3 textureColor;
-        textureColor = texture2D(uSampler, texCoord).rgb * uUseTexture  * uAlpha;
+        textureColor = texture2D(uSampler, texCoord).rgb * uUseTexture;
 
         if (uScrollTexture)
         {
-        	textureColor = texture2D(uSampler, vec2(texCoord.x + uDelta, texCoord.y)).rgb * uAlpha;
+        	textureColor = texture2D(uSampler, vec2(texCoord.x + uDelta, texCoord.y)).rgb;
         }
 
         // Usa 2 texturas dependiendo del valor z en las teextureCoordinates
@@ -169,7 +169,7 @@
 	            normal = normalize((normal - vec3(0.5, 0.5, 0.5)) * 2.0); //xyz between -1 and 1
 	            normal = normalize(tbn * normal);
 
-                textureColor = texture2D(uSampler, texCoord).rgb  * uAlpha;
+                textureColor = texture2D(uSampler, texCoord).rgb ;
         	}
             if (indice == 1.0)
             {
@@ -181,7 +181,7 @@
 	            normal = normalize((normal - vec3(0.5, 0.5, 0.5)) * 2.0); //xyz between -1 and 1
 	            normal = normalize(tbn * normal);
 
-                textureColor = texture2D(uSampler2, texCoord).rgb  * uAlpha;
+                textureColor = texture2D(uSampler2, texCoord).rgb;
             }
         }
 
@@ -260,7 +260,7 @@
         	}
         }
 
-        vec3 vertexColor = vVertexColor * (1.0 - uUseTexture)  * uAlpha; 
+        vec3 vertexColor = vVertexColor * (1.0 - uUseTexture) ; 
         vec3 color = textureColor + vertexColor;
 
          //Avoid using Phong Model
@@ -302,7 +302,7 @@
         //Iphong = ka*Ia + kd*Id * max(n * l, 0) + ks * Is * max(r * v, 0) ^ alpha
         color_final += Ia * color  * uKa + Ip * (color * uKd * lambertian + uColorSpecular * uKs * specular);
 
-        gl_FragColor = vec4(color_final, 1.0); 
+        gl_FragColor = vec4(color_final * uAlpha, 1.0); 
         //gl_FragColor = vec4(normal, 1.0); //ver normales
         //gl_FragColor = vec4(color, 1.0); //ver color de texture diffuse o vertex color
     }
@@ -534,6 +534,7 @@
 
         gl.enable(gl.DEPTH_TEST);
         gl.depthFunc(gl.LESS);
+        gl.colorMask(true, true, true, true);
 
 
         shaderProgramColoredObject.vertexPositionAttribute = gl.getAttribLocation(shaderProgramColoredObject, "aVertexPosition");

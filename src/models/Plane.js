@@ -117,5 +117,5 @@ Plane.prototype.setUpMaterial = function()
 
 	this.scrollTexture = true;
 
-	this.alpha = 0.1;
+	this.alpha = 0.8;
 }
