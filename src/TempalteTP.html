@@ -123,6 +123,11 @@
     	return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
 	}
 
+	float heightToMixerCoord(float height)
+    {
+    	return min(3.3333333 * height - 0.3333333, 1.0);
+	}
+
 
     void main(void) 
     {
@@ -182,9 +187,7 @@
 
         if (uMixThreeTextures)
         {
-        	float randValue = rand(texCoord);
         	float heightCoord = vTextureCoordinates.z / uTerrainHeight;
-        	float mixerValue = texture2D(uMixerSampler, vec2(heightCoord, heightCoord)).r;
 
         	if (heightCoord >= 0.4)
         	{
@@ -196,8 +199,9 @@
 	            normal = normalize(tbn * normal);
 
                 textureColor = texture2D(uSampler, texCoord).rgb;
+
         	}
-        	else
+        	else if (heightCoord < 0.01)
         	{
 	        	vec3 tangent = normalize(vVertexTangent);
 	            vec3 binormal = normalize(vVertexBinormal);
@@ -207,6 +211,52 @@
 	            normal = normalize(tbn * normal);
 
                 textureColor = texture2D(uSampler3, texCoord).rgb;
+
+        	}
+        	else
+        	{
+        		float mixerCoord = heightToMixerCoord(heightCoord);
+        		float mixerValue = texture2D(uMixerSampler, vec2(mixerCoord, mixerCoord)).r;
+				float randValue = rand(texCoord);
+
+				if (randValue < mixerValue)
+				{
+					vec3 tangent = normalize(vVertexTangent);
+		            vec3 binormal = normalize(vVertexBinormal);
+		            mat3 tbn = mat3(tangent, binormal, normal);
+		            normal = texture2D(uNormalSampler2, texCoord).rgb;
+		            normal = normalize((normal - vec3(0.5, 0.5, 0.5)) * 2.0); //xyz between -1 and 1
+		            normal = normalize(tbn * normal);
+
+	                textureColor = texture2D(uSampler2, texCoord).rgb;
+				}
+				else
+				{
+					if (mixerCoord > 0.5)
+					{
+						vec3 tangent = normalize(vVertexTangent);
+			            vec3 binormal = normalize(vVertexBinormal);
+			            mat3 tbn = mat3(tangent, binormal, normal);
+			            normal = texture2D(uNormalSampler, texCoord).rgb;
+			            normal = normalize((normal - vec3(0.5, 0.5, 0.5)) * 2.0); //xyz between -1 and 1
+			            normal = normalize(tbn * normal);
+
+		                textureColor = texture2D(uSampler, texCoord).rgb;
+					}
+					else
+					{
+						vec3 tangent = normalize(vVertexTangent);
+			            vec3 binormal = normalize(vVertexBinormal);
+			            mat3 tbn = mat3(tangent, binormal, normal);
+			            normal = texture2D(uNormalSampler3, texCoord).rgb;
+			            normal = normalize((normal - vec3(0.5, 0.5, 0.5)) * 2.0); //xyz between -1 and 1
+			            normal = normalize(tbn * normal);
+
+		                textureColor = texture2D(uSampler3, texCoord).rgb;
+					}
+				}
+
+
         	}
         }
 
@@ -221,6 +271,14 @@
         }
 
         vec3 viewDir = normalize(vVertexPosition - uViewPos);
+
+        if (uUseReflection) 
+        {
+            vec3 reflectDir = normalize(reflect(viewDir, normal));
+            vec2 reflectDir2D = vec2(reflectDir.x,reflectDir.y);
+            vec3 enviromentColor = texture2D(uReflectionSampler, reflectDir2D).rgb; 
+            color = mix(color, enviromentColor, uReflectiveness); 
+        }
 
         vec3 color_final = vec3(0.0,0.0,0.0);
 
@@ -941,7 +999,7 @@ function GUI (){
         f1.add(sceneParameters, 'regenerate').name("Regenerate Scene");    
 
         f2 = gui.addFolder('Terrain');
-        f2.add(terrainParameters, 'terrainElevation', 0.0, 100.0).name("ph1: Terrain Elevation").step(1);
+        f2.add(terrainParameters, 'terrainElevation', 2.0, 25.0).name("ph1: Terrain Elevation").step(1);
         f2.add(terrainParameters, 'treeAmount', 0.0, 25.0).name("Amount of Trees").step(1);
         f2.add(terrainParameters, 'coastWidth', 0.0, 100.0).name("Coast Width").step(1);
         f2.add(terrainParameters, 'waterSpeed', 0.0, 20.0).name("Water Speed").step(1);
@@ -956,8 +1014,8 @@ function GUI (){
         f4.add(bridgeParameters, 'bridgeLength', 20.0, 1000.0).name("Bridge Length").step(1);
         f4.add(bridgeParameters, 'towerAmount', 2.0, 4.0).name("Amount of Towers").step(1);
         f4.add(terrainParameters, 'roadWidth', 10.0, 250.0).name("Road Width").step(1);
-        f4.add(bridgeParameters, 'ph2', 1.0, 250.0).name("ph2: Bridge Road Height").step(1);
-        f4.add(bridgeParameters, 'ph3', 0.0, 500.0).name("ph3: Bridge Height").step(1);
+        f4.add(bridgeParameters, 'ph2', 1.0, 50.0).name("ph2: Bridge Road Height").step(1);
+        f4.add(bridgeParameters, 'ph3', 0.0, 100.0).name("ph3: Bridge Height").step(1);
         f4.add(bridgeParameters, 's1', 0.0, 25.0).name("s1: Strap Separation").step(1);
         //f4.add(bridgeParameters, 's1',0.0,50.0).name("Bridge Strap Distances").step(0.1);
 

@@ -72,7 +72,13 @@ BridgeScene.prototype.setBridgeParameters = function(towerAmount, length, ph2, p
 	this.towerAmount = towerAmount;
 	this.bridgeLength = length;
 	this.ph2 = ph2;
+
 	this.ph3 = ph3;
+	
+	if ((ph3 - ph2 < 50.0) || (ph3 - ph2 > 50))
+	{
+		this.ph3 = this.ph2 + 50;
+	}
 	this.s1 = s1;
 
 	//maybe
@@ -332,8 +338,21 @@ BridgeScene.prototype.generateTrees = function()
 		tree.setScale(randomScale);
 
 		//cambiar
-		var randomX = rng.next(-this.terrainWidth*0.5, this.terrainWidth*0.5);
-		var randomZ = rng.next(-this.terrainHeight*0.5, this.terrainHeight*0.5);
+		var correctPosition = false;
+		while (!correctPosition)
+		{
+			var randomX = rng.next(-this.terrainWidth*0.5, this.terrainWidth*0.5);
+			var randomZ = rng.next(-this.terrainHeight*0.5, this.terrainHeight*0.5);
+			if ((randomX > (-this.coastWidth * 2.25)) && (randomX < (this.coastWidth * 2.25)))
+			{
+				continue;
+			}
+			if ((randomZ > -this.roadWidth * 0.75) && (randomZ < this.roadWidth * 0.75))
+			{
+				continue;
+			}
+			correctPosition = true;
+		}
 		tree.setPosition([randomX, this.terrainElevation, randomZ]);
 		this.trees.push(tree);
 	}

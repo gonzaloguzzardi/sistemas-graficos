@@ -102,6 +102,7 @@ Plane.prototype.setUpMaterial = function()
 {
 	this.loadDiffuseMap("../files/textures/aguaDeMar.jpg");
 	this.loadNormalMap("../files/textures/agua-normalmap.jpg");
+	this.loadReflectionMap("../files/textures/sky_lightblue.jpg");
 
 	this.ka = 0.75;
 	this.kd = 0.65;
@@ -112,7 +113,7 @@ Plane.prototype.setUpMaterial = function()
 	this.reflectiveness = 0.8;
 	this.useTexture = 1.0;
 	this.useNormalMap = true;
-	this.useReflectionMap = true;
+	this.useReflectionMap = false; // DESACTIVO EL REFLECTION MAP PORQUE SE VE MUCHO PEOR. ARRUINA EL SCROLL
 
 	this.scrollTexture = true;
 

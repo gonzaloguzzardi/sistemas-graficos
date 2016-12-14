@@ -213,7 +213,7 @@ Terrain.prototype.setUpMaterial = function()
 	this.loadSecondNormalMap("../files/textures/rocas2-normalmap.jpg");
 	this.loadThirdNormalMap("../files/textures/sand-normalmap2.jpg");
 
-	this.loadMixerMap("../files/textures/terrain-mixer.jpg");
+	this.loadMixerMap("../files/textures/terrain-mixer2.jpg");
 
 	this.ka = 0.75;
 	this.kd = 0.65;

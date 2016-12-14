@@ -431,7 +431,7 @@ Model.prototype = {
 		gl.uniform1i(glProgram.uScrollTexture, this.scrollTexture);
         gl.uniform1i(glProgram.uUseNormalMap, this.useNormalMap);
         gl.uniform1f(glProgram.UseTexture, this.useTexture)
-        gl.uniform1i(glProgram.uUseReflection, this.useReflexMap);
+        gl.uniform1i(glProgram.uUseReflection, this.useReflectionMap);
     	gl.uniform3fv(glProgram.uSpecularColor, this.color_specular);
 
         //Shader Phong Variables
@@ -480,7 +480,7 @@ Model.prototype = {
    		if (this.useReflectionMap)
    		{
 	   		gl.activeTexture(gl.TEXTURE2);
-	        gl.bindTexture(gl.TEXTURE_2D, this.reflexMap);
+	        gl.bindTexture(gl.TEXTURE_2D, this.reflectionMap);
 	        gl.uniform1i(glProgram.uReflectionSampler, 2);
    		}
    		if (this.useTwoTextures)

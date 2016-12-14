@@ -139,13 +139,15 @@ BridgeMainCable.prototype.setUpMaterial = function()
 	this.loadDiffuseMap("../files/textures/alambres.jpg");
 	this.loadNormalMap("../files/textures/alambres-normalmap.jpg");
 
+	this.loadReflectionMap("../files/textures/sky_lightblue.jpg");
+
 	this.ka = 0.55;
 	this.kd = 0.65;
-	this.ks = 0.8;
-	this.shininess = 0.1;
+	this.ks = 1.0;
+	this.shininess = 0.8;
 
 	this.color_specular = vec3.fromValues(0.125, 0.125, 0.125);
-	this.reflectiveness = 0.8;
+	this.reflectiveness = 1.0;
 }
 
 BridgeMainCable.prototype.createGrid = function() //Redefine la funcion porque necesitaba las coordenadas uv mapeadas de otra forma para usarla textura provista
