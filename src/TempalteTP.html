@@ -725,6 +725,20 @@
         bridgeScene.create();
     }
 
+    function regenerateScene()
+    {
+        //bridgeScene = new BridgeScene();
+        bridgeScene.setTerrainParameters(terrainParameters.terrainElevation, terrainParameters.coastWidth, terrainParameters.terrainWidth, terrainParameters.terrainHeight);
+        bridgeScene.setBridgeParameters (bridgeParameters.towerAmount, bridgeParameters.bridgeLength, bridgeParameters.ph2, bridgeParameters.ph3, bridgeParameters.s1);
+        bridgeScene.setRoadParameters(terrainParameters.roadWidth);
+        bridgeScene.setRiverWidth(terrainParameters.riverWidth);
+        bridgeScene.setAmountOfTrees(terrainParameters.treeAmount);
+
+        //bridgeScene.setRiverCurvePoints(riverParameters.riverPathPoints, canvasRiver.width, canvasRiver.height); //DESHABILITADO POR AHORA
+
+        bridgeScene.create();
+    }
+
 
     function drawScene() {
 	
@@ -775,7 +789,7 @@
 
        if (sceneParameters.shouldRegenerate == true)
        {
-            generateScene();
+            regenerateScene();
             sceneParameters.shouldRegenerate = false;
        }
 
