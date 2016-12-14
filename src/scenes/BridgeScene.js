@@ -13,6 +13,7 @@ var BridgeScene = function()
 	// Terrain Parameters
 	this.terrainElevation = 15.0;
 	this.waterSubmergence= 25.0;
+	this.waterSpeed = 0.01;
 
 	this.terrainWidth = 1000.0;
 	this.terrainHeight = 1000.0;
@@ -52,6 +53,8 @@ var BridgeScene = function()
 
 	this.buildStep = 0.1;
 
+	this.deltaTime = 0.0;
+
 }
 
 BridgeScene.prototype.constructor = BridgeScene;
@@ -84,6 +87,11 @@ BridgeScene.prototype.setAmountOfTrees = function(amount)
 BridgeScene.prototype.setRoadParameters = function(roadWidth)
 {
 	this.roadWidth = roadWidth;
+}
+
+BridgeScene.prototype.setWaterSpeed = function(waterSpeed)
+{
+	this.waterSpeed = waterSpeed / 1000.0;
 }
 
 BridgeScene.prototype.setRiverWidth = function(riverWidth)
@@ -182,12 +190,13 @@ BridgeScene.prototype.pointsToTerrain = function(points, canvas2DWidth, canvas2D
 
 BridgeScene.prototype.generateRiver = function()
 {
-	var detail = 50.0
+	var detail = 10.0
 	var width = this.terrainWidth / detail;
 	var height = this.terrainHeight / detail;
 	//this.river = new River(this.riverWidth , this.riverCurve, this.buildStep);
 	this.river = new Plane (width, height, detail);
 	this.river.setColor(getColor("river"));
+	//this.river.draw_mode = gl.LINE_STRIP;
 }
 
 
@@ -345,6 +354,14 @@ BridgeScene.prototype.drawSunLight = function(glProgram)
 BridgeScene.prototype.draw = function(matrix, glProgram)
 {
 
+	gl.enable(gl.DEPTH_TEST);
+	gl.depthFunc(gl.LESS);
+	gl.disable(gl.BLEND);
+	gl.depthMask(true);
+
+	this.deltaTime = this.deltaTime + this.waterSpeed;
+    gl.uniform1f(glProgram.uAlpha, deltaTime);
+
 	this.drawSunLight(glProgram);
 
 	var m_skyDome = mat4.create();
@@ -382,17 +399,27 @@ BridgeScene.prototype.draw = function(matrix, glProgram)
 	mat4.translate(m_rightRoad, m_rightRoad, [0.0, this.terrainElevation + 2.5, 0.0]);
 	this.leftRoad.draw(m_rightRoad, glProgram);
 
-	var m_river = mat4.create();
-	mat4.multiply(m_river, m_river, matrix);
-	mat4.translate(m_river, m_river, [0.0, 1.0, 0.0]); // estetico nomas
-	mat4.rotate(m_river, m_river, -Math.PI/2, [0.0, 1.0, 0.0]);
-	this.river.draw(m_river, glProgram);
 
 	for (var i = 0; i < this.trees.length; i++)
 	{
 		//var m_tree = mat4.create();
 		this.trees[i].draw(matrix, glProgram);
 	}
+
+	// Draw Transparent models at the end
+	gl.enable(gl.BLEND);
+	gl.blendEquation( gl.FUNC_ADD );
+	//gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+	//gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+	//gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+	//gl.depthMask(false)
+	//gl.disable(gl.DEPTH_TEST);
+
+	var m_river = mat4.create();
+	mat4.multiply(m_river, m_river, matrix);
+	mat4.translate(m_river, m_river, [0.0, 1.0, 0.0]); // estetico nomas
+	mat4.rotate(m_river, m_river, -Math.PI/2, [0.0, 1.0, 0.0]);
+	this.river.draw(m_river, glProgram, this.deltaTime);
 }
 
 

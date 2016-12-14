@@ -19,11 +19,14 @@ var Model = function() {
 	this.diffuseMap = null;
 	this.normalMap = null;
 	this.reflectionMap = null;
+	this.alpha = 1.0;
+	this.terrainHeight = 0.0;
 
 	this.secondDiffuseMap = null;
 	this.thirdDiffuseMap = null;
 	this.secondNormalMap = null;
 	this.thirdNormalMap = null;
+	this.mixerMap = null;
 	
 	// buffers
 	this.position_buffer = [];
@@ -63,6 +66,8 @@ var Model = function() {
 
 	this.useTwoTextures = false;
 	this.useThreeTextures = false;
+
+	this.scrollTexture = false;
 	
 }
 
@@ -301,6 +306,12 @@ Model.prototype = {
 		this.useReflectionMap = true;
 	},
 
+	loadMixerMap: function(fileName)
+	{
+		this.mixerMap = this.loadTexture(fileName);
+		this.useThreeTextures = true;
+	},
+
 	isPowerOf2: function (value) 
 	{
 		return (value & (value - 1)) == 0;
@@ -413,10 +424,11 @@ Model.prototype = {
 	},
 
 	// draw vertexGrid applying his parent transformations
-	draw: function(parentMatrix, glProgram)
+	draw: function(parentMatrix, glProgram, deltaTime)
 	{
 		gl.useProgram(glProgram);
 
+		gl.uniform1i(glProgram.uScrollTexture, this.scrollTexture);
         gl.uniform1i(glProgram.uUseNormalMap, this.useNormalMap);
         gl.uniform1f(glProgram.UseTexture, this.useTexture)
         gl.uniform1i(glProgram.uUseReflection, this.useReflexMap);
@@ -426,8 +438,15 @@ Model.prototype = {
         gl.uniform1f(glProgram.uKa, this.ka);
         gl.uniform1f(glProgram.uKd, this.kd);
         gl.uniform1f(glProgram.uKs, this.ks);
+        gl.uniform1f(glProgram.uAlpha, this.alpha);
+        gl.uniform1f(glProgram.uHeight, this.height);
         gl.uniform1f(glProgram.uShininess, this.shininess);
         gl.uniform1f(glProgram.uReflectiveness, this.reflectiveness);
+        gl.uniform1f(glProgram.uTerrainHeight, this.terrainHeight);
+        if (deltaTime !== undefined)
+        {
+        	gl.uniform1f(glProgram.uDelta, deltaTime);
+        }
 
 
         gl.uniformMatrix4fv(glProgram.pMatrixUniform, false, pMatrix);
@@ -484,6 +503,12 @@ Model.prototype = {
 	        gl.activeTexture(gl.TEXTURE6);
 	        gl.bindTexture(gl.TEXTURE_2D, this.thirdNormalMap);
 	        gl.uniform1i(glProgram.uNormalSampler3, 6);
+
+
+	        gl.activeTexture(gl.TEXTURE7);
+	        gl.bindTexture(gl.TEXTURE_2D, this.mixerMap);
+	        gl.uniform1i(glProgram.uMixerSampler, 7);
+
    		}
 
    		// booleans for mixing textures

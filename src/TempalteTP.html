@@ -83,6 +83,10 @@
     uniform float uKa;
     uniform float uKd;
     uniform float uKs;
+    uniform float uAlpha;
+    uniform float uDelta;
+    uniform float uTerrainHeight;
+
     uniform float uShininess;
     uniform float uReflectiveness;
     uniform vec3 uColorSpecular;
@@ -92,6 +96,7 @@
     uniform float uUseTexture;
     uniform bool uUseNormalMap;
     uniform bool uUseReflection;
+    uniform bool uScrollTexture;
 
 	uniform bool uUseLighting;
 	uniform bool uMixTwoTextures;
@@ -111,6 +116,12 @@
     uniform sampler2D uNormalSampler2;
     uniform sampler2D uNormalSampler3;
     uniform sampler2D uReflectionSampler;
+    uniform sampler2D uMixerSampler;
+
+    float rand(vec2 co)
+    {
+    	return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+	}
 
 
     void main(void) 
@@ -134,8 +145,14 @@
         }
 
         vec3 textureColor;
-        textureColor = texture2D(uSampler, texCoord).rgb * uUseTexture;
+        textureColor = texture2D(uSampler, texCoord).rgb * uUseTexture  * uAlpha;
 
+        if (uScrollTexture)
+        {
+        	textureColor = texture2D(uSampler, vec2(texCoord.x + uDelta, texCoord.y)).rgb * uAlpha;
+        }
+
+        // Usa 2 texturas dependiendo del valor z en las teextureCoordinates
         if (uMixTwoTextures)
         {
         	if (indice == 0.0)
@@ -147,10 +164,11 @@
 	            normal = normalize((normal - vec3(0.5, 0.5, 0.5)) * 2.0); //xyz between -1 and 1
 	            normal = normalize(tbn * normal);
 
-                textureColor = texture2D(uSampler, texCoord).rgb;
+                textureColor = texture2D(uSampler, texCoord).rgb  * uAlpha;
         	}
             if (indice == 1.0)
             {
+            	normal = normalize(vVertexNormal); // resetea normal. Lo deje asi porque quedaba mas lindo para la vereda
 	        	vec3 tangent = normalize(vVertexTangent);
 	            vec3 binormal = normalize(vVertexBinormal);
 	            mat3 tbn = mat3(tangent, binormal, normal);
@@ -158,11 +176,41 @@
 	            normal = normalize((normal - vec3(0.5, 0.5, 0.5)) * 2.0); //xyz between -1 and 1
 	            normal = normalize(tbn * normal);
 
-                textureColor = texture2D(uSampler2, texCoord).rgb;
+                textureColor = texture2D(uSampler2, texCoord).rgb  * uAlpha;
             }
         }
 
-        vec3 vertexColor = vVertexColor * (1.0 - uUseTexture); 
+        if (uMixThreeTextures)
+        {
+        	float randValue = rand(texCoord);
+        	float heightCoord = vTextureCoordinates.z / uTerrainHeight;
+        	float mixerValue = texture2D(uMixerSampler, vec2(heightCoord, heightCoord)).r;
+
+        	if (heightCoord >= 0.4)
+        	{
+	        	vec3 tangent = normalize(vVertexTangent);
+	            vec3 binormal = normalize(vVertexBinormal);
+	            mat3 tbn = mat3(tangent, binormal, normal);
+	            normal = texture2D(uNormalSampler, texCoord).rgb;
+	            normal = normalize((normal - vec3(0.5, 0.5, 0.5)) * 2.0); //xyz between -1 and 1
+	            normal = normalize(tbn * normal);
+
+                textureColor = texture2D(uSampler, texCoord).rgb;
+        	}
+        	else
+        	{
+	        	vec3 tangent = normalize(vVertexTangent);
+	            vec3 binormal = normalize(vVertexBinormal);
+	            mat3 tbn = mat3(tangent, binormal, normal);
+	            normal = texture2D(uNormalSampler3, texCoord).rgb;
+	            normal = normalize((normal - vec3(0.5, 0.5, 0.5)) * 2.0); //xyz between -1 and 1
+	            normal = normalize(tbn * normal);
+
+                textureColor = texture2D(uSampler3, texCoord).rgb;
+        	}
+        }
+
+        vec3 vertexColor = vVertexColor * (1.0 - uUseTexture)  * uAlpha; 
         vec3 color = textureColor + vertexColor;
 
          //Avoid using Phong Model
@@ -246,8 +294,8 @@
         // Transformamos al vértice al espacio de la proyección
         gl_Position = uPMatrix * vertexPositionEye4;
         vTextureCoordinates = aTextureCoordinates;
-        //vVertexPosition = vec3(uModelMatrix * vec4(aVertexPosition, 1.0));
-        vVertexPosition = vertexPositionEye3;
+        vVertexPosition = vec3(uModelMatrix * vec4(aVertexPosition, 1.0));
+        //vVertexPosition = vertexPositionEye3;
         vVertexColor = aVertexColor;
         vVertexNormal = normalize(uNMatrix * normalize(aVertexNormal));
         vVertexTangent = normalize(uNMatrix * normalize(aVertexTangent));
@@ -296,6 +344,7 @@
     terrainParameters.coastWidth = 55.0;
     terrainParameters.roadWidth = 55.0;
     terrainParameters.treeAmount = 8;
+    terrainParameters.waterSpeed = 1.0;
 
     //Puente
     var bridgeParameters = {};
@@ -346,7 +395,7 @@
       for (var i=0; i < names.length; i++) {
         try 
         {
-          context = canvas.getContext(names[i]);
+          context = canvas.getContext(names[i], { premultipledAlpha: false });
         } 
         catch(e) {}
         if (context) 
@@ -425,6 +474,9 @@
 
         gl.useProgram(shaderProgramColoredObject);
 
+        gl.enable(gl.DEPTH_TEST);
+        gl.depthFunc(gl.LESS);
+
 
         shaderProgramColoredObject.vertexPositionAttribute = gl.getAttribLocation(shaderProgramColoredObject, "aVertexPosition");
         gl.enableVertexAttribArray(shaderProgramColoredObject.vertexPositionAttribute);
@@ -454,6 +506,7 @@
         shaderProgramColoredObject.ambientColorUniform = gl.getUniformLocation(shaderProgramColoredObject, "uAmbientColor");
         shaderProgramColoredObject.lightingDirectionUniform = gl.getUniformLocation(shaderProgramColoredObject, "uLightPosition");
         shaderProgramColoredObject.directionalColorUniform = gl.getUniformLocation(shaderProgramColoredObject, "uDirectionalColor");
+        shaderProgramColoredObject.uScrollTexture = gl.getUniformLocation(shaderProgramColoredObject, "uScrollTexture");
 
         shaderProgramColoredObject.UseTexture = gl.getUniformLocation(shaderProgramColoredObject, "uUseTexture");
         shaderProgramColoredObject.uUseNormalMap = gl.getUniformLocation(shaderProgramColoredObject, "uUseNormalMap");
@@ -466,6 +519,9 @@
         shaderProgramColoredObject.uKa = gl.getUniformLocation(shaderProgramColoredObject, "uKa");
         shaderProgramColoredObject.uKd = gl.getUniformLocation(shaderProgramColoredObject, "uKd");
         shaderProgramColoredObject.uKs = gl.getUniformLocation(shaderProgramColoredObject, "uKs");
+        shaderProgramColoredObject.uAlpha = gl.getUniformLocation(shaderProgramColoredObject, "uAlpha");
+        shaderProgramColoredObject.uDelta = gl.getUniformLocation(shaderProgramColoredObject, "uDelta");
+        shaderProgramColoredObject.uTerrainHeight = gl.getUniformLocation(shaderProgramColoredObject, "uTerrainHeight");
         shaderProgramColoredObject.uShininess = gl.getUniformLocation(shaderProgramColoredObject, "uShininess");
         shaderProgramColoredObject.uReflectiveness = gl.getUniformLocation(shaderProgramColoredObject, "uReflectiveness");
 
@@ -489,11 +545,13 @@
         shaderProgramColoredObject.uNormalSampler3 = gl.getUniformLocation(shaderProgramColoredObject, "uNormalSampler3");
         gl.uniform1i(shaderProgramColoredObject.uSampler3, 6);
 
+        shaderProgramColoredObject.uMixerSampler = gl.getUniformLocation(shaderProgramColoredObject, "uMixerSampler");
+        gl.uniform1i(shaderProgramColoredObject.uSampler3, 7);
 
     }
 
 
-
+    var deltaTime = 0.0;
 
     var CameraMatrix = mat4.create();
     var mvMatrix = mat4.create();
@@ -644,6 +702,7 @@
 
         //bridgeScene.setSunAmbientLight(SunParameters.sunLightAmbient);
         //bridgeScene.setSunLightIntensity(SunParameters.sunLightIntensity);
+        bridgeScene.setWaterSpeed(terrainParameters.waterSpeed);
         var m_scene = mat4.create();
         var sceneScale = 0.05;
 		mat4.scale(m_scene, m_scene, [sceneScale, sceneScale, sceneScale]);
@@ -885,6 +944,7 @@ function GUI (){
         f2.add(terrainParameters, 'terrainElevation', 0.0, 100.0).name("ph1: Terrain Elevation").step(1);
         f2.add(terrainParameters, 'treeAmount', 0.0, 25.0).name("Amount of Trees").step(1);
         f2.add(terrainParameters, 'coastWidth', 0.0, 100.0).name("Coast Width").step(1);
+        f2.add(terrainParameters, 'waterSpeed', 0.0, 20.0).name("Water Speed").step(1);
         //f2.add(terrainParameters, 'terrainWidth', 500.0, 1000.0).name("Terrain Width").step(1);
         //f2.add(terrainParameters, 'terrainHeight', 500.0, 1000.0).name("Terrain Height").step(1);
 

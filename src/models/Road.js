@@ -73,7 +73,7 @@ var Road = function(length, width, step)
 
 		base = [normal, vecAux, tangent];
 		pathBases.push(base);
-		u += step;
+		u += this.step;
 	}
 
 	SweptSurface.call(this, roadShape, pathPoints, pathBases);
@@ -170,5 +170,4 @@ Road.prototype.setUpMaterial = function()
 	this.useTexture = 1.0;
 	this.useThreeTextures = false;
 	this.useTwoTextures = true;
-	this.useNormalMap = true; // para evitar entrar en un branch
 }

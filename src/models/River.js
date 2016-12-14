@@ -72,7 +72,28 @@ var River = function(width, curve, step)
 
 	this.setColor(getColor("river"));
 
+	this.setUpMaterial();
+
+	this.alpha = 0.5;
+
 }
 
 River.prototype = Object.create(SweptSurface.prototype);
 River.prototype.constructor = River;
+
+River.prototype.setUpMaterial = function()
+{
+	this.loadDiffuseMap("../files/textures/aguaDeMar.jpg");
+	this.loadNormalMap("../files/textures/agua-normalmap.jpg");
+
+	this.ka = 0.75;
+	this.kd = 0.65;
+	this.ks = 0.1;
+	this.shininess = 0.1;
+
+	this.color_specular = vec3.fromValues(0.125, 0.125, 0.125);
+	this.reflectiveness = 0.8;
+	this.useTexture = 1.0;
+	this.useNormalMap = true;
+	this.useReflectionMap = true;
+}
