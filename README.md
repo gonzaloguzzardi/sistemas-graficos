@@ -1,4 +1,4 @@
-# 3D Cusomizable Bridge Scene using webGL
+# Customizable scene using WebGL
 
 ![alt tag](https://github.com/gonzaloguzzardi/sistemas-graficos/blob/master/files/scene.gif)
 
